@@ -1,0 +1,116 @@
+﻿@using FitskedApp.Models
+@using FitskedApp.Data
+@rendermode InteractiveServer
+@inject IUserWorkoutRepository WorkoutRepository
+@page "/workout/{PlanId:int}"
+
+<h3 class="d-flex justify-content-center">Add New Workout</h3>
+
+<EditForm Model="@workout" OnValidSubmit="@addWorkout">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="d-flex justify-content-center rounded-2">
+        <label for="WorkoutName"> Workout Name: </label>
+        <InputText id="WorkoutName" @bind-Value="workout.Name"></InputText>
+    </div>
+
+    <div class="d-flex justify-content-center rounded-2">
+        <button type="submit"> Submit </button>
+    </div>
+</EditForm>
+
+<!-- Week view with dimming effect -->
+<div class="container mt-4 position-relative" id="weekViewContainer">
+    <div class="row border border-dark rounded p-3" id="weekView" style="@(displayDayViewWorkout ? "filter: blur(5px);" : "")">
+        @foreach (var day in daysOfWeek)
+        {
+            <div class="col text-center bg-light border-right" style="cursor:pointer;" @onclick="() => userSelectsDay(day)">
+                <h5> @day </h5>
+                <div class="workout-body border-top pt-3 row">
+                    <label> Workout </label>
+                    <label> Sets </label>
+                    <label> Reps </label>
+                    <p> @getWorkoutSummary(day) </p>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Dimmed overlay -->
+    @if (displayDayViewWorkout)
+    {
+        <div class="overlay"></div>
+    }
+</div>
+
+@if (displayDayViewWorkout)
+{
+    <div class="day-view-modal">
+        <h5>@selectedDay</h5>
+        <form>
+            <label for="reps">Reps:</label>
+            <input type="number" id="reps" @bind="selectedExercise.Repetitions" />
+
+            <label for="sets">Sets:</label>
+            <input type="number" id="sets" @bind="selectedExercise.Sets" />
+
+            <button class="btn btn-primary mt-3" @onclick="saveWorkout">Save Workout</button>
+        </form>
+        <button class="btn btn-secondary mt-3" @onclick="() => displayDayViewWorkout = false">Week View</button>
+    </div>
+}
+
+@code {
+    private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+    private Dictionary<string, UserExercise> exerciseList = new Dictionary<string, UserExercise>();
+    private string selectedDay = string.Empty;
+    private UserExercise selectedExercise = new UserExercise();
+    private bool displayDayViewWorkout = false;
+
+    protected override void OnInitialized()
+    {
+        foreach (var day in daysOfWeek)
+        {
+            if (!exerciseList.ContainsKey(day))
+            {
+                exerciseList[day] = new UserExercise();
+            }
+        }
+    }
+
+    private void userSelectsDay(string day)
+    {
+        selectedDay = day;
+        selectedExercise = exerciseList[day];
+        displayDayViewWorkout = true;
+    }
+
+    private string getWorkoutSummary(string day)
+    {
+        if (exerciseList.ContainsKey(day))
+        {
+            var exercise = exerciseList[day];
+            return $"Sets: {exercise.Sets}, Reps: {exercise.Repetitions}";
+        }
+        return "No workout yet";
+    }
+
+    private void saveWorkout()
+    {
+        exerciseList[selectedDay] = selectedExercise;
+        displayDayViewWorkout = false;
+    }
+
+    private async Task addWorkout()
+    {
+        workout.PlanId = PlanId;
+        await WorkoutRepository.addNewWorkout(workout);
+        workout = new UserWorkout(); // Reset form after adding workout
+    }
+
+    [Parameter]
+    public int PlanId { get; set; }
+    private UserWorkout workout = new UserWorkout();
+}
+
