@@ -1,26 +1,26 @@
-﻿@using FitskedApp.Data;
-@using FitskedApp.Models;
+﻿@using FitskedApp.Data
+@using FitskedApp.Models
 @page "/add-plan"
 @inject IUserPlanRepository PlanRepository
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavManager
 @rendermode InteractiveServer
 
 <h3 class="d-flex justify-content-center">Add a New Plan</h3>
 
 <p class="text-center">
-    We recommend a six month plan. There will be enough variety in your weekly workouts that
-    six months should provide a good balance between stashing away the time need to create a new plan
+    We recommend a six-month plan. There will be enough variety in your weekly workouts that
+    six months should provide a good balance between stashing away the time needed to create a new plan
     and maintaining variety in your day-to-day workouts during the week.
 </p>
 
 <EditForm Model="@newPlan" OnValidSubmit="@AddNewPlan" FormName="AddPlanForm">
-    <DataAnnotationsValidator /> <!-- Only integrates with attributes, not with something like a fluent api or fluentval nuget -->
-    <ValidationSummary /> <!-- These two components work with validation with the data the UI message -->
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
     <div class="d-flex justify-content-center">
         <label for="PlanName">Plan Name:</label>
         <InputText class="rounded-2" id="PlanName" @bind-Value="newPlan.Name" />
-        @* This is super cool. We just have to define label and inputtext for attribute and it will basically bind (not map, different concepts) to the model and ef takes care of the rest *@
     </div>
 
     <div class="d-flex justify-content-center">
@@ -29,10 +29,8 @@
     </div>
 
     <div class="d-flex justify-content-center">
-        <button href="/workout" class="rounded-2" type="submit"> Create your week </button>
+        <button href="/workout" class="rounded-2" type="submit">Create your week</button>
     </div>
-
-
 </EditForm>
 
 @code {
@@ -40,11 +38,33 @@
 
     private async Task<int> AddNewPlan()
     {
-        int PlanId = await PlanRepository.AddPlan(newPlan); // We need to use await here to actually have the async operations unwrap the int inside the Task<>
+        // Use Task<AuthenticationState> to safely retrieve the authenticated user info
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
-        newPlan = new Plan(); // Reset form after submission
+        // Check if the user is authenticated and get the UserId
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var userId = user.FindFirst(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-        NavManager.NavigateTo($"/workout/{PlanId}");
-        return PlanId;
+            // Assign the UserId to the new plan
+            if (!string.IsNullOrEmpty(userId))
+            {
+                newPlan.ApplicationUserId = userId; // Assuming Plan.UserId is a string
+            }
+
+            // Add the new plan to the repository
+            int planId = await PlanRepository.AddPlan(newPlan);
+
+            // Reset the form after submission
+            newPlan = new Plan();
+
+            // Navigate to the workout page for the newly created plan
+            NavManager.NavigateTo($"/workout/{planId}");
+
+            return planId;
+        }
+
+        return 0;
     }
 }
