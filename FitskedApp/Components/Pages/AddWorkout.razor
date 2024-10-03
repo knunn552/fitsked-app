@@ -50,17 +50,17 @@
         <form>
             @for (int i = 0; i < numberOfExercisesInWorkout; i++)
             {
-                <!-- TODO Include a div here to the format doesn't look terrible -->
-                <label for="name"> Name: </label>
-                <input type="text" id="name" @bind="exerciseToBePutIntoSelectedExerciseList.Name" />
+                <div>
+                    <!-- TODO Include a div here to the format doesn't look terrible -->
+                    <label for="name"> Name: </label>
+                    <input type="text" id="name" @bind="selectedDayExerciseList[i].Name" />
 
-                <label for="reps">Reps:</label>
-                <input type="number" id="reps" @bind="exerciseToBePutIntoSelectedExerciseList.Repetitions" />
+                    <label for="reps">Reps:</label>
+                    <input type="number" id="reps" @bind="selectedDayExerciseList[i].Repetitions" />
 
-                <label for="sets">Sets:</label>
-                <input type="number" id="sets" @bind="exerciseToBePutIntoSelectedExerciseList.Sets" />
-
-                putUserExerciseIntoDictionaryList(exerciseToBePutIntoSelectedExerciseList, selectedDay);
+                    <label for="sets">Sets:</label>
+                    <input type="number" id="sets" @bind="selectedDayExerciseList[i].Sets" />
+                </div>
             }
 
             <button class="btn btn-primary mt-3" @onclick="saveWorkout">Save Workout</button>
@@ -93,10 +93,10 @@
             }
         }
     }
-    private void putUserExerciseIntoDictionaryList(UserExercise userExercise, string day)
+    private void putUserExerciseIntoDictionaryList(UserExercise userExercise, string day) // We actually don't need this method anymore, we took a roundabout way to make this happen. Should've chosen this appraoch to start but we learned a valuable lesson on reference and value parameters passings
     {
         exerciseDayDictionaryList[day].Add(userExercise); // Need to add userExercise to List
-        userExercise = new UserExercise(); // Then need to reset userExercise for the next iteration
+        exerciseToBePutIntoSelectedExerciseList = new UserExercise(); // Then need to reset userExercise for the next iteration
     }
 
     private void userSelectsDay(string day)
