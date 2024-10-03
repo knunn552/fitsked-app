@@ -29,9 +29,12 @@
                 <h5> @day </h5>
                 <div class="workout-body border-top pt-3 row">
                     <label> Workout </label>
-                    <label> Sets </label>
+                    <label> Core Exercises </label>
+
+
                     <label> Reps </label>
                     <p> @getWorkoutSummary(day) </p>
+                    <!-- Need to have a much better way of displaying the exercises each day. -->
                 </div>
             </div>
         }
@@ -49,12 +52,14 @@
     <div class="day-view-modal">
         <h5>@selectedDay</h5>
         <form>
-            <label for="reps">Reps:</label>
-            <input type="number" id="reps" @bind="selectedExercise.Repetitions" />
+            @for(int i = 0; i < numberOfExercisesInWorkout; i++)
+            {
+                <label for="reps">Reps:</label>
+                <input type="number" id="reps" @bind="selectedExercise.Repetitions" />
 
-            <label for="sets">Sets:</label>
-            <input type="number" id="sets" @bind="selectedExercise.Sets" />
-
+                <label for="sets">Sets:</label>
+                <input type="number" id="sets" @bind="selectedExercise.Sets" />
+            }
             <button class="btn btn-primary mt-3" @onclick="saveWorkout">Save Workout</button>
         </form>
         <button class="btn btn-secondary mt-3" @onclick="() => displayDayViewWorkout = false">Week View</button>
@@ -63,18 +68,22 @@
 
 @code {
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-    private Dictionary<string, UserExercise> exerciseList = new Dictionary<string, UserExercise>();
+
+    private Dictionary<string, List<UserExercise>> exerciseList = new Dictionary<string, List<UserExercise>>();
+    private int numberOfExercisesInWorkout = 8;
+
     private string selectedDay = string.Empty;
+
     private UserExercise selectedExercise = new UserExercise();
     private bool displayDayViewWorkout = false;
 
-    protected override void OnInitialized()
+    protected override void OnInitialized() // This is a lifecycle method that happens when the component is first rendered. Its called once when the component is constructed and before the UI is rendered
     {
         foreach (var day in daysOfWeek)
         {
             if (!exerciseList.ContainsKey(day))
             {
-                exerciseList[day] = new UserExercise();
+                exerciseList[day] = new List<UserExercise>();
             }
         }
     }
@@ -82,6 +91,11 @@
     private void userSelectsDay(string day)
     {
         selectedDay = day;
+
+        foreach(UserExercise userEx in exerciseList)
+        {
+            return $"Sets {userEx.Sets}, Reps "
+        }
         selectedExercise = exerciseList[day];
         displayDayViewWorkout = true;
     }
