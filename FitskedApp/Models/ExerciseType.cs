@@ -2,12 +2,8 @@
 {
     public enum ExerciseType
     {
-        LowerBodyCore,
-        LowerBodySecondary,
-        LowerBodyAccessory,
-        UpperBodyCore,
-        UpperBodySecondary,
-        UpperBodyAccessory,
-        
+        Core,
+        Secondary,
+        Accessory
     }
 }

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitskedApp", "FitskedApp\FitskedApp.csproj", "{83E4BF03-61F2-4D43-A6DE-0B93CB1C1233}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FitskedApp", "FitskedApp\FitskedApp.csproj", "{83E4BF03-61F2-4D43-A6DE-0B93CB1C1233}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitskedApp.Client", "FitskedApp.Client\FitskedApp.Client.csproj", "{8A23A219-D4E4-4CC1-85EC-C0A0579DA180}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FitskedApp.Client", "FitskedApp.Client\FitskedApp.Client.csproj", "{8A23A219-D4E4-4CC1-85EC-C0A0579DA180}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
