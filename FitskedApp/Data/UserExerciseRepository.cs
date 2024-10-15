@@ -1,31 +1,27 @@
 ﻿using FitskedApp.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitskedApp.Data
 {
     public class UserExerciseRepository : IUserExerciseRepository
-    {
-        // Need to set a variable of type FitskedDbContext to be able to use Entity Framework
-        // TODO Take out the above message as that is considered zombie code
+    {   
         private ApplicationDbContext? _context;
 
-        UserExerciseRepository(ApplicationDbContext? context)
+        public UserExerciseRepository(ApplicationDbContext context)
         {
             this._context = context;
         }
 
-        public List<Exercise> GetAllExercises()
+        public async Task<List<Exercise>> GetExercisesBasedOnWorkoutType(WorkoutType workoutType)
         {
-            throw new NotImplementedException();
+            // First, I want to get the list of exercises based on WorkoutType
+            // Then I'll make a method the takes this methods returned list and filters based on ExerciseType, from which point we'll display the relevant exercises
+            return await _context.Exercises.Where(e => e.WorkoutType == workoutType).ToListAsync();
         }
 
-        public List<Exercise> GetExercises()
+        public List<Exercise> GetExercisesFromWorkoutListBasedOnExerciseType(List<Exercise> exercises, ExerciseType exerciseType)
         {
-            return _context.Exercises.ToList();
-        }
-
-        public void addNewExercise()
-        {
-            _context.Exercises.Add(new Exercise());
+            return exercises.Where(e => e.ExerciseType == exerciseType).ToList();
         }
     }
 }

@@ -35,6 +35,18 @@ namespace FitskedApp.Data
                 .WithOne(i => i.ApplicationUser)
                 .HasForeignKey(o => o.ApplicationUserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Exercise>()
+                .Property(e => e.WorkoutType)
+                .HasConversion(
+                v => v.ToString(),
+                v => (WorkoutType)Enum.Parse(typeof(WorkoutType), v));
+
+            modelBuilder.Entity<Exercise>()
+                .Property(e => e.ExerciseType)
+                .HasConversion(
+                v => v.ToString(),
+                v => (ExerciseType)Enum.Parse(typeof(ExerciseType), v));
         }
     }
 }

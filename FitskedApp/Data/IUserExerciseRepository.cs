@@ -4,7 +4,9 @@ namespace FitskedApp.Data
 {
     public interface IUserExerciseRepository
     {
-        public List<Exercise> GetAllExercises();
-        public void addNewExercise() { }
+
+
+        Task<List<Exercise>> GetExercisesBasedOnWorkoutType(WorkoutType workoutType);
+        List<Exercise> GetExercisesFromWorkoutListBasedOnExerciseType(List<Exercise> exercises, ExerciseType exerciseType);
     }
 }
