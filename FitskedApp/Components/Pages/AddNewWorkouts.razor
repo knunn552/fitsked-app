@@ -9,23 +9,16 @@
 
 <h3>Create New Workout</h3>
 
-<EditForm Model="@workout" OnValidSubmit="@addWorkout">
+<EditForm Model="@userworkout" OnValidSubmit="@addWorkout">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-
-    @for(int i = 0; i <= numberofExercises; i++)
-    {
-        <div class="d-flex justify-content-center rounded-2">
-            <label for="WorkoutName"> Workout Name: </label>
-            <InputText id="WorkoutName" @bind-Value="workout.Name"></InputText>
-        </div>
-    }
-    
-
-    <div class="d-flex justify-content-center rounded-2">
-        <button type="submit"> Submit </button>
+    <div class="mb-3">
+        <label for="workoutName">Workout Name:</label>
+        <InputText id="workoutName" @bind-Value="userworkout.Name" class="form-control" />
     </div>
+
+
 
 </EditForm>
 
@@ -34,13 +27,14 @@
     // OnValidSubmit, we going to add a new workout, which calls the userworkout repository
 
     // We need to figure out a way to get just two user workouts in a list of exercises that have a Name, Sets, Reps, and weight. Just two.
-    UserWorkout workout = new UserWorkout();
+    UserWorkout userworkout = new UserWorkout();
+    UserExercise userexercise = new UserExercise();
 
     public int numberofExercises = 2; // We are simply adding two workouts just to get the functionality working
     public List<UserExercise> listOfExercises = new List<UserExercise>(); // Creating a list which will go into the UserWorkout workout
 
     public void addWorkout()
     {
-        userWorkoutRepo.addNewWorkout(workout);
+        userWorkoutRepo.addNewWorkout(userworkout);
     }
 }
