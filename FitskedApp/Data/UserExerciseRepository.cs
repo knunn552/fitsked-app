@@ -14,8 +14,6 @@ namespace FitskedApp.Data
 
         public async Task<List<Exercise>> GetExercisesBasedOnWorkoutType(WorkoutType workoutType)
         {
-            // First, I want to get the list of exercises based on WorkoutType
-            // Then I'll make a method the takes this methods returned list and filters based on ExerciseType, from which point we'll display the relevant exercises
             return await _context.Exercises.Where(e => e.WorkoutType == workoutType).ToListAsync();
         }
 

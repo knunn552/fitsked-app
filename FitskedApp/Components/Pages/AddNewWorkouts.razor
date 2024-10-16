@@ -3,36 +3,45 @@
 @page "/addnewworkout"
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IUserWorkoutRepository userWorkoutRepo
-
-
-
+@inject IUserExerciseRepository userExerciseRepo // We are injecting here to get the methods that will filter exercises based on drop down selections
 
 <h3>Create New Workout</h3>
-
 <EditForm Model="@userworkout" OnValidSubmit="@addWorkout">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
     <div class="mb-3">
         <label for="workoutName">Workout Name:</label>
-        <InputText id="workoutName" @bind-Value="userworkout.Name" class="form-control" />
+        <InputText id="workoutName" @bind-Value="userworkout.Name" />
     </div>
 
-
-
+    <div>
+        <label for="workoutType"> Workout Type </label>
+        <InputSelect id="workoutType" @bind-Value="selectedWorkoutType">
+            <option value=""> Select Workout Type</option>
+            @foreach(WorkoutType workoutType in Enum.GetValues(typeof(WorkoutType)))
+            {
+                <option value="@workoutType"> @workoutType</option>
+            }
+        </InputSelect>
+    </div>
 </EditForm>
 
 @code {
-    // We know a workout model has a list of userexercises
-    // OnValidSubmit, we going to add a new workout, which calls the userworkout repository
+    private WorkoutType? selectedWorkoutType;
 
-    // We need to figure out a way to get just two user workouts in a list of exercises that have a Name, Sets, Reps, and weight. Just two.
+
     UserWorkout userworkout = new UserWorkout();
     UserExercise userexercise = new UserExercise();
 
-    public int numberofExercises = 2; // We are simply adding two workouts just to get the functionality working
-    public List<UserExercise> listOfExercises = new List<UserExercise>(); // Creating a list which will go into the UserWorkout workout
 
+
+
+    public List<Exercise> listOfExercisesPerWorkoutType = new List<Exercise>(); // This will be the resulting list from the first drop down selection. Stored in memory.
+    public List<Exercise> listOfExercisePerExerciseType = new List<Exercise>(); // This will be the resulting list from the second drop down selection. Stored in memory.
+
+    
+    
     public void addWorkout()
     {
         userWorkoutRepo.addNewWorkout(userworkout);
