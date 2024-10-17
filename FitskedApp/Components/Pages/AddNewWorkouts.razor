@@ -17,11 +17,11 @@
 
     <div>
         <label for="workoutType"> Workout Type </label>
-        <InputSelect id="workoutType" @bind-Value="selectedWorkoutType">
-            <option value=""> Select Workout Type</option>
-            @foreach(WorkoutType workoutType in Enum.GetValues(typeof(WorkoutType)))
+        <InputSelect id="workoutType" Value="@selectedWorkoutType" ValueChanged="OnWorkoutTypeChanged">
+            <option value="">Select Workout Type</option>
+            @foreach (WorkoutType workoutType in Enum.GetValues(typeof(WorkoutType)))
             {
-                <option value="@workoutType"> @workoutType</option>
+                <option value="@workoutType">@workoutType</option>
             }
         </InputSelect>
     </div>
@@ -29,6 +29,13 @@
 
 @code {
     private WorkoutType? selectedWorkoutType;
+
+    private void OnWorkoutTypeChanged(WorkoutType workoutType)
+    {
+        selectedWorkoutType = workoutType; // Update the selected workout type
+        Console.WriteLine($"Selected Workout Type: {selectedWorkoutType}"); // For debugging
+    }
+
 
 
     UserWorkout userworkout = new UserWorkout();
