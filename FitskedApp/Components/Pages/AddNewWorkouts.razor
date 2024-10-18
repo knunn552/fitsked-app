@@ -23,12 +23,16 @@
     </InputSelect>
 
     <label for="exerciseType"> Select Exercise Type </label>
-    <InputSelect id="exerciseType" @bind-Value=userExercise.Exercise>
-
+    <InputSelect id="exerciseType" @bind-Value="userExercise.ExerciseType" @bind-Value:after="ShowExercisesByExerciseType">
+        @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
+        {
+            <option value="@type">@type</option>
+        }
     </InputSelect>
 </EditForm>
 
 <p class="mt-3">Selected Workout Type: @userExercise.WorkoutType</p>
+
 
 @if(@listOfExercisesByWorkoutType != null && listOfExercisesByWorkoutType.Any())
 {
@@ -40,6 +44,21 @@
             <li>@name.Name</li>
             <li>@name.ExerciseType</li>
 
+        }
+    </ul>
+}
+
+<p class="mt-3">Selected Exercise Type: @userExercise.ExerciseType</p>
+
+@if(listOfExerciseByExerciseType != null && listOfExerciseByExerciseType.Any())
+{
+    <h2> Exercises for selected Exercise Type </h2>
+
+    <ul>
+        @foreach(var exerciseName in listOfExerciseByExerciseType)
+        {
+            <li> @exerciseName.Name</li>
+            <li> @exerciseName.ExerciseType</li>
         }
     </ul>
 }
@@ -61,5 +80,14 @@
             listOfExercisesByWorkoutType = await userExerciseRepo.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
             Console.WriteLine($"Number of exercises fetched: {listOfExercisesByWorkoutType.Count}");
         }
+    }
+
+    public void ShowExercisesByExerciseType()
+    {
+        if(userExercise.ExerciseType != null)
+        {
+            listOfExerciseByExerciseType = userExerciseRepo.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, userExercise.ExerciseType);
+        }
+
     }
 }
