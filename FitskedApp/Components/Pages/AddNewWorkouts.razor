@@ -6,29 +6,37 @@
 @inject IUserWorkoutRepository userWorkoutRepo
 @inject IUserExerciseRepository userExerciseRepo // We are injecting here to get the methods that will filter exercises based on drop down selections
 
-<h3>Select Workout Type</h3>
- 
-
+<h3>Add Workout</h3>
 @* TODO: Will probably eventually need to find a way to insert to EditForms into the same component as the form needs to point to Plan, UserWorkout, and UserExercise *@
 @* For that, here is a good starter link: https://github.com/dotnet/aspnetcore/issues/53019*@
 
 <EditForm Model="userExercise">
 
-    <label for="workoutSelection"> Select Workout Type: </label>
+    <label for="workoutSelection"> Workout Type: </label>
     <InputSelect id="workoutSelection" @bind-Value="userExercise.WorkoutType" @bind-Value:after="ShowExercisesByWorkoutType">
         @foreach (var type in Enum.GetValues(typeof(WorkoutType)))
         {
             <option value="@type">@type</option>
         }
-    </InputSelect>
+    </InputSelect> <br />
 
-    <label for="exerciseType"> Select Exercise Type </label>
+    <h4> Add Exercises </h4>
+    <label for="exerciseType"> Exercise Type </label>
     <InputSelect id="exerciseType" @bind-Value="userExercise.ExerciseType" @bind-Value:after="ShowExercisesByExerciseType">
         @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
         {
             <option value="@type">@type</option>
         }
     </InputSelect>
+
+    <label for="exerciseReps"> Reps: </label>
+    <InputNumber id="exerciseReps" @bind-Value="userExercise.Repetitions"></InputNumber>
+
+    <label for="exerciseSets"> Sets: </label>
+    <InputNumber id="exerciseReps" @bind-Value="userExercise.Sets"></InputNumber>
+
+    <label for="exerciseWeight"> Weight: </label>
+    <InputNumber id="exerciseReps" @bind-Value="userExercise.Weight"></InputNumber> @* TODO: Need to put an Easter Egg in the validation/exception handling if weight is above 2000 with message saying "You are not a gorilla. Please select a reasonable weight. *@ 
 </EditForm>
 
 <p class="mt-3">Selected Workout Type: @userExercise.WorkoutType</p>
