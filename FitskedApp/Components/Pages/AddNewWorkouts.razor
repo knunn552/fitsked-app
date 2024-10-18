@@ -14,12 +14,17 @@
 
 <EditForm Model="userExercise">
 
-    <label for="workoutselection"> Select Workout Type: </label>
-    <InputSelect id="workoutselection" @bind-Value="userExercise.WorkoutType" @bind-Value:after="ShowExercisesByWorkoutType">
+    <label for="workoutSelection"> Select Workout Type: </label>
+    <InputSelect id="workoutSelection" @bind-Value="userExercise.WorkoutType" @bind-Value:after="ShowExercisesByWorkoutType">
         @foreach (var type in Enum.GetValues(typeof(WorkoutType)))
         {
             <option value="@type">@type</option>
         }
+    </InputSelect>
+
+    <label for="exerciseType"> Select Exercise Type </label>
+    <InputSelect id="exerciseType" @bind-Value=userExercise.Exercise>
+
     </InputSelect>
 </EditForm>
 
@@ -38,8 +43,6 @@
         }
     </ul>
 }
-
-
 
 @code {
     private UserExercise userExercise = new();
