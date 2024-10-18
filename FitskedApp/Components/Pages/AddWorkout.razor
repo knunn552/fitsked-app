@@ -29,9 +29,8 @@
                 <h5> @day </h5>
                 <div class="workout-body border-top pt-3 row">
                     <label> Workout </label>
-                    <label> Sets </label>
-                    <label> Reps </label>
                     <p> @getWorkoutSummary(day) </p>
+                    <!-- Need to have a much better way of displaying the exercises each day. -->
                 </div>
             </div>
         }
@@ -49,11 +48,20 @@
     <div class="day-view-modal">
         <h5>@selectedDay</h5>
         <form>
-            <label for="reps">Reps:</label>
-            <input type="number" id="reps" @bind="selectedExercise.Repetitions" />
+            @for (int i = 0; i < numberOfExercisesInWorkout; i++)
+            {
+                <div>
+                    <!-- TODO Include a div here to the format doesn't look terrible -->
+                    <label for="name"> Name: </label>
+                    <input type="text" id="name" @bind="selectedDayExerciseList[i].Name" />
 
-            <label for="sets">Sets:</label>
-            <input type="number" id="sets" @bind="selectedExercise.Sets" />
+                    <label for="reps">Reps:</label>
+                    <input type="number" id="reps" @bind="selectedDayExerciseList[i].Repetitions" />
+
+                    <label for="sets">Sets:</label>
+                    <input type="number" id="sets" @bind="selectedDayExerciseList[i].Sets" />
+                </div>
+            }
 
             <button class="btn btn-primary mt-3" @onclick="saveWorkout">Save Workout</button>
         </form>
@@ -63,42 +71,58 @@
 
 @code {
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-    private Dictionary<string, UserExercise> exerciseList = new Dictionary<string, UserExercise>();
+
+    private int numberOfExercisesInWorkout = 8; // TODO Change this to 7
+
+    private Dictionary<string, List<UserExercise>> exerciseDayDictionaryList = new Dictionary<string, List<UserExercise>>();
+
     private string selectedDay = string.Empty;
-    private UserExercise selectedExercise = new UserExercise();
+
+    private UserExercise exerciseToBePutIntoSelectedExerciseList = new UserExercise(); // Putting reps and sets and weight into a UserExercise, then putting that exercise into the list of exercises, then resetting UserExercise variable for the next exercise
+    private List<UserExercise> selectedDayExerciseList = new List<UserExercise>(); // We already have a list of userexercise in dictionary, I don't think we need this one but we'll leave it in here for context
+
     private bool displayDayViewWorkout = false;
 
-    protected override void OnInitialized()
+    protected override void OnInitialized() // This is a lifecycle method that happens when the component is first rendered. Its called once when the component is constructed and before the UI is rendered
     {
         foreach (var day in daysOfWeek)
         {
-            if (!exerciseList.ContainsKey(day))
+            if (!exerciseDayDictionaryList.ContainsKey(day))
             {
-                exerciseList[day] = new UserExercise();
+                exerciseDayDictionaryList[day] = new List<UserExercise>();
             }
         }
+    }
+    private void putUserExerciseIntoDictionaryList(UserExercise userExercise, string day) // We actually don't need this method anymore, we took a roundabout way to make this happen. Should've chosen this appraoch to start but we learned a valuable lesson on reference and value parameters passings
+    {
+        exerciseDayDictionaryList[day].Add(userExercise); // Need to add userExercise to List
+        exerciseToBePutIntoSelectedExerciseList = new UserExercise(); // Then need to reset userExercise for the next iteration
     }
 
     private void userSelectsDay(string day)
     {
         selectedDay = day;
-        selectedExercise = exerciseList[day];
+        selectedDayExerciseList = exerciseDayDictionaryList[day];
         displayDayViewWorkout = true;
     }
 
     private string getWorkoutSummary(string day)
     {
-        if (exerciseList.ContainsKey(day))
+        if (exerciseDayDictionaryList.ContainsKey(day))
         {
-            var exercise = exerciseList[day];
-            return $"Sets: {exercise.Sets}, Reps: {exercise.Repetitions}";
+            var exercise = exerciseDayDictionaryList[day];
+            foreach (UserExercise userExercise in exercise)
+            {
+                return $"Name: {userExercise.Name}, Sets: {userExercise.Sets}, Reps: {userExercise.Repetitions}";
+            }
+
         }
-        return "No workout yet";
+        return "You haven't added any workouts here yet. Are you taking an off day?";
     }
 
     private void saveWorkout()
     {
-        exerciseList[selectedDay] = selectedExercise;
+        exerciseDayDictionaryList[selectedDay] = selectedDayExerciseList;
         displayDayViewWorkout = false;
     }
 
@@ -113,4 +137,3 @@
     public int PlanId { get; set; }
     private UserWorkout workout = new UserWorkout();
 }
-

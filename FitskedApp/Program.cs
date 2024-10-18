@@ -16,6 +16,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddScoped<IUserPlanRepository, UserPlanRepository>();
 builder.Services.AddScoped<IUserWorkoutRepository, UserWorkoutRepository>();
+builder.Services.AddScoped<IUserExerciseRepository, UserExerciseRepository>();
 
 
 builder.Services.AddCascadingAuthenticationState();

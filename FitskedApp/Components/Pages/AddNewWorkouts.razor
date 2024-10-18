@@ -1,0 +1,42 @@
+﻿@using FitskedApp.Data
+@using FitskedApp.Models
+@page "/addnewworkout"
+@rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IUserWorkoutRepository userWorkoutRepo
+@inject IUserExerciseRepository userExerciseRepo // We are injecting here to get the methods that will filter exercises based on drop down selections
+
+<h3>Select Workout Type</h3>
+ 
+
+@* TODO: Will probably eventually need to find a way to insert to EditForms into the same component as the form needs to point to Plan, UserWorkout, and UserExercise *@
+@* For that, here is a good starter link: https://github.com/dotnet/aspnetcore/issues/53019*@
+
+<EditForm Model="userExercise">
+
+    <label for="workoutselection"> Select Workout Type </label>
+    <InputSelect id="workoutselection" @bind-Value="userExercise.WorkoutType" @bind-Value:after="ShowWorkout">
+        @foreach (var type in Enum.GetValues(typeof(WorkoutType)))
+        {
+            <option value="@type">@type</option>
+        }
+    </InputSelect>
+</EditForm>
+
+<p class="mt-3">Selected Workout Type: @userExercise.WorkoutType</p>
+
+
+
+@code {
+    private UserExercise userExercise = new();
+    UserWorkout userworkout = new();
+
+    public void ShowWorkout()
+    {
+        Console.WriteLine(userExercise.WorkoutType);
+    }
+
+    public List<Exercise> listOfExercisesPerWorkoutType = new List<Exercise>(); // This will be the resulting list from the first drop down selection. Stored in memory.
+    public List<Exercise> listOfExercisePerExerciseType = new List<Exercise>(); // This will be the resulting list from the second drop down selection. Stored in memory.
+
+}
