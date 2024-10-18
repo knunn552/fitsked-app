@@ -1,56 +1,42 @@
 ﻿@using FitskedApp.Data
 @using FitskedApp.Models
 @page "/addnewworkout"
+@rendermode InteractiveServer
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IUserWorkoutRepository userWorkoutRepo
 @inject IUserExerciseRepository userExerciseRepo // We are injecting here to get the methods that will filter exercises based on drop down selections
 
-<h3>Create New Workout</h3>
-<EditForm Model="@userworkout" OnValidSubmit="@addWorkout">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<h3>Select Workout Type</h3>
+ 
 
-    <div class="mb-3">
-        <label for="workoutName">Workout Name:</label>
-        <InputText id="workoutName" @bind-Value="userworkout.Name" />
-    </div>
+@* TODO: Will probably eventually need to find a way to insert to EditForms into the same component as the form needs to point to Plan, UserWorkout, and UserExercise *@
+@* For that, here is a good starter link: https://github.com/dotnet/aspnetcore/issues/53019*@
 
-    <div>
-        <label for="workoutType"> Workout Type </label>
-        <InputSelect id="workoutType" Value="@selectedWorkoutType" ValueChanged="OnWorkoutTypeChanged">
-            <option value="">Select Workout Type</option>
-            @foreach (WorkoutType workoutType in Enum.GetValues(typeof(WorkoutType)))
-            {
-                <option value="@workoutType">@workoutType</option>
-            }
-        </InputSelect>
-    </div>
+<EditForm Model="userExercise">
+
+    <label for="workoutselection"> Select Workout Type </label>
+    <InputSelect id="workoutselection" @bind-Value="userExercise.WorkoutType" @bind-Value:after="ShowWorkout">
+        @foreach (var type in Enum.GetValues(typeof(WorkoutType)))
+        {
+            <option value="@type">@type</option>
+        }
+    </InputSelect>
 </EditForm>
 
+<p class="mt-3">Selected Workout Type: @userExercise.WorkoutType</p>
+
+
+
 @code {
-    private WorkoutType? selectedWorkoutType;
+    private UserExercise userExercise = new();
+    UserWorkout userworkout = new();
 
-    private void OnWorkoutTypeChanged(WorkoutType workoutType)
+    public void ShowWorkout()
     {
-        selectedWorkoutType = workoutType; // Update the selected workout type
-        Console.WriteLine($"Selected Workout Type: {selectedWorkoutType}"); // For debugging
+        Console.WriteLine(userExercise.WorkoutType);
     }
-
-
-
-    UserWorkout userworkout = new UserWorkout();
-    UserExercise userexercise = new UserExercise();
-
-
-
 
     public List<Exercise> listOfExercisesPerWorkoutType = new List<Exercise>(); // This will be the resulting list from the first drop down selection. Stored in memory.
     public List<Exercise> listOfExercisePerExerciseType = new List<Exercise>(); // This will be the resulting list from the second drop down selection. Stored in memory.
 
-    
-    
-    public void addWorkout()
-    {
-        userWorkoutRepo.addNewWorkout(userworkout);
-    }
 }
