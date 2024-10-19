@@ -73,11 +73,10 @@
 
 @code {
     private UserExercise userExercise = new();
+
     private UserWorkout userworkout = new();
 
-
     public List<Exercise> listOfExercisesByWorkoutType = new(); // This will be the resulting list from the first drop down selection. Stored in memory.
-
 
     public List<Exercise> listOfExerciseByExerciseType = new List<Exercise>(); // This will be the resulting list from the second drop down selection. Stored in memory.
 
@@ -96,6 +95,5 @@
         {
             listOfExerciseByExerciseType = userExerciseRepo.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, userExercise.ExerciseType);
         }
-
     }
 }
