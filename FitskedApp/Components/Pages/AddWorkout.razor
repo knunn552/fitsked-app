@@ -4,136 +4,121 @@
 @inject IUserWorkoutRepository WorkoutRepository
 @page "/workout/{PlanId:int}"
 
-<h3 class="d-flex justify-content-center">Add New Workout</h3>
+<h3>Create Plan</h3>
 
-<EditForm Model="@workout" OnValidSubmit="@addWorkout">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <div class="d-flex justify-content-center rounded-2">
-        <label for="WorkoutName"> Workout Name: </label>
-        <InputText id="WorkoutName" @bind-Value="workout.Name"></InputText>
-    </div>
-
-    <div class="d-flex justify-content-center rounded-2">
-        <button type="submit"> Submit </button>
-    </div>
-</EditForm>
-
-<!-- Week view with dimming effect -->
-<div class="container mt-4 position-relative" id="weekViewContainer">
-    <div class="row border border-dark rounded p-3" id="weekView" style="@(displayDayViewWorkout ? "filter: blur(5px);" : "")">
-        @foreach (var day in daysOfWeek)
-        {
-            <div class="col text-center bg-light border-right" style="cursor:pointer;" @onclick="() => userSelectsDay(day)">
-                <h5> @day </h5>
-                <div class="workout-body border-top pt-3 row">
-                    <label> Workout </label>
-                    <p> @getWorkoutSummary(day) </p>
-                    <!-- Need to have a much better way of displaying the exercises each day. -->
-                </div>
-            </div>
-        }
-    </div>
-
-    <!-- Dimmed overlay -->
-    @if (displayDayViewWorkout)
+<div class="row border border-dark p-3">
+    @foreach (var day in daysOfWeek)
     {
-        <div class="overlay"></div>
+        <div class="col text-center" @onclick="() => UserSelectsDay(day)">
+            <h5> @day </h5>
+            <div class="workout-body border-top pt-3 row">
+                <label> Exercise Details (for selected day): </label>
+                <p> @GetWorkoutSummary(day)</p>
+            </div>
+        </div>
     }
 </div>
 
-@if (displayDayViewWorkout)
+
+@if (displayDayViewWorkout) // displayDayViewWorkout variable changes to true when the above userSelectsDay method is called via the ononclick event handler
 {
     <div class="day-view-modal">
-        <h5>@selectedDay</h5>
+        <h5>@selectedDay</h5> @* This variable changes to the "selected day" based on the "day" variable passed in the above userSelectsDay method *@
+
         <form>
             @for (int i = 0; i < numberOfExercisesInWorkout; i++)
             {
+                var j = i;
+                if (j >= exerciseListForSelectedDay.Count)
+                {
+                    exerciseListForSelectedDay.Add(new UserExercise());
+                }
+
                 <div>
-                    <!-- TODO Include a div here to the format doesn't look terrible -->
-                    <label for="name"> Name: </label>
-                    <input type="text" id="name" @bind="selectedDayExerciseList[i].Name" />
+                    <label for="name"> Exercise Name: </label>
+                    <input type="text" id="name" @bind="exerciseListForSelectedDay[j].Name" />
 
-                    <label for="reps">Reps:</label>
-                    <input type="number" id="reps" @bind="selectedDayExerciseList[i].Repetitions" />
+                    <label for="sets"> Sets: </label>
+                    <input type="number" id="sets" @bind="exerciseListForSelectedDay[j].Sets" />
 
-                    <label for="sets">Sets:</label>
-                    <input type="number" id="sets" @bind="selectedDayExerciseList[i].Sets" />
+                    <label for="reps"> Reps: </label>
+                    <input type="number" id="reps" @bind="exerciseListForSelectedDay[j].Repetitions" />
+
+                    <label for="weight"> Weight: </label>
+                    <input type="number" id="weight" @bind="exerciseListForSelectedDay[j].Weight" />
+
+                    @* Need to have a method that converts lbs to kgs as these two measurements are very common across the fitness industry*@
                 </div>
             }
-
-            <button class="btn btn-primary mt-3" @onclick="saveWorkout">Save Workout</button>
         </form>
-        <button class="btn btn-secondary mt-3" @onclick="() => displayDayViewWorkout = false">Week View</button>
+
+
+
+        <button class="btn btn-primary mt-3" @onclick="SaveWorkout">Save Workout to In-Memory Dictionary/Return to Week View.</button> @* displayWeekView changed to false by the saveWorkout method*@
     </div>
 }
+
 
 @code {
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 
-    private int numberOfExercisesInWorkout = 8; // TODO Change this to 7
+    private int numberOfExercisesInWorkout = 7; // I want make the number of exercises any given workout to 7 (This is an opinionated number I'm setting for my app based on my beliefs on how to structure of a typical workout should be. I want to app to provide users with structure so they don't have to think about how many exercises they should have in they're workout.
 
-    private Dictionary<string, List<UserExercise>> exerciseDayDictionaryList = new Dictionary<string, List<UserExercise>>();
+    public UserWorkout UserWorkout = new();
+
+    private UserExercise UserExercise = new();
+
+    private Dictionary<string, List<UserExercise>> DictionaryOfListOfUserExerciseForSelectedDay = new();
 
     private string selectedDay = string.Empty;
 
-    private UserExercise exerciseToBePutIntoSelectedExerciseList = new UserExercise(); // Putting reps and sets and weight into a UserExercise, then putting that exercise into the list of exercises, then resetting UserExercise variable for the next exercise
-    private List<UserExercise> selectedDayExerciseList = new List<UserExercise>(); // We already have a list of userexercise in dictionary, I don't think we need this one but we'll leave it in here for context
+    private List<UserExercise> exerciseListForSelectedDay = new List<UserExercise>(); // We already have a list of userexercise in dictionary, I don't think we need this one but we'll leave it in here for context
 
     private bool displayDayViewWorkout = false;
 
-    protected override void OnInitialized() // This is a lifecycle method that happens when the component is first rendered. Its called once when the component is constructed and before the UI is rendered
+    protected override void OnInitialized()
     {
         foreach (var day in daysOfWeek)
         {
-            if (!exerciseDayDictionaryList.ContainsKey(day))
+            if (!DictionaryOfListOfUserExerciseForSelectedDay.ContainsKey(day))
             {
-                exerciseDayDictionaryList[day] = new List<UserExercise>();
+                DictionaryOfListOfUserExerciseForSelectedDay[day] = new List<UserExercise>();
             }
         }
     }
-    private void putUserExerciseIntoDictionaryList(UserExercise userExercise, string day) // We actually don't need this method anymore, we took a roundabout way to make this happen. Should've chosen this appraoch to start but we learned a valuable lesson on reference and value parameters passings
-    {
-        exerciseDayDictionaryList[day].Add(userExercise); // Need to add userExercise to List
-        exerciseToBePutIntoSelectedExerciseList = new UserExercise(); // Then need to reset userExercise for the next iteration
-    }
 
-    private void userSelectsDay(string day)
+    private void UserSelectsDay(string day)
     {
         selectedDay = day;
-        selectedDayExerciseList = exerciseDayDictionaryList[day];
+        exerciseListForSelectedDay = DictionaryOfListOfUserExerciseForSelectedDay[day];
         displayDayViewWorkout = true;
     }
 
-    private string getWorkoutSummary(string day)
+    private void SaveWorkout()
     {
-        if (exerciseDayDictionaryList.ContainsKey(day))
-        {
-            var exercise = exerciseDayDictionaryList[day];
-            foreach (UserExercise userExercise in exercise)
-            {
-                return $"Name: {userExercise.Name}, Sets: {userExercise.Sets}, Reps: {userExercise.Repetitions}";
-            }
+        DictionaryOfListOfUserExerciseForSelectedDay[selectedDay] = exerciseListForSelectedDay;
+        displayDayViewWorkout = false;
+    }
 
+    private string GetWorkoutSummary(string day)
+    {
+        if (DictionaryOfListOfUserExerciseForSelectedDay.ContainsKey(day))
+        {
+            var exercises = DictionaryOfListOfUserExerciseForSelectedDay[day];
+            if (exercises.Count == 0)
+            {
+                return "You haven't added any workouts here yet. Are you taking an off day?";
+            }
+            string summary = "";
+            foreach (UserExercise userExercise in exercises)
+            {
+                summary += $"{userExercise.Name} ({userExercise.Sets} x {userExercise.Repetitions}) - {userExercise.Weight}|";
+            }
+            return summary.TrimEnd(' ', '|');
         }
         return "You haven't added any workouts here yet. Are you taking an off day?";
     }
 
-    private void saveWorkout()
-    {
-        exerciseDayDictionaryList[selectedDay] = selectedDayExerciseList;
-        displayDayViewWorkout = false;
-    }
-
-    private async Task addWorkout()
-    {
-        workout.PlanId = PlanId;
-        await WorkoutRepository.addNewWorkout(workout);
-        workout = new UserWorkout(); // Reset form after adding workout
-    }
-
     [Parameter]
-    public int PlanId { get; set; }
-    private UserWorkout workout = new UserWorkout();
+    public int PlanId { get; set; } 
 }
