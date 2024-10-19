@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitskedApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241014235815_AddingExerciseEnumTypeToExercises")]
-    partial class AddingExerciseEnumTypeToExercises
+    [Migration("20241019193948_UpdatedFirstMigration")]
+    partial class UpdatedFirstMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -104,14 +104,16 @@ namespace FitskedApp.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ExerciseType")
-                        .HasColumnType("int");
+                    b.Property<string>("ExerciseType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("WorkoutType")
-                        .HasColumnType("int");
+                    b.Property<string>("WorkoutType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -127,10 +129,8 @@ namespace FitskedApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ApplicationUserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Duration")
-                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -150,7 +150,10 @@ namespace FitskedApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ExerciseId")
+                    b.Property<int>("ExerciseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ExerciseType")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -188,10 +191,10 @@ namespace FitskedApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("PlanId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("WorkoutType")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -339,7 +342,8 @@ namespace FitskedApp.Migrations
                     b.HasOne("FitskedApp.Data.ApplicationUser", "ApplicationUser")
                         .WithMany("Plans")
                         .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ApplicationUser");
                 });
@@ -348,7 +352,9 @@ namespace FitskedApp.Migrations
                 {
                     b.HasOne("FitskedApp.Models.Exercise", "Exercise")
                         .WithMany()
-                        .HasForeignKey("ExerciseId");
+                        .HasForeignKey("ExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("FitskedApp.Models.UserWorkout", "UserWorkout")
                         .WithMany("UserExercises")
