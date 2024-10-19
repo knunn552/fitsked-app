@@ -12,6 +12,12 @@ namespace FitskedApp.Data
             this._context = context;
         }
 
+        public async Task AddUserExercise(UserExercise userExercise)
+        {
+            _context.Add(userExercise);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<List<Exercise>> GetExercisesBasedOnWorkoutType(WorkoutType workoutType)
         {
             return await _context.Exercises.Where(e => e.WorkoutType == workoutType).ToListAsync();

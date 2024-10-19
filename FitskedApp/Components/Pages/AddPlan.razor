@@ -2,7 +2,9 @@
 @using FitskedApp.Models
 @page "/add-plan"
 @rendermode InteractiveServer
-@inject IUserPlanRepository PlanRepository
+@inject IUserPlanRepository planRepository
+@inject IUserExerciseRepository userExerciseRepository
+@inject IUserWorkoutRepository userWorkoutRepository
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavManager
 
@@ -153,14 +155,27 @@
                 plan.ApplicationUserId = userId; 
             }
 
-            int planId = await PlanRepository.AddPlan(plan);
+            int planId = await planRepository.AddPlan(plan);
+
+            foreach(UserWorkout userworkout in workoutListForCurrentPlan)
+            {
+                userworkout.PlanId = plan.Id;
+                await userWorkoutRepository.AddWorkout(userworkout);
+
+                foreach(UserExercise userExercise in userworkout.UserExercises)
+                {
+                    userExercise.UserWorkoutId = userworkout.Id;
+                    userExerciseRepository.AddUserExercise(userExercise);
+                }
+            }
+
 
 
             plan = new Plan();
 
             NavManager.NavigateTo($"/workout/{planId}");
 
-            return planId;
+            return planId; // Not sure that we really need this, but this return value might be nice for error handling to tell user whether or not plan creation was successful
         }
         return 0;
     }
