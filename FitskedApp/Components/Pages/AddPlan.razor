@@ -48,7 +48,12 @@
                 var j = i;
                 if (j >= exerciseListForSelectedDay.Count)
                 {
-                    exerciseListForSelectedDay.Add(new UserExercise());
+                    var userExercise = new UserExercise
+                        {
+                            ExerciseId = 1
+                        };
+
+                    exerciseListForSelectedDay.Add(userExercise);
                 }
 
                 <div>
@@ -162,7 +167,7 @@
                 foreach (UserWorkout userworkout in workoutListForCurrentPlan)
                 {
                     userworkout.PlanId = plan.Id;  // Associate each workout with the PlanId
-                    await userWorkoutRepository.AddWorkout(userworkout);  // EXCEPTION THROWN RIGHT HERE
+                    await userWorkoutRepository.AddWorkout(userworkout); 
 
                     foreach (UserExercise userExercise in userworkout.UserExercises)
                     {

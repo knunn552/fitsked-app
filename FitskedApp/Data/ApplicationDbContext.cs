@@ -50,6 +50,12 @@ namespace FitskedApp.Data
                 .HasConversion(
                 v => v.ToString(),
                 v => (ExerciseType)Enum.Parse(typeof(ExerciseType), v));
+
+            modelBuilder.Entity<UserExercise>()
+                .HasOne(e => e.Exercise)
+                .WithMany()
+                .HasForeignKey(e => e.ExerciseId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
