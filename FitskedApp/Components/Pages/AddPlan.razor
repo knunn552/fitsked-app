@@ -6,6 +6,7 @@
 @inject IUserExerciseRepository userExerciseRepository
 @inject IUserWorkoutRepository userWorkoutRepository
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ApplicationDbContext ApplicationDbContext
 @inject NavigationManager NavManager
 
 
@@ -33,6 +34,8 @@
         </div>
     }
 </div>
+
+<button @onclick="AddNewPlan"> Add Plan </button>
 
 @if (displayDayViewWorkout)
 {
@@ -65,8 +68,6 @@
                 </div>
             }
         </form>
-
-
 
         <button class="btn btn-primary mt-3" @onclick="SaveWorkout">Save Workout to In-Memory Dictionary/Return to Week View.</button> @* displayWeekView changed to false by the saveWorkout method*@
     </div>
@@ -139,9 +140,7 @@
         return "You haven't added any workouts here yet. Are you taking an off day?";
     }
 
-    private async Task<int> AddNewPlan()
-    // We need a method the add all userexercises for a plan to the database (right now that is going to be 49 exercises). Will need to make one in UserExerciseRepository
-    // We also need a method to add the list of userworkouts to the database. Will need to make one in UserWorkoutRepository
+    private async Task AddNewPlan()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -152,31 +151,37 @@
 
             if (!string.IsNullOrEmpty(userId))
             {
-                plan.ApplicationUserId = userId; 
+                plan.ApplicationUserId = userId;
             }
 
-            int planId = await planRepository.AddPlan(plan);
-
-            foreach(UserWorkout userworkout in workoutListForCurrentPlan)
+            using var transaction = await ApplicationDbContext.Database.BeginTransactionAsync();
+            try
             {
-                userworkout.PlanId = plan.Id;
-                await userWorkoutRepository.AddWorkout(userworkout);
+                int planId = await planRepository.AddPlan(plan);  // Persist plan
 
-                foreach(UserExercise userExercise in userworkout.UserExercises)
+                foreach (UserWorkout userworkout in workoutListForCurrentPlan)
                 {
-                    userExercise.UserWorkoutId = userworkout.Id;
-                    userExerciseRepository.AddUserExercise(userExercise);
+                    userworkout.PlanId = plan.Id;  // Associate each workout with the PlanId
+                    await userWorkoutRepository.AddWorkout(userworkout);  // EXCEPTION THROWN RIGHT HERE
+
+                    foreach (UserExercise userExercise in userworkout.UserExercises)
+                    {
+                        userExercise.UserWorkoutId = userworkout.Id;  // Link exercise to workout
+                        await userExerciseRepository.AddUserExercise(userExercise);  // Persist exercise
+                    }
                 }
+
+                await transaction.CommitAsync();  // Commit transaction to persist all data
+
+                plan = new Plan();  // Reset the plan for a new creation cycle
+                NavManager.NavigateTo($"/");  // Navigate to the homepage or a confirmation page
             }
-
-
-
-            plan = new Plan();
-
-            NavManager.NavigateTo($"/workout/{planId}");
-
-            return planId; // Not sure that we really need this, but this return value might be nice for error handling to tell user whether or not plan creation was successful
+            catch (Exception e)
+            {
+                await transaction.RollbackAsync();  // Rollback in case of any error
+                throw new Exception($"Something went wrong with the database transaction: {e.Message}");
+            }
         }
-        return 0;
     }
+
 }
