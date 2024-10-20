@@ -40,6 +40,12 @@
     <div class="day-view-modal">
         <h5>@selectedDay</h5>
 
+        <EditForm>
+            <DataAnnotationsValidator/>
+
+
+        </EditForm>
+
         <form>
             @for (int i = 0; i < numberOfExercisesInWorkout; i++)
             {
