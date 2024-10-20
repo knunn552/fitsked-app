@@ -12,15 +12,13 @@
 
 <h3 class="d-flex justify-content-center"> Create Plan </h3>
 
-<EditForm Model="@plan">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
+<form>
     <div class="d-flex justify-content-center">
         <label for="PlanName">Plan Name:</label>
-        <InputText class="rounded-2" id="PlanName" @bind-Value="plan.Name" />
+        <input type="text" id="PlanName" @bind="plan.Name" />
     </div>
-</EditForm>
+</form>
+
 
 <div class="row border border-dark p-3">
     @foreach (var day in daysOfWeek)

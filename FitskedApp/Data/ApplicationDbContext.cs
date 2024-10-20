@@ -52,10 +52,17 @@ namespace FitskedApp.Data
                 v => (ExerciseType)Enum.Parse(typeof(ExerciseType), v));
 
             modelBuilder.Entity<UserExercise>()
-                .HasOne(e => e.Exercise)
-                .WithMany()
-                .HasForeignKey(e => e.ExerciseId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasKey(ue => ue.Id);
+
+            modelBuilder.Entity<UserExercise>()
+                .Property(ue => ue.Id)
+                .ValueGeneratedOnAdd(); 
+
+            modelBuilder.Entity<UserExercise>()
+                .HasOne(ue => ue.Exercise)
+                .WithMany() 
+                .HasForeignKey(ue => ue.ExerciseId) 
+                .OnDelete(DeleteBehavior.Restrict); 
         }
     }
 }
