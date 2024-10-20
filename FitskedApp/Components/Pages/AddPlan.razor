@@ -40,29 +40,44 @@
     <div class="day-view-modal">
         <h5>@selectedDay</h5>
 
-        <EditForm>
+        <EditForm Model="userExercise">
             <DataAnnotationsValidator/>
 
+            <label for="workoutType"> Workout Type: </label>
+            <InputSelect id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetExercisesByWorkoutType">
+                @foreach (var type in Enum.GetValues(typeof(WorkoutType)))
+                {
+                    <option value="@type">@type</option>
+                }
+            </InputSelect>
 
-        </EditForm>
-
-        <form>
             @for (int i = 0; i < numberOfExercisesInWorkout; i++)
             {
                 var j = i;
                 if (j >= exerciseListForSelectedDay.Count)
                 {
-                    var userExercise = new UserExercise
-                        {
-                            ExerciseId = 1
-                        };
-
-                    exerciseListForSelectedDay.Add(userExercise);
+                    exerciseListForSelectedDay.Add(new UserExercise());
                 }
 
                 <div>
-                    <label for="name"> Exercise Name: </label>
-                    <input type="text" id="name" @bind="exerciseListForSelectedDay[j].Name" />
+                    <label for="exerciseType"> Exercise Type: </label>
+                    <InputSelect id="exerciseType" @bind-Value="exerciseListForSelectedDay[j].ExerciseType" @bind-Value:after="GetExercisesByExerciseType">
+                        @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </InputSelect>
+
+                    @* The exercise selection needs to be restricted until the Exercise Type is selected*@
+                    <label for="exerciseName"> Exercise: </label>
+
+                    <InputSelect id="exerciseName" @bind-Value="exerciseListForSelectedDay[j].ExerciseId">
+                        <option> -- Select Exercise -- </option>
+                        @foreach (var exercise in listOfExerciseByExerciseType)
+                        {
+                            <option value="@exercise.Id">@exercise.Name</option>
+                        }
+                    </InputSelect>
 
                     <label for="sets"> Sets: </label>
                     <input type="number" id="sets" @bind="exerciseListForSelectedDay[j].Sets" />
@@ -76,6 +91,11 @@
                     @* Need to have a method that converts lbs to kgs as these two measurements are very common across the fitness industry*@
                 </div>
             }
+
+        </EditForm>
+
+        <form>
+            
         </form>
 
         <button class="btn btn-primary mt-3" @onclick="SaveWorkout">Save Workout to In-Memory Dictionary/Return to Week View.</button> @* displayWeekView changed to false by the saveWorkout method*@
@@ -100,6 +120,10 @@
     private List<UserWorkout> workoutListForCurrentPlan = new(); 
 
     private bool displayDayViewWorkout = false;
+
+    public List<Exercise> listOfExercisesByWorkoutType = new(); 
+
+    public List<Exercise> listOfExerciseByExerciseType = new List<Exercise>();
 
     protected override void OnInitialized()
     {
@@ -190,6 +214,24 @@
                 await transaction.RollbackAsync();  // Rollback in case of any error
                 throw new Exception($"Something went wrong with the database transaction: {e.Message}");
             }
+        }
+    }
+
+    public async Task GetExercisesByWorkoutType() // This is an IO Bound task so we are using Asynchronous programming to free up a thread will the IO Bound task completes
+    {
+        if (userExercise.WorkoutType != null)
+        {
+            listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
+            StateHasChanged();
+        }
+    }
+
+    public void GetExercisesByExerciseType()
+    {
+        if (userExercise.ExerciseType != null)
+        {
+            listOfExerciseByExerciseType = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, userExercise.ExerciseType);
+            StateHasChanged();
         }
     }
 
