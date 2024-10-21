@@ -13,5 +13,6 @@
         public int Weight { get; set; }
         public int UserWorkoutId { get; set; }
         public UserWorkout? UserWorkout { get; set; }
+        public List<Exercise> FilteredExercises { get; set; } = new List<Exercise>();
     }
 }

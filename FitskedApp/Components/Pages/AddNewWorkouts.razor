@@ -2,98 +2,87 @@
 @using FitskedApp.Models
 @page "/addnewworkout"
 @rendermode InteractiveServer
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject IUserWorkoutRepository userWorkoutRepo
-@inject IUserExerciseRepository userExerciseRepo // We are injecting here to get the methods that will filter exercises based on drop down selections
-
-<h3>Add Workout</h3>
-@* TODO: Will probably eventually need to find a way to insert to EditForms into the same component as the form needs to point to Plan, UserWorkout, and UserExercise *@
-@* For that, here is a good starter link: https://github.com/dotnet/aspnetcore/issues/53019*@
-
-<EditForm Model="userExercise">
-
-    <label for="workoutSelection"> Workout Type: </label>
-    <InputSelect id="workoutSelection" @bind-Value="userExercise.WorkoutType" @bind-Value:after="ShowExercisesByWorkoutType">
-        @foreach (var type in Enum.GetValues(typeof(WorkoutType)))
-        {
-            <option value="@type">@type</option>
-        }
-    </InputSelect> <br />
-
-    <h4> Add Exercises </h4>
-    <label for="exerciseType"> Exercise Type </label>
-    <InputSelect id="exerciseType" @bind-Value="userExercise.ExerciseType" @bind-Value:after="ShowExercisesByExerciseType">
-        @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
-        {
-            <option value="@type">@type</option>
-        }
-    </InputSelect>
-
-    <label for="exerciseReps"> Reps: </label>
-    <InputNumber id="exerciseReps" @bind-Value="userExercise.Repetitions"></InputNumber>
-
-    <label for="exerciseSets"> Sets: </label>
-    <InputNumber id="exerciseReps" @bind-Value="userExercise.Sets"></InputNumber>
-
-    <label for="exerciseWeight"> Weight: </label>
-    <InputNumber id="exerciseReps" @bind-Value="userExercise.Weight"></InputNumber> @* TODO: Need to put an Easter Egg in the validation/exception handling if weight is above 2000 with message saying "You are not a gorilla. Please select a reasonable weight. *@ 
-</EditForm>
-
-<p class="mt-3">Selected Workout Type: @userExercise.WorkoutType</p>
+@inject IUserExerciseRepository userExerciseRepository
+@inject IUserWorkoutRepository userWorkoutRepository
 
 
-@if(@listOfExercisesByWorkoutType != null && listOfExercisesByWorkoutType.Any())
-{
-    <h2> Exercises for selected workout type: </h2>
-    <ul>
-        @foreach (var name in listOfExercisesByWorkoutType)
-        {
 
-            <li>@name.Name</li>
-            <li>@name.ExerciseType</li>
+        <EditForm Model="userExercise">
+            <label for="workoutType"> Workout Type: </label>
+            <InputSelect id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetExercisesByWorkoutType">
+                @foreach (var type in Enum.GetValues(typeof(WorkoutType)))
+                {
+                    <option value="@type">@type</option>
+                }
+            </InputSelect>
 
-        }
-    </ul>
-}
+            @for (int i = 0; i < numberOfExercisesInWorkout; i++)
+            {
+                var j = i;
+                if (j >= exerciseListForSelectedDay.Count)
+                {
+                    exerciseListForSelectedDay.Add(new UserExercise());
+                }
 
-<p class="mt-3">Selected Exercise Type: @userExercise.ExerciseType</p>
+                <div>
+                    <label for="exerciseType"> Exercise Type: </label>
+                    <InputSelect id="exerciseType" @bind-Value="exerciseListForSelectedDay[j].ExerciseType" @bind-Value:after="GetExercisesByExerciseType">
+                        @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </InputSelect>
 
-@if(listOfExerciseByExerciseType != null && listOfExerciseByExerciseType.Any())
-{
-    <h2> Exercises for selected Exercise Type </h2>
+                    <label for="exerciseName"> Exercise: </label>
+                    <InputSelect id="exerciseName" @bind-Value="exerciseListForSelectedDay[j].ExerciseId">
+                        @foreach (var exercise in listOfExerciseByExerciseType)
+                        {
+                            <option value="@exercise.Id">@exercise.Name</option>
+                        }
+                    </InputSelect>
 
-    <ul>
-        @foreach(var exerciseName in listOfExerciseByExerciseType)
-        {
-            <li> @exerciseName.Name</li>
-            <li> @exerciseName.ExerciseType</li>
-        }
-    </ul>
-}
+                    <label for="sets"> Sets: </label>
+                    <input type="number" id="sets" @bind="exerciseListForSelectedDay[j].Sets" />
+
+                    <label for="reps"> Reps: </label>
+                    <input type="number" id="reps" @bind="exerciseListForSelectedDay[j].Repetitions" />
+                </div>
+            }
+        </EditForm>
+
 
 @code {
+    private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+
+    private Plan plan = new Plan();
+
     private UserExercise userExercise = new();
 
-    private UserWorkout userworkout = new();
+    private int numberOfExercisesInWorkout = 2;
 
-    public List<Exercise> listOfExercisesByWorkoutType = new(); // This will be the resulting list from the first drop down selection. Stored in memory.
+    private List<UserExercise> exerciseListForSelectedDay = new();
 
-    public List<Exercise> listOfExerciseByExerciseType = new List<Exercise>(); // This will be the resulting list from the second drop down selection. Stored in memory.
+    public List<Exercise> listOfExercisesByWorkoutType = new();
 
-    public async Task ShowExercisesByWorkoutType() // This is an IO Bound task so we are using Asynchronous programming to free up a thread will the IO Bound task completes
+    public List<Exercise> listOfExerciseByExerciseType = new List<Exercise>();
+
+    public async Task GetExercisesByWorkoutType() 
     {
-        if(userExercise.WorkoutType != null)
+        if (userExercise.WorkoutType != null)
         {
-            listOfExercisesByWorkoutType = await userExerciseRepo.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
-            Console.WriteLine($"Number of exercises fetched: {listOfExercisesByWorkoutType.Count}");
+            listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
+            StateHasChanged();
         }
     }
 
-    public void ShowExercisesByExerciseType()
+    public void GetExercisesByExerciseType()
     {
-        if(userExercise.ExerciseType != null)
+        if (userExercise.ExerciseType != null)
         {
-            listOfExerciseByExerciseType = userExerciseRepo.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, userExercise.ExerciseType);
+            listOfExerciseByExerciseType = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, userExercise.ExerciseType);
+            StateHasChanged();
         }
     }
+
 }
+

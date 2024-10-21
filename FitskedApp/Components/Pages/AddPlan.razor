@@ -1,6 +1,6 @@
-﻿@using FitskedApp.Data
+﻿@page "/add-plan"
+@using FitskedApp.Data
 @using FitskedApp.Models
-@page "/add-plan"
 @rendermode InteractiveServer
 @inject IUserPlanRepository planRepository
 @inject IUserExerciseRepository userExerciseRepository
@@ -61,7 +61,8 @@
 
                 <div>
                     <label for="exerciseType"> Exercise Type: </label>
-                    <InputSelect id="exerciseType" @bind-Value="exerciseListForSelectedDay[j].ExerciseType" @bind-Value:after="GetExercisesByExerciseType">
+                    <InputSelect id="exerciseType" @bind-Value="exerciseListForSelectedDay[j].ExerciseType" @bind-Value:after="() => GetExercisesByExerciseType(j)">
+                       <option value="" disabled selected> -- Select Exercise Type -- </option>
                         @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
                         {
                             <option value="@type">@type</option>
@@ -72,8 +73,8 @@
                     <label for="exerciseName"> Exercise: </label>
 
                     <InputSelect id="exerciseName" @bind-Value="exerciseListForSelectedDay[j].ExerciseId">
-                        <option> -- Select Exercise -- </option>
-                        @foreach (var exercise in listOfExerciseByExerciseType)
+                        <option value="" disabled selected> -- Select Exercise -- </option>
+                        @foreach (var exercise in exerciseListForSelectedDay[j].FilteredExercises)
                         {
                             <option value="@exercise.Id">@exercise.Name</option>
                         }
@@ -190,49 +191,48 @@
             using var transaction = await ApplicationDbContext.Database.BeginTransactionAsync();
             try
             {
-                int planId = await planRepository.AddPlan(plan);  // Persist plan
+                int planId = await planRepository.AddPlan(plan); 
 
                 foreach (UserWorkout userworkout in workoutListForCurrentPlan)
                 {
-                    userworkout.PlanId = plan.Id;  // Associate each workout with the PlanId
+                    userworkout.PlanId = plan.Id;
                     await userWorkoutRepository.AddWorkout(userworkout); 
 
                     foreach (UserExercise userExercise in userworkout.UserExercises)
                     {
-                        userExercise.UserWorkoutId = userworkout.Id;  // Link exercise to workout
-                        await userExerciseRepository.AddUserExercise(userExercise);  // Persist exercise
+                        userExercise.UserWorkoutId = userworkout.Id;
+                        await userExerciseRepository.AddUserExercise(userExercise);
                     }
                 }
 
-                await transaction.CommitAsync();  // Commit transaction to persist all data
+                await transaction.CommitAsync();
 
-                plan = new Plan();  // Reset the plan for a new creation cycle
-                NavManager.NavigateTo($"/");  // Navigate to the homepage or a confirmation page
+                plan = new Plan();  
+                NavManager.NavigateTo($"/");
             }
             catch (Exception e)
             {
-                await transaction.RollbackAsync();  // Rollback in case of any error
+                await transaction.RollbackAsync();
                 throw new Exception($"Something went wrong with the database transaction: {e.Message}");
             }
         }
     }
 
-    public async Task GetExercisesByWorkoutType() // This is an IO Bound task so we are using Asynchronous programming to free up a thread will the IO Bound task completes
+    public async Task GetExercisesByWorkoutType()
     {
-        if (userExercise.WorkoutType != null)
+        listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
+        foreach (var exercise in exerciseListForSelectedDay)
         {
-            listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
-            StateHasChanged();
+            exercise.FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, exercise.ExerciseType);
         }
+        StateHasChanged();
     }
 
-    public void GetExercisesByExerciseType()
+    public async Task GetExercisesByExerciseType(int index)
     {
-        if (userExercise.ExerciseType != null)
-        {
-            listOfExerciseByExerciseType = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, userExercise.ExerciseType);
-            StateHasChanged();
-        }
+        var selectedExerciseType = exerciseListForSelectedDay[index].ExerciseType;
+        exerciseListForSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);
+        await InvokeAsync(StateHasChanged);
     }
 
 }
