@@ -1,4 +1,5 @@
 ﻿@page "/add-plan"
+@using FitskedApp.DTO
 @using FitskedApp.Data
 @using FitskedApp.Models
 @rendermode InteractiveServer
@@ -9,7 +10,6 @@
 @inject ApplicationDbContext ApplicationDbContext
 @inject NavigationManager NavManager
 
-
 <h3 class="d-flex justify-content-center"> Create Plan </h3>
 
 <form>
@@ -18,7 +18,6 @@
         <input type="text" id="PlanName" @bind="plan.Name" />
     </div>
 </form>
-
 
 <div class="row border border-dark p-3">
     @foreach (var day in daysOfWeek)
@@ -41,7 +40,7 @@
         <h5>@selectedDay</h5>
 
         <EditForm Model="userExercise">
-            <DataAnnotationsValidator/>
+            <DataAnnotationsValidator />
 
             <label for="workoutType"> Workout Type: </label>
             <InputSelect id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetExercisesByWorkoutType">
@@ -54,77 +53,57 @@
             @for (int i = 0; i < numberOfExercisesInWorkout; i++)
             {
                 var j = i;
-                if (j >= exerciseListForSelectedDay.Count)
+                if (j >= listOfUserExercisesInSelectedDay.Count)
                 {
-                    exerciseListForSelectedDay.Add(new UserExercise());
+                    listOfUserExercisesInSelectedDay.Add(new UserExercise());
                 }
 
                 <div>
                     <label for="exerciseType"> Exercise Type: </label>
-                    <InputSelect id="exerciseType" @bind-Value="exerciseListForSelectedDay[j].ExerciseType" @bind-Value:after="() => GetExercisesByExerciseType(j)">
-                       <option value="" disabled selected> -- Select Exercise Type -- </option>
+                    <InputSelect id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetExercisesByExerciseType(j)">
+                        <option value="" disabled selected> -- Select Exercise Type -- </option>
                         @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
                         {
                             <option value="@type">@type</option>
                         }
                     </InputSelect>
 
-                    @* The exercise selection needs to be restricted until the Exercise Type is selected*@
                     <label for="exerciseName"> Exercise: </label>
-
-                    <InputSelect id="exerciseName" @bind-Value="exerciseListForSelectedDay[j].ExerciseId">
+                    <InputSelect id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseId">
                         <option value="" disabled selected> -- Select Exercise -- </option>
-                        @foreach (var exercise in exerciseListForSelectedDay[j].FilteredExercises)
+                        @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
                         {
-                            <option value="@exercise.Id">@exercise.Name</option>
+                            <option value="@exercise.ExerciseId">@exercise.Name</option>
                         }
                     </InputSelect>
 
                     <label for="sets"> Sets: </label>
-                    <input type="number" id="sets" @bind="exerciseListForSelectedDay[j].Sets" />
+                    <input type="number" id="sets" @bind="listOfUserExercisesInSelectedDay[j].Sets" />
 
                     <label for="reps"> Reps: </label>
-                    <input type="number" id="reps" @bind="exerciseListForSelectedDay[j].Repetitions" />
+                    <input type="number" id="reps" @bind="listOfUserExercisesInSelectedDay[j].Repetitions" />
 
                     <label for="weight"> Weight: </label>
-                    <input type="number" id="weight" @bind="exerciseListForSelectedDay[j].Weight" />
-
-                    @* Need to have a method that converts lbs to kgs as these two measurements are very common across the fitness industry*@
+                    <input type="number" id="weight" @bind="listOfUserExercisesInSelectedDay[j].Weight" />
                 </div>
             }
-
         </EditForm>
 
-        <form>
-            
-        </form>
-
-        <button class="btn btn-primary mt-3" @onclick="SaveWorkout">Save Workout to In-Memory Dictionary/Return to Week View.</button> @* displayWeekView changed to false by the saveWorkout method*@
+        <button class="btn btn-primary mt-3" @onclick="SaveWorkout">Save Workout</button>
     </div>
 }
 
 @code {
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-
-    private Plan plan = new Plan();
-
+    private Plan plan = new();
     private UserExercise userExercise = new();
-
-    private int numberOfExercisesInWorkout = 7; // I want make the number of exercises any given workout to 7 (This is an opinionated number I'm setting for my app based on my beliefs on how to structure of a typical workout should be. I want to app to provide users with structure so they don't have to think about how many exercises they should have in they're workout.
-
+    private int numberOfExercisesInWorkout = 2;
     private Dictionary<string, List<UserExercise>> DictionaryOfListOfUserExerciseForSelectedDay = new();
-
     private string selectedDay = string.Empty;
-
-    private List<UserExercise> exerciseListForSelectedDay = new(); // We already have a list of userexercise in dictionary, I don't think we need this one but we'll leave it in here for context
-
-    private List<UserWorkout> workoutListForCurrentPlan = new(); 
-
+    private List<UserExercise> listOfUserExercisesInSelectedDay = new();
+    private List<UserWorkout> workoutListForCurrentPlan = new();
     private bool displayDayViewWorkout = false;
-
-    public List<Exercise> listOfExercisesByWorkoutType = new(); 
-
-    public List<Exercise> listOfExerciseByExerciseType = new List<Exercise>();
+    public List<ExerciseDTO> listOfExercisesByWorkoutType = new();
 
     protected override void OnInitialized()
     {
@@ -140,36 +119,29 @@
     private void UserSelectsDay(string day)
     {
         selectedDay = day;
-        exerciseListForSelectedDay = DictionaryOfListOfUserExerciseForSelectedDay[day];
+        listOfUserExercisesInSelectedDay = DictionaryOfListOfUserExerciseForSelectedDay[day];
         displayDayViewWorkout = true;
     }
 
     private void SaveWorkout()
     {
-        DictionaryOfListOfUserExerciseForSelectedDay[selectedDay] = exerciseListForSelectedDay;
+        DictionaryOfListOfUserExerciseForSelectedDay[selectedDay] = listOfUserExercisesInSelectedDay;
 
-        UserWorkout userWorkout = new();
-        userWorkout.UserExercises = exerciseListForSelectedDay;
+        UserWorkout userWorkout = new UserWorkout
+            {
+                PlanId = plan.Id, // Ensure to set this before saving
+                UserExercises = listOfUserExercisesInSelectedDay
+            };
+
         workoutListForCurrentPlan.Add(userWorkout);
-
         displayDayViewWorkout = false;
     }
 
     private string GetWorkoutSummary(string day)
     {
-        if (DictionaryOfListOfUserExerciseForSelectedDay.ContainsKey(day))
+        if (DictionaryOfListOfUserExerciseForSelectedDay.TryGetValue(day, out var exercises) && exercises.Any())
         {
-            var exercises = DictionaryOfListOfUserExerciseForSelectedDay[day];
-            if (exercises.Count == 0)
-            {
-                return "You haven't added any workouts here yet. Are you taking an off day?";
-            }
-            string summary = "";
-            foreach (UserExercise userExercise in exercises)
-            {
-                summary += $"{userExercise.Name} ({userExercise.Sets} x {userExercise.Repetitions}) - {userExercise.Weight}|";
-            }
-            return summary.TrimEnd(' ', '|');
+            return string.Join(", ", exercises.Select(e => $"{e.ExerciseId} ({e.Sets} x {e.Repetitions}) - {e.Weight}"));
         }
         return "You haven't added any workouts here yet. Are you taking an off day?";
     }
@@ -182,32 +154,31 @@
         if (user.Identity?.IsAuthenticated == true)
         {
             var userId = user.FindFirst(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
             if (!string.IsNullOrEmpty(userId))
             {
                 plan.ApplicationUserId = userId;
             }
 
-            using var transaction = await ApplicationDbContext.Database.BeginTransactionAsync();
+            var transaction = await ApplicationDbContext.Database.BeginTransactionAsync();
             try
             {
-                int planId = await planRepository.AddPlan(plan); 
+                int planId = await planRepository.AddPlan(plan);
 
                 foreach (UserWorkout userworkout in workoutListForCurrentPlan)
                 {
-                    userworkout.PlanId = plan.Id;
-                    await userWorkoutRepository.AddWorkout(userworkout); 
+                    userworkout.PlanId = planId; // Set PlanId to the newly created plan
+                    await userWorkoutRepository.AddWorkout(userworkout);
 
                     foreach (UserExercise userExercise in userworkout.UserExercises)
                     {
-                        userExercise.UserWorkoutId = userworkout.Id;
+                        userExercise.UserWorkoutId = userworkout.Id; // Ensure UserWorkoutId is set
+                        userExercise.Id = 0;
                         await userExerciseRepository.AddUserExercise(userExercise);
                     }
                 }
 
                 await transaction.CommitAsync();
-
-                plan = new Plan();  
+                plan = new Plan();
                 NavManager.NavigateTo($"/");
             }
             catch (Exception e)
@@ -221,7 +192,7 @@
     public async Task GetExercisesByWorkoutType()
     {
         listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
-        foreach (var exercise in exerciseListForSelectedDay)
+        foreach (var exercise in listOfUserExercisesInSelectedDay)
         {
             exercise.FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, exercise.ExerciseType);
         }
@@ -230,9 +201,8 @@
 
     public async Task GetExercisesByExerciseType(int index)
     {
-        var selectedExerciseType = exerciseListForSelectedDay[index].ExerciseType;
-        exerciseListForSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);
+        var selectedExerciseType = listOfUserExercisesInSelectedDay[index].ExerciseType;
+        listOfUserExercisesInSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);
         await InvokeAsync(StateHasChanged);
     }
-
 }

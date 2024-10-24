@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitskedApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241021163210_AddedListExerciseToUserExercise")]
-    partial class AddedListExerciseToUserExercise
+    [Migration("20241024165043_FirstMigrationUponChatChanges")]
+    partial class FirstMigrationUponChatChanges
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -111,16 +111,11 @@ namespace FitskedApp.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UserExerciseId")
-                        .HasColumnType("int");
-
                     b.Property<string>("WorkoutType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserExerciseId");
 
                     b.ToTable("Exercises");
                 });
@@ -180,8 +175,6 @@ namespace FitskedApp.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ExerciseId");
 
                     b.HasIndex("UserWorkoutId");
 
@@ -342,13 +335,6 @@ namespace FitskedApp.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("FitskedApp.Models.Exercise", b =>
-                {
-                    b.HasOne("FitskedApp.Models.UserExercise", null)
-                        .WithMany("FilteredExercises")
-                        .HasForeignKey("UserExerciseId");
-                });
-
             modelBuilder.Entity("FitskedApp.Models.Plan", b =>
                 {
                     b.HasOne("FitskedApp.Data.ApplicationUser", "ApplicationUser")
@@ -362,19 +348,11 @@ namespace FitskedApp.Migrations
 
             modelBuilder.Entity("FitskedApp.Models.UserExercise", b =>
                 {
-                    b.HasOne("FitskedApp.Models.Exercise", "Exercise")
-                        .WithMany()
-                        .HasForeignKey("ExerciseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("FitskedApp.Models.UserWorkout", "UserWorkout")
                         .WithMany("UserExercises")
                         .HasForeignKey("UserWorkoutId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Exercise");
 
                     b.Navigation("UserWorkout");
                 });
@@ -449,11 +427,6 @@ namespace FitskedApp.Migrations
             modelBuilder.Entity("FitskedApp.Models.Plan", b =>
                 {
                     b.Navigation("UserWorkouts");
-                });
-
-            modelBuilder.Entity("FitskedApp.Models.UserExercise", b =>
-                {
-                    b.Navigation("FilteredExercises");
                 });
 
             modelBuilder.Entity("FitskedApp.Models.UserWorkout", b =>

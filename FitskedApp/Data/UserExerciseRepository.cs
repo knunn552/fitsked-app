@@ -1,5 +1,6 @@
 ﻿using FitskedApp.Models;
 using Microsoft.EntityFrameworkCore;
+using FitskedApp.DTO;
 
 namespace FitskedApp.Data
 {
@@ -18,12 +19,20 @@ namespace FitskedApp.Data
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Exercise>> GetExercisesBasedOnWorkoutType(WorkoutType workoutType)
+        public async Task<List<ExerciseDTO>> GetExercisesBasedOnWorkoutType(WorkoutType workoutType)
         {
-            return await _context.Exercises.Where(e => e.WorkoutType == workoutType).ToListAsync();
+            return await _context.Exercises.Where(e => e.WorkoutType == workoutType).
+                Select(e => new ExerciseDTO
+                {
+                    ExerciseId = e.Id,
+                    Name = e.Name,
+                    Description = e.Description,
+                    WorkoutType = e.WorkoutType,
+                    ExerciseType = e.ExerciseType
+                }).ToListAsync();
         }
 
-        public List<Exercise> GetExercisesFromWorkoutListBasedOnExerciseType(List<Exercise> exercises, ExerciseType exerciseType)
+        public List<ExerciseDTO> GetExercisesFromWorkoutListBasedOnExerciseType(List<ExerciseDTO> exercises, ExerciseType exerciseType)
         {
             return exercises.Where(e => e.ExerciseType == exerciseType).ToList();
         }

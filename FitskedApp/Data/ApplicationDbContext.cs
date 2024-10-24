@@ -13,7 +13,6 @@ namespace FitskedApp.Data
         }
         public DbSet<Plan> Plans { get; set; }
         public DbSet<UserWorkout> UserWorkouts { get; set; }
-
         public DbSet<UserExercise> UserExercises { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
 
@@ -51,18 +50,6 @@ namespace FitskedApp.Data
                 v => v.ToString(),
                 v => (ExerciseType)Enum.Parse(typeof(ExerciseType), v));
 
-            modelBuilder.Entity<UserExercise>()
-                .HasKey(ue => ue.Id);
-
-            modelBuilder.Entity<UserExercise>()
-                .Property(ue => ue.Id)
-                .ValueGeneratedOnAdd(); 
-
-            modelBuilder.Entity<UserExercise>()
-                .HasOne(ue => ue.Exercise)
-                .WithMany() 
-                .HasForeignKey(ue => ue.ExerciseId) 
-                .OnDelete(DeleteBehavior.Restrict); 
         }
     }
 }

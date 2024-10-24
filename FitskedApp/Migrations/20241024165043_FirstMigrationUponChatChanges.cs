@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FitskedApp.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdatedFirstMigration : Migration
+    public partial class FirstMigrationUponChatChanges : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -220,8 +220,8 @@ namespace FitskedApp.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ExerciseId = table.Column<int>(type: "int", nullable: false),
                     WorkoutType = table.Column<int>(type: "int", nullable: false),
+                    ExerciseId = table.Column<int>(type: "int", nullable: false),
                     ExerciseType = table.Column<int>(type: "int", nullable: false),
                     Repetitions = table.Column<int>(type: "int", nullable: false),
                     Sets = table.Column<int>(type: "int", nullable: false),
@@ -231,12 +231,6 @@ namespace FitskedApp.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserExercises", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserExercises_Exercises_ExerciseId",
-                        column: x => x.ExerciseId,
-                        principalTable: "Exercises",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserExercises_UserWorkouts_UserWorkoutId",
                         column: x => x.UserWorkoutId,
@@ -290,11 +284,6 @@ namespace FitskedApp.Migrations
                 column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserExercises_ExerciseId",
-                table: "UserExercises",
-                column: "ExerciseId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserExercises_UserWorkoutId",
                 table: "UserExercises",
                 column: "UserWorkoutId");
@@ -324,13 +313,13 @@ namespace FitskedApp.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Exercises");
+
+            migrationBuilder.DropTable(
                 name: "UserExercises");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "Exercises");
 
             migrationBuilder.DropTable(
                 name: "UserWorkouts");
