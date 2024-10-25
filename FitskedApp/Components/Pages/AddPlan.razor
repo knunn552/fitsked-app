@@ -172,7 +172,7 @@
                     foreach (UserExercise userExercise in userworkout.UserExercises)
                     {
                         userExercise.UserWorkoutId = userworkout.Id; // Ensure UserWorkoutId is set
-                        userExercise.Id = 0;
+                        // userExercise.Id = 0;
                         await userExerciseRepository.AddUserExercise(userExercise);
                     }
                 }
