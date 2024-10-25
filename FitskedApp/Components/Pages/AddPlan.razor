@@ -69,11 +69,11 @@
                     </InputSelect>
 
                     <label for="exerciseName"> Exercise: </label>
-                    <InputSelect id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseId">
+                    <InputSelect id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType)">
                         <option value="" disabled selected> -- Select Exercise -- </option>
                         @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
                         {
-                            <option value="@exercise.ExerciseId">@exercise.Name</option>
+                            <option value="@exercise.Name">@exercise.Name</option>
                         }
                     </InputSelect>
 
@@ -141,7 +141,7 @@
     {
         if (DictionaryOfListOfUserExerciseForSelectedDay.TryGetValue(day, out var exercises) && exercises.Any())
         {
-            return string.Join(", ", exercises.Select(e => $"{e.ExerciseId} ({e.Sets} x {e.Repetitions}) - {e.Weight}"));
+            return string.Join(", ", exercises.Select(e => $"{e.Name} ({e.Sets} x {e.Repetitions}) - {e.Weight}"));
         }
         return "You haven't added any workouts here yet. Are you taking an off day?";
     }
@@ -166,13 +166,13 @@
 
                 foreach (UserWorkout userworkout in workoutListForCurrentPlan)
                 {
-                    userworkout.PlanId = planId; // Set PlanId to the newly created plan
+                    userworkout.PlanId = planId;
                     await userWorkoutRepository.AddWorkout(userworkout);
 
                     foreach (UserExercise userExercise in userworkout.UserExercises)
                     {
-                        userExercise.UserWorkoutId = userworkout.Id; // Ensure UserWorkoutId is set
-                        // userExercise.Id = 0;
+                        userExercise.UserWorkoutId = userworkout.Id;
+                        userExercise.Id = 0;
                         await userExerciseRepository.AddUserExercise(userExercise);
                     }
                 }
@@ -205,4 +205,39 @@
         listOfUserExercisesInSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);
         await InvokeAsync(StateHasChanged);
     }
+
+    // So ultimately we need 4 methods. We need the method that runs all of the methods we need to get an exerciseId from Name, workoutType from Name, and exerciseType by Name.
+    // I would rather do this and have the binded value show up in the week view for the name and then get the other values based on the name.
+    // ChatGPT recommended something different but this is how I think it should work given what I want and best coding practices.
+    // The main method is probably going to take in a reference parameter which will be changed which will the the particular instance of userExercise
+    // The main method will also take in the userExercise Name to filter based on a listofFilteredExercise which we'll also probably have to include as a parameter 
+    // We use the listofExercisesForSelectedDay variable to filter and retrive information as it is undoubtedly in scope.
+    // Need to refactor all of this and put it somewhere else because this razor component is becoming ridiculous.
+    public void PutExerciseIdInUserExerciseBasedOnName(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
+    {
+        var filteredExercise = listOfExercisesToFilterOn.Where(e => e.Name == name).FirstOrDefault();
+        userExercise.ExerciseId = filteredExercise.ExerciseId;
+    }
+
+    public void PutWorkoutTypeInUserExerciseBasedOnName(UserExercise userExercise,string name, List<ExerciseDTO> listOfExercisesToFilterOn)
+    {
+        // Question: Do we need to specify keywords out or ref here is we are ultimately editing the value currently in userExercise?
+        var filteredExercise = listOfExercisesToFilterOn.Where(e => e.Name == name).FirstOrDefault();
+        userExercise.WorkoutType = filteredExercise.WorkoutType;
+    }
+
+    public void PutExerciseTypeInUserExerciseBasedOnName(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
+    {
+        var filteredExercise = listOfExercisesToFilterOn.Where(e => e.Name == name).FirstOrDefault(); // Really this should be put into its own method
+        userExercise.ExerciseType = filteredExercise.ExerciseType;
+    }
+
+    public void BindValuesFromDtoToUserExercise(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
+    {
+        PutExerciseIdInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
+        PutExerciseTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
+        PutWorkoutTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
+    }
+
+    
 }
