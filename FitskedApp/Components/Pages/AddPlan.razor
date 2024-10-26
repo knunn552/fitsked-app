@@ -168,13 +168,6 @@
                 {
                     userworkout.PlanId = planId;
                     await userWorkoutRepository.AddWorkout(userworkout);
-
-                    foreach (UserExercise userExercise in userworkout.UserExercises)
-                    {
-                        userExercise.UserWorkoutId = userworkout.Id;
-                        userExercise.Id = 0;
-                        await userExerciseRepository.AddUserExercise(userExercise);
-                    }
                 }
 
                 await transaction.CommitAsync();
