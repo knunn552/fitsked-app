@@ -1,6 +1,6 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color: #C52233;
+    background-color: #E83A4C;
 }
 
 a, .btn-link {
@@ -51,11 +51,10 @@ h1:focus {
     border-color: #929292;
 }
 
-.btn-custom{
-    border: 3px solid #ff0000;
-    border-radius: 10px;
-    background-color: #ffffff;
+.inner-input-shadow {
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.4)
 }
+
 
 
 

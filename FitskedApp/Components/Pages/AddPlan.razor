@@ -10,16 +10,18 @@
 @inject ApplicationDbContext ApplicationDbContext
 @inject NavigationManager NavManager
 
-<h3 class="d-flex justify-content-center"> Create Plan </h3>
 
-<form>
-    <div class="d-flex justify-content-center">
-        <label for="PlanName">Plan Name:</label>
-        <input type="text" id="PlanName" @bind="plan.Name" />
-    </div>
-</form>
+<div class="d-flex justify-content-center">
+    <form>
+        <div class="col-12 mb-3">
+            <label class="text-black mt-4 d-flex justify-content-center" for="PlanName">Plan Name</label>
+            <input class="form-control mt-1 w-100 rounded-pill inner-input-shadow" type="text" id="PlanName" @bind="plan.Name" />
+        </div>
+    </form>
+</div>
 
-<div class="row border border-dark p-3">
+
+<div class="row border-3 rounded-pill border border-dark  p-3">
     @foreach (var day in daysOfWeek)
     {
         <div class="col text-center" @onclick="() => { if (!displayDayViewWorkout) UserSelectsDay(day); }">
@@ -32,7 +34,10 @@
     }
 </div>
 
-<button @onclick="AddNewPlan"> Add Plan </button>
+<div class="d-flex justify-content-center mt-2">
+    <button class="btn-custom " @onclick="AddNewPlan"> Add Plan </button>
+</div>
+
 
 @if (displayDayViewWorkout)
 {
@@ -43,7 +48,7 @@
             <DataAnnotationsValidator />
 
             <label for="workoutType"> Workout Type: </label>
-            <InputSelect id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetExercisesByWorkoutType">
+            <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetExercisesByWorkoutType">
                 @foreach (var type in Enum.GetValues(typeof(WorkoutType)))
                 {
                     <option value="@type">@type</option>
@@ -60,7 +65,7 @@
 
                 <div>
                     <label for="exerciseType"> Exercise Type: </label>
-                    <InputSelect id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetExercisesByExerciseType(j)">
+                    <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetExercisesByExerciseType(j)">
                         <option value="" disabled selected> -- Select Exercise Type -- </option>
                         @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
                         {
@@ -69,7 +74,7 @@
                     </InputSelect>
 
                     <label for="exerciseName"> Exercise: </label>
-                    <InputSelect id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType)">
+                    <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType)">
                         <option value="" disabled selected> -- Select Exercise -- </option>
                         @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
                         {
@@ -78,13 +83,13 @@
                     </InputSelect>
 
                     <label for="sets"> Sets: </label>
-                    <input type="number" id="sets" @bind="listOfUserExercisesInSelectedDay[j].Sets" />
+                    <input class="rounded-pill bg-white inner-input-shadow mt-2" type="number" id="sets" @bind="listOfUserExercisesInSelectedDay[j].Sets" />
 
                     <label for="reps"> Reps: </label>
-                    <input type="number" id="reps" @bind="listOfUserExercisesInSelectedDay[j].Repetitions" />
+                    <input class="rounded-pill bg-white inner-input-shadow mt-2" type="number" id="reps" @bind="listOfUserExercisesInSelectedDay[j].Repetitions" />
 
                     <label for="weight"> Weight: </label>
-                    <input type="number" id="weight" @bind="listOfUserExercisesInSelectedDay[j].Weight" />
+                    <input class="rounded-pill bg-white inner-input-shadow mt-2" type="number" id="weight" @bind="listOfUserExercisesInSelectedDay[j].Weight" />
                 </div>
             }
         </EditForm>
