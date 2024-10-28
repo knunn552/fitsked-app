@@ -63,7 +63,71 @@ h1:focus {
     height:2rem;
 }
 
+.day-card{
+    transition: box-shadow 0.2s ease;
+}
 
+    .day-card:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+
+.rounded-div {
+    border-radius: 20px;
+}
+
+/* Fonts Start */
+.sedgwick-font {
+    font-family: "Sedgwick Ave", cursive;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.poppins-medium {
+    font-family: "Poppins", serif;
+    font-weight: 500;
+    font-style: normal;
+}
+
+.poppins-semibold {
+    font-family: "Poppins", serif;
+    font-weight: 600;
+    font-style: normal;
+}
+
+.poppins-bold {
+    font-family: "Poppins", serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.tilted-div{
+    transform: rotate(-15deg);
+}
+
+.yellow-font {
+    color: #ffff00;
+}
+
+/* Fonts End */
+
+
+.blurred {
+    filter: blur(10px); /* Adjust the blur amount as needed */
+    transition: filter 0s ease; /* Smooth transition effect */
+}
+
+.day-view-modal {
+    position: fixed; /* Fixed to the viewport */
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Shift it back to center */
+    z-index: 1000; /* High z-index to overlay other content */
+    width: 50%; /* Adjust width as necessary */
+    padding: 20px; /* Optional padding for aesthetics */
+    background: white; /* Background color for the modal */
+    border-radius: 15px; /* Rounded corners for the modal */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Optional shadow effect */
+}
 
 
 

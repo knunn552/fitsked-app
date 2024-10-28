@@ -11,93 +11,111 @@
 @inject NavigationManager NavManager
 
 
-<div class="d-flex justify-content-center">
-    <form>
-        <div class="col-12 mb-3">
-            <label class="text-black mt-4 d-flex justify-content-center" for="PlanName">Plan Name</label>
-            <input class="form-control mt-1 w-100 rounded-pill inner-input-shadow" type="text" id="PlanName" @bind="plan.Name" />
+    <div class="@((displayDayViewWorkout ? "blurred" : ""))">
+        <div class="d-flex justify-content-center">
+            <form>
+                <div class="col-12 mb-3">
+                    <label class="text-black mt-4 d-flex justify-content-center poppins-medium" for="PlanName">Plan Name</label>
+                    <input class="form-control mt-1 w-100 rounded-pill inner-input-shadow" type="text" id="PlanName" @bind="plan.Name" />
+                </div>
+            </form>
         </div>
-    </form>
-</div>
 
-
-<div class="row border-3 rounded-pill border border-dark  p-3">
-    @foreach (var day in daysOfWeek)
-    {
-        <div class="col text-center" @onclick="() => { if (!displayDayViewWorkout) UserSelectsDay(day); }">
-            <h5> @day </h5>
-            <div class="workout-body border-top pt-3 row">
-                <label> Exercise Details (for selected day): </label>
-                <p> @GetWorkoutSummary(day)</p>
-            </div>
-        </div>
-    }
-</div>
-
-<div class="d-flex justify-content-center mt-2">
-    <button class="btn-custom " @onclick="AddNewPlan"> Add Plan </button>
-</div>
-
-
-@if (displayDayViewWorkout)
-{
-    <h5>@selectedDay</h5>
-    <div class="container d-flex justify-content-center">
-        <EditForm Model="userExercise" >
-            <DataAnnotationsValidator />
-
-            <label for="workoutType"> Workout Type: </label>
-            <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetExercisesByWorkoutType">
-                @foreach (var type in Enum.GetValues(typeof(WorkoutType)))
-                {
-                    <option value="@type">@type</option>
-                }
-            </InputSelect>
-            <br />
-
-            <div class="row-cols-md-auto">
-                <label for="exerciseType"> Exercise Type: </label>
-                <label for="exerciseName"> Exercise: </label>
-                <label for="sets"> Sets: </label>
-                <label for="reps"> Reps: </label>
-                <label for="weight"> Weight: </label>
-            </div>
-            
-            @for (int i = 0; i < numberOfExercisesInWorkout; i++)
+        <div class="row border-3 rounded-div border border-dark p-3 bg-white w-auto mt-1 mb-1">
+            @foreach (var day in daysOfWeek)
             {
-                var j = i;
-                if (j >= listOfUserExercisesInSelectedDay.Count)
-                {
-                    listOfUserExercisesInSelectedDay.Add(new UserExercise());
-                }
-
-                <div class="row-cols-md-auto">
-                    <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetExercisesByExerciseType(j)">
-                        <option value="" disabled selected> -- Select Exercise Type -- </option>
-                        @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
-                        {
-                            <option value="@type">@type</option>
-                        }
-                    </InputSelect>
-
-                    
-                    <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType)">
-                        <option value="" disabled selected> -- Select Exercise -- </option>
-                        @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
-                        {
-                            <option value="@exercise.Name">@exercise.Name</option>
-                        }
-                    </InputSelect>
-                    <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width" type="number" id="sets" @bind="listOfUserExercisesInSelectedDay[j].Sets" />
-                    <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width" type="number" id="reps" @bind="listOfUserExercisesInSelectedDay[j].Repetitions" />
-                    <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width" type="number" id="weight" @bind="listOfUserExercisesInSelectedDay[j].Weight" />
+                <div class="col text-center mt-2 mb-2 m-lg-2 mr-2 day-card rounded-div" @onclick="() => { if (!displayDayViewWorkout) UserSelectsDay(day); }">
+                    <h5 class="mt-2 poppins-medium"> @day </h5>
+                    <div class="border-top pt-3 row">
+                        <label class="poppins-bold"> @GetWorkoutTypeByDay(day) </label>
+                        <br />
+                        <p class="poppins-medium"> @GetWorkoutSummary(day)</p>
+                        
+                    </div>
                 </div>
             }
-            <div class="d-flex justify-content-center">
-                <button class="btn btn-primary mt-3" @onclick="SaveWorkout">Save Workout</button>
-            </div>
-        </EditForm>  
+        </div>
+
+        <div class="d-flex justify-content-center mt-2 mt-4">
+            <button class="btn-custom rounded-pill shadow w-50 mt-2 mb-2 poppins-medium" @onclick="AddNewPlan"> Add Plan </button>
+        </div>
     </div>
+
+
+
+
+
+@if(displayDayViewWorkout)
+{
+    <div class="overlay">
+        <div class="d-flex justify-content-center">
+            <div class="bg-white rounded-div w-50 border border-3 border-dark shadow-lg mb-3 mt-4 day-view-modal">
+                <div class="d-flex justify-content-center">
+                    <h5 class="mt-4 poppins-medium">@selectedDay</h5>
+                </div>
+                <div class="container d-flex justify-content-center">
+                    <EditForm Model="userExercise">
+                        <DataAnnotationsValidator />
+
+                        @* <label for="workoutType"> Workout Type: </label> *@
+                        <div class="d-flex justify-content-center">
+                            <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetExercisesByWorkoutType">
+                                @foreach (var type in Enum.GetValues(typeof(WorkoutType)))
+                                {
+                                    <option value="@type">@type</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        <br />
+
+                        <div class="row-cols-md-auto">
+                            <label for="exerciseType" class="poppins-medium"> Exercise Type: </label>
+                            <label for="exerciseName" class="poppins-medium"> Exercise: </label>
+                            <label for="sets" class="poppins-medium"> Sets: </label>
+                            <label for="reps" class="poppins-medium"> Reps: </label>
+                            <label for="weight" class="poppins-medium"> Weight: </label>
+                        </div>
+
+                        @for (int i = 0; i < numberOfExercisesInWorkout; i++)
+                        {
+                            var j = i;
+                            if (j >= listOfUserExercisesInSelectedDay.Count)
+                            {
+                                listOfUserExercisesInSelectedDay.Add(new UserExercise());
+                            }
+
+                            <div class="row-cols-md-auto">
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetExercisesByExerciseType(j)">
+                                    <option value="" disabled selected> -- Select Exercise Type -- </option>
+                                    @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
+                                    {
+                                        <option value="@type">@type</option>
+                                    }
+                                </InputSelect>
+
+
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType)">
+                                    <option value="" disabled selected> -- Select Exercise -- </option>
+                                    @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
+                                    {
+                                        <option value="@exercise.Name">@exercise.Name</option>
+                                    }
+                                </InputSelect>
+                                <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width" type="number" id="sets" @bind="listOfUserExercisesInSelectedDay[j].Sets" />
+                                <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width" type="number" id="reps" @bind="listOfUserExercisesInSelectedDay[j].Repetitions" />
+                                <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width" type="number" id="weight" @bind="listOfUserExercisesInSelectedDay[j].Weight" />
+                            </div>
+                        }
+                        <div class="d-flex justify-content-center">
+                            <button class="btn btn-primary mt-3 rounded-pill shadow-lg mb-4 border border-2 border-dark poppins-medium" @onclick="SaveWorkout">Save Workout</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 }
 
 @code {
@@ -239,5 +257,28 @@
         PutWorkoutTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
     }
 
-    
+    public string GetWorkoutTypeByDay(string day)
+    {
+        var userWorkout = DictionaryOfListOfUserExerciseForSelectedDay[day];
+        var userExercises = userWorkout.FirstOrDefault();
+        var enumValue = userExercise.WorkoutType;
+
+        switch(enumValue)
+        {
+            case WorkoutType.UpperBodyStrength:
+
+                return "Upper Body Day";
+                break;
+
+            case WorkoutType.LowerBodyStrength:
+
+                return "Leg Day!";
+                break;
+
+            default:
+                return "Nothing going on today";
+                break;
+        }
+    }
+        
 }
