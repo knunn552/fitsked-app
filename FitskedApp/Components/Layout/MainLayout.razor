@@ -2,42 +2,37 @@
 @inject NavigationManager NavigationManager
 @implements IDisposable
 
-<div class="page ">
+<div class="page">
     @* <div class="sidebar">
         <NavMenu />
     </div> *@
 
     <main>
-        <div class="top-row px-4">
+        <div class="px-4 gradient-header d-flex">
             <AuthorizeView>
                 <Authorized>
-                    <div class="nav-item px-3">
-                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"> Welcome, </span> @context.User.Identity?.Name!
-                    </div>
-                    <div class="nav-item px-3">
-                        <form action="Account/Logout" method="post">
+                    <div class="d-flex ms-auto align-items-center">
+                        <span class="bi bi-person-fill-nav-menu me-2" aria-hidden="true"> Welcome, </span> @context.User.Identity?.Name!
+                        <form action="Account/Logout" method="post" class="ms-3">
                             <AntiforgeryToken />
                             <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                            <button type="submit" class="btn-custom p-2 w-100 border border-2 border-dark rounded-pill poppins-medium">
-                                <span class="bi bi-arrow-bar-left-nav-menu " aria-hidden="true"></span> Logout
+                            <button type="submit" class="bg-white p-2 border border-2 border-danger rounded-pill poppins-medium">
+                                <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
                             </button>
                         </form>
                     </div>
                 </Authorized>
                 <NotAuthorized>
-                    <div class="nav-item px-3 p-2 w-100">
-                        <NavLink class="nav-link btn-custom" href="Account/Register">
+                    <div class="d-flex ms-auto">
+                        <NavLink class="bg-white p-2 border border-2 border-danger rounded-pill poppins-medium me-2" href="Account/Register">
                             <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
                         </NavLink>
-                    </div>
-                    <div class="nav-item px-3 p-2 w-100">
-                        <NavLink class="nav-link btn-custom" href="Account/Login">
-                            <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
+                        <NavLink class="bg-white p-2 border border-2 border-danger rounded-pill poppins-medium" href="Account/Login">
+                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Login
                         </NavLink>
                     </div>
                 </NotAuthorized>
             </AuthorizeView>
-
         </div>
 
         <article class="content px-4">

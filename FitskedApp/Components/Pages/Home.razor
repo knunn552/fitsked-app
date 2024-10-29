@@ -13,7 +13,7 @@
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="d-flex justify-content-center" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
+    <nav class="row">
         @* <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
@@ -23,19 +23,26 @@
 
         <AuthorizeView>
             <Authorized>
-                <div class="nav-item px-3 shadow-lg rounded-pill bg-white border border-dark border-3 p-2 w-100">
-                    <a class="nav-link" href="/add-plan">
-                        <span class="bi bi-file-earmark-plus-fill-nav-menu" aria-hidden="true"></span> Add Plan
-                    </a>
+                <div class="col-12">
+                    <div class="nav-item px-3 shadow-lg rounded-pill bg-white border border-dark border-3 p-2 w-100">
+                        <a class="nav-link" href="/add-plan">
+                            <span class="bi bi-file-earmark-plus-fill-nav-menu" aria-hidden="true"></span> Add Plan
+                        </a>
+                    </div>
                 </div>
-                <div class="nav-item px-3 shadow-lg rounded-pill bg-white border border-dark border-3 p-2 w-100 ">
-                    <a class="nav-link" href="/add-plan">
-                        <span class="bi bi-file-earmark-plus-fill-nav-menu" aria-hidden="true"></span> My Plans
-                    </a>
+
+                <div class="col-12">
+                    <div class="nav-item px-3 shadow-lg rounded-pill bg-white border border-dark border-3 p-2 w-100">
+                        <a class="nav-link" href="/add-plan">
+                            <span class="bi bi-file-earmark-plus-fill-nav-menu" aria-hidden="true"></span> My Plans
+                        </a>
+                    </div>
                 </div>
+                
+                
             </Authorized>
             <NotAuthorized>
-                <div class="nav-item px-3 p-2 w-100">
+                @* <div class="nav-item px-3 p-2 w-100">
                     <NavLink class="nav-link btn-custom" href="Account/Register">
                         <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
                     </NavLink>
@@ -44,7 +51,7 @@
                     <NavLink class="nav-link btn-custom" href="Account/Login">
                         <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
                     </NavLink>
-                </div>
+                </div> *@
             </NotAuthorized>
         </AuthorizeView>
     </nav>

@@ -69,15 +69,13 @@ h1:focus {
 
     .day-card:hover {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        border: 2px solid yellow !important;
     }
 
 .rounded-div {
     border-radius: 20px;
 }
 
-.red-border {
-    border: 2px solid #cc0000;
-}
 
 /* Fonts Start */
 .sedgwick-font {
@@ -139,6 +137,13 @@ h1:focus {
     background: white; /* Background color for the modal */
     border-radius: 15px; /* Rounded corners for the modal */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Optional shadow effect */
+}
+
+.gradient-header {
+    background: linear-gradient(to right, #FFD700, #FFFACD, #FFFFFF); /* Dark yellow to light yellow to white */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Creates shadow below */
+    padding: 10px; /* Adjust padding as needed */
+    color: #333; /* Adjust text color if necessary */
 }
 
 
