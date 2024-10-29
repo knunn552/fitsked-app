@@ -2,6 +2,7 @@
 @using FitskedApp.DTO
 @using FitskedApp.Data
 @using FitskedApp.Models
+@using FitskedApp.Utilities
 @rendermode InteractiveServer
 @inject IUserPlanRepository planRepository
 @inject IUserExerciseRepository userExerciseRepository
@@ -42,40 +43,35 @@
     </div>
 
 
-
-
-
 @if(displayDayViewWorkout)
 {
     <div class="overlay">
         <div class="d-flex justify-content-center">
-            <div class="bg-white rounded-div w-50 border border-3 border-dark shadow-lg mb-3 mt-4 day-view-modal">
+            <div class="bg-white rounded-div w-75 border border-3 border-dark shadow-lg mb-3 mt-4 day-view-modal">
                 <div class="d-flex justify-content-center">
-                    <h5 class="mt-4 poppins-medium">@selectedDay</h5>
+                    <h5 class="mt-2 poppins-bold">@selectedDay</h5>
                 </div>
+                <hr />
                 <div class="container d-flex justify-content-center">
                     <EditForm Model="userExercise">
                         <DataAnnotationsValidator />
 
                         @* <label for="workoutType"> Workout Type: </label> *@
                         <div class="d-flex justify-content-center">
-                            <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetExercisesByWorkoutType">
+                            <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetExercisesByWorkoutType">
                                 @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(2))
                                 {
                                     <option value="@type"> @StringValuesForWorkoutType[type] </option>
                                 }
                             </InputSelect>
                         </div>
-
                         <br />
-
-                        <div class="row-cols-md-auto">
-                            <label for="exerciseType" class="poppins-medium"> Exercise Type: </label>
-                            <label for="exerciseName" class="poppins-medium"> Exercise: </label>
-                            <label for="sets" class="poppins-medium"> Sets: </label>
-                            <label for="reps" class="poppins-medium"> Reps: </label>
-                            <label for="weight" class="poppins-medium"> Weight: </label>
-                        </div>
+                        
+                            @* <label for="exerciseType" class="col-2"> Exercise Type </label>
+                            <label for="exerciseName" class="col-4 "> Exercise </label>
+                            <label for="sets" class="col-1"> Sets </label>
+                            <label for="reps" class="col-1 "> Reps </label>
+                            <label for="weight" class="col-2"> Weight </label> *@
 
                         @for (int i = 0; i < numberOfExercisesInWorkout; i++)
                         {
@@ -85,8 +81,9 @@
                                 listOfUserExercisesInSelectedDay.Add(new UserExercise());
                             }
 
-                            <div class="row-cols-md-auto">
-                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetExercisesByExerciseType(j)">
+                            <div class="d-flex justify-content-lg-between mb-2">
+
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-3 text-center" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetExercisesByExerciseType(j)">
                                     <option value="" disabled selected> -- Select Exercise Type -- </option>
                                     @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
                                     {
@@ -95,20 +92,47 @@
                                 </InputSelect>
 
 
-                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType)">
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-4 text-center" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType)">
                                     <option value="" disabled selected> -- Select Exercise -- </option>
                                     @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
                                     {
                                         <option value="@exercise.Name">@exercise.Name</option>
                                     }
                                 </InputSelect>
-                                <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width" type="number" id="sets" @bind="listOfUserExercisesInSelectedDay[j].Sets" />
-                                <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width" type="number" id="reps" @bind="listOfUserExercisesInSelectedDay[j].Repetitions" />
-                                <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width" type="number" id="weight" @bind="listOfUserExercisesInSelectedDay[j].Weight" />
+
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-1 text-center" id="sets" @bind-Value="listOfUserExercisesInSelectedDay[j].Sets">
+                                    <option value="" disabled selected> -- Sets -- </option>
+                                    @foreach (var setNumber in ListOfSets)
+                                    {
+                                        <option value="@setNumber">@setNumber</option>
+                                    }
+                                </InputSelect>
+
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-2 text-center" id="reps" @bind-Value="listOfUserExercisesInSelectedDay[j].Repetitions">
+                                    <option value="" disabled selected> -- Reps -- </option>
+                                    @foreach (var repNumber in ListOfReps)
+                                    {
+                                        <option value="@repNumber">@repNumber</option>
+                                    }
+                                </InputSelect>
+
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-2 text-center" id="weight" @bind-Value="listOfUserExercisesInSelectedDay[j].Weight">
+                                    <option value="" disabled selected> -- Weight -- </option>
+                                    @foreach (var weightNumber in ListOfWeight)
+                                    {
+                                        <option value="@weightNumber">@weightNumber lbs.</option>
+                                    }
+                                </InputSelect>
+
+
+                                @* <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width col-1" type="number" id="sets" @bind="listOfUserExercisesInSelectedDay[j].Sets" />
+                                <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width col-2" type="number" id="reps" @bind="listOfUserExercisesInSelectedDay[j].Repetitions" />
+                                <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width col-2" type="number" id="weight" @bind="listOfUserExercisesInSelectedDay[j].Weight" /> *@
                             </div>
                         }
+                        
                         <div class="d-flex justify-content-center">
-                            <button class="btn btn-primary mt-3 rounded-pill shadow-lg mb-4 border border-2 border-dark poppins-medium" @onclick="SaveWorkout">Save Workout</button>
+                            <button class="mt-3 rounded-pill shadow-lg mb-4 border border-2 border-dark poppins-medium" @onclick="SaveWorkout">Save Workout</button>
                         </div>
                     </EditForm>
                 </div>
@@ -135,6 +159,10 @@
             {WorkoutType.LowerBodyStrength, "Lower Body" }
     };
     public WorkoutType workoutType = new();
+
+    private List<int> ListOfSets = ListOfNumberHelper.GenerateListOfNumbers(1, 10, 1);
+    private List<int> ListOfReps = ListOfNumberHelper.GenerateListOfNumbers(2, 20, 2);
+    private List<int> ListOfWeight = ListOfNumberHelper.GenerateListOfNumbers(5, 405, 5);
 
     protected override void OnInitialized()
     {
@@ -196,7 +224,7 @@
     {
         if (DictionaryOfListOfUserExerciseForSelectedDay.TryGetValue(day, out var exercises) && exercises.Any())
         {
-            return string.Join(", ", exercises.Select(e => $"{e.Name} ({e.Sets} x {e.Repetitions}) - {e.Weight}"));
+            return string.Join(", ", exercises.Select(e => $"{e.Name} ({e.Sets} x {e.Repetitions}) - {e.Weight} lbs"));
         }
         return "Rest Day. Alas..";
     }
