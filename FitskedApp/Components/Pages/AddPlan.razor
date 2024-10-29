@@ -17,20 +17,20 @@
             <form>
                 <div class="col-12 mb-3">
                     <label class="text-black mt-4 d-flex justify-content-center poppins-medium" for="PlanName">Plan Name</label>
-                    <input class="form-control mt-1 w-100 rounded-pill inner-input-shadow" type="text" id="PlanName" @bind="plan.Name" />
+                <input class="form-control mt-1 w-100 rounded-pill inner-input-shadow border-3 border border-dark" type="text" id="PlanName" @bind="plan.Name" />
                 </div>
             </form>
         </div>
 
-        <div class="row border-3 rounded-div border border-dark p-3 bg-white w-auto mt-1 mb-1">
+        <div class="row border-3 rounded-div border border-dark p-3 bg-white w-auto mt-1 mb-1 inner-input-shadow">
             @foreach (var day in daysOfWeek)
             {
-                <div class="col text-center mt-2 mb-2 m-lg-2 mr-2 day-card rounded-div" @onclick="() => { if (!displayDayViewWorkout) UserSelectsDay(day); }">
+                <div class="col text-center mt-2 mb-2 day-card rounded-div" @onclick="() => { if (!displayDayViewWorkout) UserSelectsDay(day); }">
                     <h5 class="mt-2 poppins-medium"> @day </h5>
                     <div class="border-top pt-3 row">
                         <p class="poppins-bold">  @GetWorkoutTypeByDay(day) </p> 
                         <br />
-                        <p class="poppins-medium"> @GetWorkoutSummary(day)</p>
+                        <p class="poppins-medium exercise-summary-font"> @GetWorkoutSummary(day)</p>
                         
                     </div>
                 </div>
@@ -132,7 +132,7 @@
                         }
                         
                         <div class="d-flex justify-content-center">
-                            <button class="mt-3 rounded-pill shadow-lg mb-4 border border-2 border-dark poppins-medium" @onclick="SaveWorkout">Save Workout</button>
+                            <button class="mt-3 rounded-pill shadow-lg mb-4 border border-2 border-dark poppins-medium bg-white" @onclick="SaveWorkout">Save Workout</button>
                         </div>
                     </EditForm>
                 </div>
@@ -224,7 +224,7 @@
     {
         if (DictionaryOfListOfUserExerciseForSelectedDay.TryGetValue(day, out var exercises) && exercises.Any())
         {
-            return string.Join(", ", exercises.Select(e => $"{e.Name} ({e.Sets} x {e.Repetitions}) - {e.Weight} lbs"));
+            return string.Join(" ",exercises.Select(e => $"{e.Name} ({e.Sets}x{e.Repetitions}) - {e.Weight}lbs"));
         }
         return "Rest Day. Alas..";
     }

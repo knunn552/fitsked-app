@@ -1,6 +1,6 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color: #E83A4C;
+    background: #cc0000;
 }
 
 a, .btn-link {
@@ -52,7 +52,7 @@ h1:focus {
 }
 
 .inner-input-shadow {
-    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.4)
+    box-shadow: inset 0 3px 4px rgba(0, 0, 0, 0.5)
 }
 
 .user-exercise-input-width{
@@ -68,7 +68,7 @@ h1:focus {
 }
 
     .day-card:hover {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     }
 
 .rounded-div {
@@ -107,6 +107,14 @@ h1:focus {
 .yellow-font {
     color: #ffff00;
 }
+
+.exercise-summary-font {
+    font-size: 0.65rem; /* Adjust font size to fit more text */
+    line-height: 1.2; /* Tighten up spacing between lines */
+    overflow: hidden;
+
+}
+
 
 /* Fonts End */
 
