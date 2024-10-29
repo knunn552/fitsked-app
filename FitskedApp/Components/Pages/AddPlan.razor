@@ -17,12 +17,12 @@
             <form>
                 <div class="col-12 mb-3">
                     <label class="text-black mt-4 d-flex justify-content-center poppins-medium" for="PlanName">Plan Name</label>
-                <input class="form-control mt-1 w-100 rounded-pill inner-input-shadow border-3 border border-dark" type="text" id="PlanName" @bind="plan.Name" />
+                <input class="form-control mt-1 w-100 rounded-pill inner-input-shadow border-3 border border-warning" type="text" id="PlanName" @bind="plan.Name" />
                 </div>
             </form>
         </div>
 
-        <div class="row border-3 rounded-div border border-dark p-3 bg-white w-auto mt-1 mb-1 inner-input-shadow">
+        <div class="row border-3 rounded-div border border-warning p-3 bg-white w-auto mt-1 mb-1 inner-input-shadow">
             @foreach (var day in daysOfWeek)
             {
                 <div class="col text-center mt-2 mb-2 day-card rounded-div" @onclick="() => { if (!displayDayViewWorkout) UserSelectsDay(day); }">

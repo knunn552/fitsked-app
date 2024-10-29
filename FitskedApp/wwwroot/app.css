@@ -1,6 +1,6 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background: #cc0000;
+    background: #ffffff;
 }
 
 a, .btn-link {
@@ -73,6 +73,10 @@ h1:focus {
 
 .rounded-div {
     border-radius: 20px;
+}
+
+.red-border {
+    border: 2px solid #cc0000;
 }
 
 /* Fonts Start */
