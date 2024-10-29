@@ -12,23 +12,32 @@
             <AuthorizeView>
                 <Authorized>
                     <div class="nav-item px-3">
-                            <span class="bi bi-person-fill-nav-menu" aria-hidden="true"> Welcome, </span> @context.User.Identity?.Name! 
+                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"> Welcome, </span> @context.User.Identity?.Name!
                     </div>
                     <div class="nav-item px-3">
                         <form action="Account/Logout" method="post">
                             <AntiforgeryToken />
                             <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                            <a href="/">
-                                <button type="submit" class="btn-custom p-2 w-100 border border-2 border-dark rounded-pill poppins-medium">
-                                    <span class="bi bi-arrow-bar-left-nav-menu " aria-hidden="true"></span> Logout
-                                </button>
-                            </a>
+                            <button type="submit" class="btn-custom p-2 w-100 border border-2 border-dark rounded-pill poppins-medium">
+                                <span class="bi bi-arrow-bar-left-nav-menu " aria-hidden="true"></span> Logout
+                            </button>
                         </form>
                     </div>
                 </Authorized>
-                <NotAuthorized> 
+                <NotAuthorized>
+                    <div class="nav-item px-3 p-2 w-100">
+                        <NavLink class="nav-link btn-custom" href="Account/Register">
+                            <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3 p-2 w-100">
+                        <NavLink class="nav-link btn-custom" href="Account/Login">
+                            <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
+                        </NavLink>
+                    </div>
                 </NotAuthorized>
             </AuthorizeView>
+
         </div>
 
         <article class="content px-4">
