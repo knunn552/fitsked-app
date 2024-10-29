@@ -27,7 +27,7 @@
                 <div class="col text-center mt-2 mb-2 m-lg-2 mr-2 day-card rounded-div" @onclick="() => { if (!displayDayViewWorkout) UserSelectsDay(day); }">
                     <h5 class="mt-2 poppins-medium"> @day </h5>
                     <div class="border-top pt-3 row">
-                        <label class="poppins-bold"> @GetWorkoutTypeByDay(day) </label>
+                        <p class="poppins-bold">  @GetWorkoutTypeByDay(day) </p> 
                         <br />
                         <p class="poppins-medium"> @GetWorkoutSummary(day)</p>
                         
@@ -60,9 +60,9 @@
                         @* <label for="workoutType"> Workout Type: </label> *@
                         <div class="d-flex justify-content-center">
                             <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetExercisesByWorkoutType">
-                                @foreach (var type in Enum.GetValues(typeof(WorkoutType)))
+                                @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(2))
                                 {
-                                    <option value="@type">@type</option>
+                                    <option value="@type"> @StringValuesForWorkoutType[type] </option>
                                 }
                             </InputSelect>
                         </div>
@@ -129,6 +129,12 @@
     private List<UserWorkout> workoutListForCurrentPlan = new();
     private bool displayDayViewWorkout = false;
     public List<ExerciseDTO> listOfExercisesByWorkoutType = new();
+    private static readonly Dictionary<WorkoutType, string> StringValuesForWorkoutType = new()
+    {
+            {WorkoutType.UpperBodyStrength, "Upper Body" },
+            {WorkoutType.LowerBodyStrength, "Lower Body" }
+    };
+    public WorkoutType workoutType = new();
 
     protected override void OnInitialized()
     {
@@ -162,13 +168,37 @@
         displayDayViewWorkout = false;
     }
 
+    public string GetWorkoutTypeByDay(string day)
+    {
+        if (DictionaryOfListOfUserExerciseForSelectedDay.TryGetValue(day, out var userWorkout) && userWorkout?.Any() == true)
+        {
+            var userExercise = userWorkout.FirstOrDefault();
+            if (userExercise != null)
+            {
+                var enumValue = userExercise.WorkoutType;
+                switch (enumValue)
+                {
+                    case WorkoutType.UpperBodyStrength:
+                        return "Upper Body";
+
+                    case WorkoutType.LowerBodyStrength:
+                        return "Lower Body";
+
+                    default:
+                        return "Nothing going on today";
+                }
+            }
+        }
+        return "Nothing going on today";
+    }
+
     private string GetWorkoutSummary(string day)
     {
         if (DictionaryOfListOfUserExerciseForSelectedDay.TryGetValue(day, out var exercises) && exercises.Any())
         {
             return string.Join(", ", exercises.Select(e => $"{e.Name} ({e.Sets} x {e.Repetitions}) - {e.Weight}"));
         }
-        return "You haven't added any workouts here yet. Are you taking an off day?";
+        return "Rest Day. Alas..";
     }
 
     private async Task AddNewPlan()
@@ -257,28 +287,6 @@
         PutWorkoutTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
     }
 
-    public string GetWorkoutTypeByDay(string day)
-    {
-        var userWorkout = DictionaryOfListOfUserExerciseForSelectedDay[day];
-        var userExercises = userWorkout.FirstOrDefault();
-        var enumValue = userExercise.WorkoutType;
-
-        switch(enumValue)
-        {
-            case WorkoutType.UpperBodyStrength:
-
-                return "Upper Body Day";
-                break;
-
-            case WorkoutType.LowerBodyStrength:
-
-                return "Leg Day!";
-                break;
-
-            default:
-                return "Nothing going on today";
-                break;
-        }
-    }
+    
         
 }
