@@ -67,13 +67,6 @@
                             </InputSelect>
                         </div>
                         <br />
-                        
-                            @* <label for="exerciseType" class="col-2"> Exercise Type </label>
-                            <label for="exerciseName" class="col-4 "> Exercise </label>
-                            <label for="sets" class="col-1"> Sets </label>
-                            <label for="reps" class="col-1 "> Reps </label>
-                            <label for="weight" class="col-2"> Weight </label> *@
-
                         @for (int i = 0; i < numberOfExercisesInWorkout; i++)
                         {
                             var j = i;
@@ -124,14 +117,9 @@
                                         <option value="@weightNumber">@weightNumber lbs.</option>
                                     }
                                 </InputSelect>
-
-
-                                @* <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width col-1" type="number" id="sets" @bind="listOfUserExercisesInSelectedDay[j].Sets" />
-                                <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width col-2" type="number" id="reps" @bind="listOfUserExercisesInSelectedDay[j].Repetitions" />
-                                <input class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-input-width col-2" type="number" id="weight" @bind="listOfUserExercisesInSelectedDay[j].Weight" /> *@
                             </div>
                         }
-                        
+
                         <div class="d-flex justify-content-center">
                             <button class="mt-3 rounded-pill mb-4 border border-2 border-danger poppins-medium bg-white main-button p-2" @onclick="SaveWorkout">Save Workout</button>
                         </div>
@@ -283,13 +271,6 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    // So ultimately we need 4 methods. We need the method that runs all of the methods we need to get an exerciseId from Name, workoutType from Name, and exerciseType by Name.
-    // I would rather do this and have the binded value show up in the week view for the name and then get the other values based on the name.
-    // ChatGPT recommended something different but this is how I think it should work given what I want and best coding practices.
-    // The main method is probably going to take in a reference parameter which will be changed which will the the particular instance of userExercise
-    // The main method will also take in the userExercise Name to filter based on a listofFilteredExercise which we'll also probably have to include as a parameter 
-    // We use the listofExercisesForSelectedDay variable to filter and retrive information as it is undoubtedly in scope.
-    // Need to refactor all of this and put it somewhere else because this razor component is becoming ridiculous.
     public void PutExerciseIdInUserExerciseBasedOnName(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
         var filteredExercise = listOfExercisesToFilterOn.Where(e => e.Name == name).FirstOrDefault();
@@ -314,8 +295,5 @@
         PutExerciseIdInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
         PutExerciseTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
         PutWorkoutTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
-    }
-
-    
-        
+    } 
 }
