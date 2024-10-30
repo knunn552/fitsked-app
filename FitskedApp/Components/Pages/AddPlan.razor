@@ -15,14 +15,14 @@
     <div class="@((displayDayViewWorkout ? "blurred" : ""))">
         <div class="d-flex justify-content-center">
             <form>
-                <div class="col-12 mb-5">
-                    <label class="text-black mt-4 d-flex justify-content-center poppins-medium" for="PlanName">Plan Name</label>
+                <div class="col-12 mb-3">
+                    <label class="text-black mt-5 pt-2 d-flex justify-content-center poppins-medium" for="PlanName">Plan Name</label>
                 <input class="form-control mt-1 w-100 rounded-pill inner-input-shadow border-3 border border-warning" type="text" id="PlanName" @bind="plan.Name" />
                 </div>
             </form>
         </div>
 
-        <div class="row border-3 rounded-div border border-warning p-3 bg-white w-auto mt-2 mb-2 inner-input-shadow">
+        <div class="row border-4 rounded-div border border-warning p-3 bg-white w-auto mb-2 inner-input-shadow">
             @foreach (var day in daysOfWeek)
             {
 
@@ -38,8 +38,8 @@
             }
         </div>
 
-        <div class="d-flex justify-content-center mt-5">
-            <button class="rounded-pill w-25 mt-2 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) AddNewPlan();}"> Add Plan </button>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) AddNewPlan();}"> Add Plan </button>
         </div>
     </div>
 
@@ -48,11 +48,11 @@
 {
     <div class="overlay">
         <div class="d-flex justify-content-center">
-            <div class="bg-white rounded-div w-75 border border-3 border-danger shadow-sm mb-3 mt-4 day-view-modal">
+            <div class="bg-white rounded-div w-75 border border-4 border-danger shadow-sm mb-3 mt-4 day-view-modal">
                 <div class="d-flex justify-content-center">
                     <h5 class="mt-2 poppins-bold">@selectedDay</h5>
                 </div>
-                <hr class="border border-1 border-danger" />
+                <hr class="border border-2 border-danger" />
                 <div class="container d-flex justify-content-center">
                     <EditForm Model="userExercise">
                         <DataAnnotationsValidator />

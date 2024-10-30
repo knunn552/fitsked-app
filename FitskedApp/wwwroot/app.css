@@ -52,7 +52,7 @@ h1:focus {
 }
 
 .inner-input-shadow {
-    box-shadow: inset 0 3px 4px rgba(0, 0, 0, 0.4)
+    box-shadow: inset 0 3px 4px rgba(0, 0, 0, 0.)
 }
 
 .user-exercise-input-width{
@@ -77,10 +77,17 @@ h1:focus {
 }
 
     .main-button:hover {
-        box-shadow: 0 4px 7px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 4px 7px rgba(0, 0, 0, 0.4) !important;
         border: 2px solid yellow !important;
+        color: white !important;
+        background-color: #dc3545 !important; /* Hover background */
     }
 
+
+.header-button {
+    width: 120px;
+    
+}
 
 .rounded-div {
     border-radius: 20px;
@@ -155,6 +162,17 @@ h1:focus {
     padding: 10px; /* Adjust padding as needed */
     color: #333; /* Adjust text color if necessary */
 }
+
+.header-logo {
+    height: 50px; /* Adjust height to your preference */
+    width: auto; /* Keeps aspect ratio */
+}
+
+.main-page-logo {
+    height: 8rem; /* Adjust height to your preference */
+    width: auto; /* Keeps aspect ratio */
+}
+
 
 
 
