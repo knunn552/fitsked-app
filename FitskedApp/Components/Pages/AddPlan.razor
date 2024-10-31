@@ -60,7 +60,7 @@
 
                         @* <label for="workoutType"> Workout Type: </label> *@
                         <div class="d-flex justify-content-center">
-                            <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetListOfExerciseTypeFromSelectedWorkoutTypeAsync">
+                            <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="FilterListOfWorkoutTypeByExerciseTypeAsync">
                                 @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(2))
                                 {
                                     <option value="@type"> @StringValuesForWorkoutType[type] </option>
@@ -78,7 +78,7 @@
 
                             <div class="d-flex justify-content-lg-between mb-2">
 
-                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-3 text-center" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetListOfIndividualExercisesFromSelectedExerciseType(j)">
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-3 text-center" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetListOfIndividualExercisesFromListOfExerciseType(j)">
                                     <option value="" disabled selected> -- Select Exercise Type -- </option>
                                     @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
                                     {
@@ -122,7 +122,7 @@
                         }
 
                         <div class="d-flex justify-content-center">
-                            <button class="mt-3 rounded-pill mb-4 border border-2 border-danger poppins-medium bg-white main-button p-2" @onclick="SaveWorkout">Save Workout</button>
+                            <button class="mt-3 rounded-pill mb-4 border border-2 border-danger poppins-medium bg-white main-button p-2" @onclick="SaveUserWorkoutToInMemoryListOfUserWorkouts">Save Workout</button>
                         </div>
                     </EditForm>
                 </div>
@@ -172,7 +172,7 @@
         displayDayViewWorkout = true;
     }
 
-    private void SaveWorkout()
+    private void SaveUserWorkoutToInMemoryListOfUserWorkouts()
     {
         DictionaryOfListOfUserExerciseForSelectedDay[selectedDay] = listOfUserExercisesInSelectedDay;
 
@@ -251,9 +251,7 @@
         }
     }
 
-    
-
-    public async Task GetListOfExerciseTypeFromSelectedWorkoutTypeAsync()
+    public async Task FilterListOfWorkoutTypeByExerciseTypeAsync()
     {
         listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
         foreach (var exercise in listOfUserExercisesInSelectedDay)
@@ -263,7 +261,7 @@
         StateHasChanged();
     }
 
-    public async Task GetListOfIndividualExercisesFromSelectedExerciseType(int index)
+    public async Task GetListOfIndividualExercisesFromListOfExerciseType(int index)
     {
         var selectedExerciseType = listOfUserExercisesInSelectedDay[index].ExerciseType;
         listOfUserExercisesInSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);
@@ -278,7 +276,6 @@
 
     public void PutWorkoutTypeInUserExerciseBasedOnName(UserExercise userExercise,string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
-        // Question: Do we need to specify keywords out or ref here is we are ultimately editing the value currently in userExercise?
         var filteredExercise = listOfExercisesToFilterOn.Where(e => e.Name == name).FirstOrDefault();
         userExercise.WorkoutType = filteredExercise.WorkoutType;
     }
