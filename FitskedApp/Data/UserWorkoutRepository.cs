@@ -5,6 +5,7 @@ namespace FitskedApp.Data
     public class UserWorkoutRepository : IUserWorkoutRepository
     {
         public ApplicationDbContext _context { get; set; }
+ 
         public UserWorkoutRepository(ApplicationDbContext context)
         {
             this._context = context;
@@ -14,6 +15,23 @@ namespace FitskedApp.Data
         {
             _context.Add(workout);
             await _context.SaveChangesAsync(); // Returns 1 if Success
+        }
+
+        public async Task PersistListOfUserWorkoutsToDatabaseAsync(List<UserWorkout> userWorkouts, int planId)
+        {
+            try
+            {
+                foreach (UserWorkout userworkout in userWorkouts)
+                {
+                    userworkout.PlanId = planId;
+                    await AddWorkout(userworkout);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unable to persist UserWorkout for Plan {planId}:", ex.Message);
+            }
+
         }
     }
 }

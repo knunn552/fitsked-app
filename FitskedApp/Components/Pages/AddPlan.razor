@@ -60,7 +60,7 @@
 
                         @* <label for="workoutType"> Workout Type: </label> *@
                         <div class="d-flex justify-content-center">
-                            <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetExercisesByWorkoutType">
+                            <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="GetListOfExerciseTypeFromSelectedWorkoutTypeAsync">
                                 @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(2))
                                 {
                                     <option value="@type"> @StringValuesForWorkoutType[type] </option>
@@ -78,7 +78,7 @@
 
                             <div class="d-flex justify-content-lg-between mb-2">
 
-                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-3 text-center" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetExercisesByExerciseType(j)">
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-3 text-center" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetListOfIndividualExercisesFromSelectedExerciseType(j)">
                                     <option value="" disabled selected> -- Select Exercise Type -- </option>
                                     @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
                                     {
@@ -237,11 +237,7 @@
             {
                 int planId = await planRepository.AddPlan(plan);
 
-                foreach (UserWorkout userworkout in workoutListForCurrentPlan)
-                {
-                    userworkout.PlanId = planId;
-                    await userWorkoutRepository.AddWorkout(userworkout);
-                }
+                await userWorkoutRepository.PersistListOfUserWorkoutsToDatabaseAsync(workoutListForCurrentPlan, planId);
 
                 await transaction.CommitAsync();
                 plan = new Plan();
@@ -255,7 +251,9 @@
         }
     }
 
-    public async Task GetExercisesByWorkoutType()
+    
+
+    public async Task GetListOfExerciseTypeFromSelectedWorkoutTypeAsync()
     {
         listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
         foreach (var exercise in listOfUserExercisesInSelectedDay)
@@ -265,7 +263,7 @@
         StateHasChanged();
     }
 
-    public async Task GetExercisesByExerciseType(int index)
+    public async Task GetListOfIndividualExercisesFromSelectedExerciseType(int index)
     {
         var selectedExerciseType = listOfUserExercisesInSelectedDay[index].ExerciseType;
         listOfUserExercisesInSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);

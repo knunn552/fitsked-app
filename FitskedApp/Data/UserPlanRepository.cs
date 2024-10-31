@@ -34,7 +34,6 @@ namespace FitskedApp.Data
             _context.Plans.Update(plan);
             _context.SaveChanges();
         }
-
         public void DeletePlan(int planId)
         {
             var plan = _context.Plans.Find(planId);
