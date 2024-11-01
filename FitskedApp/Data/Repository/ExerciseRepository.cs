@@ -1,8 +1,7 @@
-﻿
-using FitskedApp.DTO;
+﻿using FitskedApp.DTO;
 using FitskedApp.Models;
 
-namespace FitskedApp.Data
+namespace FitskedApp.Data.Repository
 {
     public class ExerciseRepository : IExerciseRepository
     {
@@ -12,7 +11,7 @@ namespace FitskedApp.Data
 
         public ExerciseRepository(IUserExerciseRepository userExerciseRepository)
         {
-            this._userExerciseRepository = userExerciseRepository;
+            _userExerciseRepository = userExerciseRepository;
         }
 
         public Task FilterListOfWorkoutTypeByExerciseTypeAsync()

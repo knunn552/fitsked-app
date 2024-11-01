@@ -1,4 +1,4 @@
-﻿namespace FitskedApp.Data
+﻿namespace FitskedApp.Data.Repository
 {
     public interface IExerciseRepository
     {
