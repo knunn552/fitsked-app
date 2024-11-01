@@ -1,6 +1,6 @@
 ﻿using FitskedApp.Models;
 
-namespace FitskedApp.Data
+namespace FitskedApp.Data.Repository
 {
     public interface IUserWorkoutRepository
     {

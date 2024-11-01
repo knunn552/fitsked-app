@@ -1,12 +1,15 @@
 ﻿@page "/add-plan"
-@    using FitskedApp.DTO
-@    using FitskedApp.Data
-@    using FitskedApp.Models
-@    using FitskedApp.Utilities
+@using FitskedApp.DTO
+@using FitskedApp.Data
+@using FitskedApp.Models
+@using FitskedApp.Utilities
+@using FitskedApp.Data.Repository
+@using FitskedApp.Data.Service
 @rendermode InteractiveServer
 @inject IUserPlanRepository planRepository
 @inject IUserExerciseRepository userExerciseRepository
 @inject IUserWorkoutRepository userWorkoutRepository
+@inject IExerciseService exerciseService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ApplicationDbContext ApplicationDbContext
 @inject NavigationManager NavManager
@@ -253,13 +256,16 @@
 
     public async Task FilterListOfWorkoutTypeByExerciseTypeAsync()
     {
-        listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
+        listOfExercisesByWorkoutType = await exerciseService.GetExerciseListAsync(userExercise.WorkoutType); // This method replaced the original method that was retrieving the List Of Exercises from the Web App Db
+        // listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
         foreach (var exercise in listOfUserExercisesInSelectedDay)
         {
             exercise.FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, exercise.ExerciseType);
         }
         StateHasChanged();
     }
+
+    
 
     public async Task GetListOfIndividualExercisesFromListOfExerciseType(int index)
     {

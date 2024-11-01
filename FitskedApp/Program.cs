@@ -2,6 +2,8 @@ using FitskedApp.Client.Pages;
 using FitskedApp.Components;
 using FitskedApp.Components.Account;
 using FitskedApp.Data;
+using FitskedApp.Data.Repository;
+using FitskedApp.Data.Service;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +19,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped<IUserPlanRepository, UserPlanRepository>();
 builder.Services.AddScoped<IUserWorkoutRepository, UserWorkoutRepository>();
 builder.Services.AddScoped<IUserExerciseRepository, UserExerciseRepository>();
+builder.Services.AddScoped<IExerciseService, ExerciseService>();
+
 
 
 builder.Services.AddCascadingAuthenticationState();
@@ -42,6 +46,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

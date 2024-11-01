@@ -2,15 +2,15 @@
 using Microsoft.EntityFrameworkCore;
 using FitskedApp.DTO;
 
-namespace FitskedApp.Data
+namespace FitskedApp.Data.Repository
 {
     public class UserExerciseRepository : IUserExerciseRepository
-    {   
+    {
         private ApplicationDbContext? _context;
 
         public UserExerciseRepository(ApplicationDbContext context)
         {
-            this._context = context;
+            _context = context;
         }
 
         public async Task AddUserExercise(UserExercise userExercise)

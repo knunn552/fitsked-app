@@ -1,7 +1,7 @@
 ﻿using FitskedApp.DTO;
 using FitskedApp.Models;
 
-namespace FitskedApp.Data
+namespace FitskedApp.Data.Repository
 {
     public interface IUserExerciseRepository
     {

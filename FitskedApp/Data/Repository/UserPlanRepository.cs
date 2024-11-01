@@ -1,7 +1,7 @@
 ﻿using FitskedApp.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace FitskedApp.Data
+namespace FitskedApp.Data.Repository
 {
     public class UserPlanRepository : IUserPlanRepository
     {
