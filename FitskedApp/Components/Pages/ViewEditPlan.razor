@@ -1,4 +1,4 @@
-﻿@page "/add-plan"
+﻿@page "/edit-plan/{planName}"
 @using FitskedApp.DTO
 @using FitskedApp.Data
 @using FitskedApp.Models
@@ -13,17 +13,20 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ApplicationDbContext ApplicationDbContext
 @inject NavigationManager NavManager
-<PageTitle> Add Plan </PageTitle>
+
+<PageTitle> Edit Plan </PageTitle>
+
 
 
     <div class="@((displayDayViewWorkout ? "blurred" : ""))">
         <div class="d-flex justify-content-center">
-            <form>
+            <h1> @PlanName</h1>
+            @* <form>
                 <div class="col-12 mb-3">
                     <label class="text-black mt-5 pt-2 d-flex justify-content-center poppins-medium" for="PlanName">Plan Name</label>
                 <input class="form-control mt-1 w-100 rounded-pill inner-input-shadow border-3 border border-warning" type="text" id="PlanName" @bind="plan.Name" />
                 </div>
-            </form>
+            </form> *@
         </div>
 
         <div class="row border-4 rounded-div border border-warning p-3 bg-white w-auto mb-2 inner-input-shadow">
@@ -136,6 +139,12 @@
 }
 
 @code {
+    
+    [Parameter]
+    public string PlanName { get; set; }
+
+
+
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
     private Plan plan = new();
     private UserExercise userExercise = new();

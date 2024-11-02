@@ -5,6 +5,7 @@
 @rendermode InteractiveServer
 @inject IUserRepository userRepository
 @inject IUserPlanRepository planRepository
+@inject NavigationManager navigationManager
 
 <PageTitle> My Plans </PageTitle>
 
@@ -18,24 +19,30 @@
                     <div class="col-6 d-flex align-items-center justify-content-center">
                         <h6 class="poppins-medium"> @plan.Name </h6>
                     </div>
-                    <div class="col-3 d-flex align-items-center justify-content-center">
-
+                    <a class="col-3 d-flex align-items-center justify-content-center" href="/edit-plan/@plan.Name">
                         <button class="bg-white p-2 border border-2 border-danger rounded-pill poppins-medium main-button"> Edit </button> <!-- Use Bootstrap button classes for styling -->
-                    </div>
+                    </a>
+
                     <div class="col-3 d-flex align-items-center justify-content-center">
                         <button @onclick="() => DeletePlan(plan.Id)" class="bg-white p-2 border border-2 border-danger rounded-pill poppins-medium main-button"> Delete </button> <!-- Use Bootstrap button classes for styling -->
                     </div>
-                </div>
+                </div>   
             }
         </div>
     </section>
 </div>
+
+@* @if(PlanName != null)
+{
+    <ViewEditPlan PlanName="@PlanName"/>
+} *@
 
 
 @code {
 
     string? userId;
     List<Plan> planList = new();
+    public string PlanName;
 
     protected override async Task OnInitializedAsync()
     {
@@ -57,7 +64,6 @@
         StateHasChanged();
     }
 
-    // Need to create a method so that the user can delete a plan. Will need to insert StateHasChanged so the UI re renders.
     
 }
 
