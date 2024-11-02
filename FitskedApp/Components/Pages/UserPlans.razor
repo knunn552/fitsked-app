@@ -19,7 +19,7 @@
                     <div class="col-6 d-flex align-items-center justify-content-center">
                         <h6 class="poppins-medium"> @plan.Name </h6>
                     </div>
-                    <a class="col-3 d-flex align-items-center justify-content-center" href="/edit-plan/@plan.Name">
+                    <a class="col-3 d-flex align-items-center justify-content-center" href="/edit-plan/@plan.Name/@plan.Id">
                         <button class="bg-white p-2 border border-2 border-danger rounded-pill poppins-medium main-button"> Edit </button> <!-- Use Bootstrap button classes for styling -->
                     </a>
 
@@ -32,10 +32,6 @@
     </section>
 </div>
 
-@* @if(PlanName != null)
-{
-    <ViewEditPlan PlanName="@PlanName"/>
-} *@
 
 
 @code {
