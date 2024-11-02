@@ -44,5 +44,14 @@ namespace FitskedApp.Data.Repository
                 _context.SaveChanges();
             }
         }
+
+        //public async Task<string> GetWorkoutTypeByPlanId(int planId)
+        //{
+        //   UserWorkout userWorkout = await _context.UserWorkouts.Where(e => e.PlanId == planId).FirstOrDefaultAsync();
+        //   var workoutId = userWorkout.Id;
+           
+        //   UserExercise userExercise = await _context.UserExercises.Where(e => e.UserWorkoutId == workoutId).FirstOrDefaultAsync();
+        //   return userExercise.WorkoutType.ToString();
+        //}
     }
 }
