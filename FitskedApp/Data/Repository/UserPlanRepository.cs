@@ -35,23 +35,19 @@ namespace FitskedApp.Data.Repository
             _context.Plans.Update(plan);
             _context.SaveChanges();
         }
-        public void DeletePlan(int planId)
+        public async Task DeletePlanAsync(int planId)
         {
-            var plan = _context.Plans.Find(planId);
+            var plan = await _context.Plans.FindAsync(planId);
             if (plan != null)
             {
                 _context.Plans.Remove(plan);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
 
-        //public async Task<string> GetWorkoutTypeByPlanId(int planId)
-        //{
-        //   UserWorkout userWorkout = await _context.UserWorkouts.Where(e => e.PlanId == planId).FirstOrDefaultAsync();
-        //   var workoutId = userWorkout.Id;
-           
-        //   UserExercise userExercise = await _context.UserExercises.Where(e => e.UserWorkoutId == workoutId).FirstOrDefaultAsync();
-        //   return userExercise.WorkoutType.ToString();
-        //}
+        Task IUserPlanRepository.UpdatePlan(Plan plan)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
