@@ -12,9 +12,10 @@ namespace FitskedApp.Data.Repository
             _context = context;
         }
 
-        public IEnumerable<Plan> GetPlans()
+        public async Task<List<Plan>> GetAllPlansByUserId(string userId)
         {
-            return _context.Plans.Include(p => p.UserWorkouts).ToList();
+
+            return await _context.Plans.Where(e => e.ApplicationUserId == userId).ToListAsync();
         }
 
         public Plan GetPlanById(int planId)

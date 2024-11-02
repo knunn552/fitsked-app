@@ -20,6 +20,8 @@ builder.Services.AddScoped<IUserPlanRepository, UserPlanRepository>();
 builder.Services.AddScoped<IUserWorkoutRepository, UserWorkoutRepository>();
 builder.Services.AddScoped<IUserExerciseRepository, UserExerciseRepository>();
 builder.Services.AddScoped<IExerciseService, ExerciseService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserPlanRepository, UserPlanRepository>();
 
 
 

@@ -1,0 +1,36 @@
+﻿@page "/user-plans"
+@using FitskedApp.Data.Repository
+@using FitskedApp.Data.Repository
+@using FitskedApp.Models
+
+@inject IUserRepository userRepository
+@inject IUserPlanRepository planRepository
+
+<PageTitle> My Plans </PageTitle>
+
+@foreach(Plan plan in planList)
+{
+    <div>
+        <h1> @plan.Name </h1>
+    </div>
+}
+
+@code {
+    
+    string? userId;
+    List<Plan> planList = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserPlans();
+    }
+
+    private async Task LoadUserPlans()
+    {
+        // Step 1: Get the user ID
+        userId = await userRepository.GetCurrentUserUserId();
+            planList = await planRepository.GetAllPlansByUserId(userId);
+    }
+    
+}
+
