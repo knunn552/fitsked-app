@@ -146,15 +146,26 @@
     [Parameter]
     public int PlanId { get; set; }
 
+    private Plan plan = new(); // Still need a plan object as well be inserting back into the database
+
+
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-    private Plan plan = new();
+
+    private int numberOfExercisesInWorkout = 2; // Instead of this equalling two, it needs to equal the count of userexercises for each workout
+                                                // Really this doesn't need to be here. We can leverage the count of userexercises in each workout within the foreach loop in the HTML above
+
+    private Dictionary<string, List<UserExercise>> DictionaryOfListOfUserExerciseForSelectedDay = new(); // Need this to populate a list of user exercises for a given workout/day
+
     private UserExercise userExercise = new();
-    private int numberOfExercisesInWorkout = 2;
-    private Dictionary<string, List<UserExercise>> DictionaryOfListOfUserExerciseForSelectedDay = new();
+
+    private List<UserWorkout> workoutListForCurrentPlan = new(); // This is what we'll use to retrive the current list of userworkouts for the specific planid that were working with
+
     private string selectedDay = string.Empty;
     private List<UserExercise> listOfUserExercisesInSelectedDay = new();
-    private List<UserWorkout> workoutListForCurrentPlan = new();
-    private bool displayDayViewWorkout = false;
+
+
+
+    private bool displayDayViewWorkout = false; // This needs to be kept to obviously populate the day view
     public List<ExerciseDTO> listOfExercisesByWorkoutType = new();
     private static readonly Dictionary<WorkoutType, string> StringValuesForWorkoutType = new()
     {
@@ -169,6 +180,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+        plan = planRepository.GetPlanById(PlanId);
+        workoutListForCurrentPlan = await userWorkoutRepository.GetListOfUserWorkoutsByPlanIdAsync(PlanId);
+
+
         foreach (var day in daysOfWeek)
         {
             if (!DictionaryOfListOfUserExerciseForSelectedDay.ContainsKey(day))
@@ -176,7 +191,33 @@
                 DictionaryOfListOfUserExerciseForSelectedDay[day] = new List<UserExercise>();
             }
         }
+
+        PlaceListOfUserExercisesInDictionaryForAssociatedDay(workoutListForCurrentPlan, DictionaryOfListOfUserExerciseForSelectedDay, daysOfWeek);
     }
+
+    private void PlaceListOfUserExercisesInDictionaryForAssociatedDay(List<UserWorkout> workoutsList, Dictionary<string,List<UserExercise>> dictionaryForPlan, string[] daysInWeek)
+    {
+        for(int i = 0; i < workoutsList.Count; i++)
+        {
+            var j = i;
+            dictionaryForPlan[daysInWeek[j]] = workoutsList[j].UserExercises?.ToList();
+        }
+    }
+
+    // private void PlaceListOfUserExercisesInDictionaryForAssociatedDay(List<UserWorkout> workoutsList, Dictionary<string, List<UserExercise>> dictionaryForPlan, string[] daysInWeek)
+    // {
+    //     int dayCount = 0; // To keep track of which day we're on
+
+    //     foreach (var workout in workoutsList)
+    //     {
+    //         if (dayCount < daysInWeek.Length)
+    //         {
+    //             dictionaryForPlan[daysInWeek[dayCount]] = workout.UserExercises?.ToList() ?? new List<UserExercise>();
+    //             dayCount++;
+    //         }
+    //     }
+    // }
+
 
     private void UserSelectsDay(string day)
     {

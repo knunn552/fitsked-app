@@ -6,5 +6,7 @@ namespace FitskedApp.Data.Repository
     {
         public Task AddWorkout(UserWorkout workout);
         public Task PersistListOfUserWorkoutsToDatabaseAsync(List<UserWorkout> userWorkouts, int planId);
+
+        public Task<List<UserWorkout>> GetListOfUserWorkoutsByPlanIdAsync(int planId);
     }
 }

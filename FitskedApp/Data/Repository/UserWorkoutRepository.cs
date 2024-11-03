@@ -1,4 +1,5 @@
 ﻿using FitskedApp.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitskedApp.Data.Repository
 {
@@ -32,6 +33,14 @@ namespace FitskedApp.Data.Repository
                 Console.WriteLine($"Unable to persist UserWorkout for Plan {planId}:", ex.Message);
             }
 
+        }
+
+        public async Task<List<UserWorkout>> GetListOfUserWorkoutsByPlanIdAsync(int planId)
+        {
+            return await _context.UserWorkouts.
+                Include(uw => uw.UserExercises).
+                Where(uw => uw.PlanId == planId).
+                ToListAsync();
         }
     }
 }
