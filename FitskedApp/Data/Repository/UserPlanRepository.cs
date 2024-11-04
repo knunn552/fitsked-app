@@ -30,10 +30,11 @@ namespace FitskedApp.Data.Repository
 
             return plan.Id;
         }
-        public void UpdatePlan(Plan plan)
+        public async Task<int> UpdatePlanAsync(Plan plan)
         {
             _context.Plans.Update(plan);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+            return plan.Id;
         }
         public async Task DeletePlanAsync(int planId)
         {
@@ -45,9 +46,5 @@ namespace FitskedApp.Data.Repository
             }
         }
 
-        Task IUserPlanRepository.UpdatePlan(Plan plan)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

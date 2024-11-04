@@ -1,5 +1,6 @@
 ﻿using FitskedApp.Models;
 using Microsoft.EntityFrameworkCore;
+using Mono.TextTemplating;
 
 namespace FitskedApp.Data.Repository
 {
@@ -18,6 +19,15 @@ namespace FitskedApp.Data.Repository
             await _context.SaveChangesAsync(); // Returns 1 if Success
         }
 
+        public async Task UpdateWorkout(UserWorkout workout)
+        {
+            if (_context.Entry(workout).State != EntityState.Unchanged)
+            {
+                _context.Update(workout);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public async Task PersistListOfUserWorkoutsToDatabaseAsync(List<UserWorkout> userWorkouts, int planId)
         {
             try
@@ -32,7 +42,6 @@ namespace FitskedApp.Data.Repository
             {
                 Console.WriteLine($"Unable to persist UserWorkout for Plan {planId}:", ex.Message);
             }
-
         }
 
         public async Task<List<UserWorkout>> GetListOfUserWorkoutsByPlanIdAsync(int planId)
@@ -41,6 +50,22 @@ namespace FitskedApp.Data.Repository
                 Include(uw => uw.UserExercises).
                 Where(uw => uw.PlanId == planId).
                 ToListAsync();
+        }
+
+        public async Task PersistUpdatedListOfUserWorkoutsToDatabaseAsync(List<UserWorkout> userWorkouts, int planId)
+        {
+            try
+            {
+                foreach (UserWorkout userworkout in userWorkouts)
+                {
+                    userworkout.PlanId = planId;
+                    await UpdateWorkout(userworkout);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unable to persist UserWorkout for Plan {planId}:", ex.Message);
+            }
         }
     }
 }

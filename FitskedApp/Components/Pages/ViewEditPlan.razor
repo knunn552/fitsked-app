@@ -46,7 +46,7 @@
         </div>
 
         <div class="d-flex justify-content-center mt-3">
-            <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) AddNewPlan();}"> Add Plan </button>
+        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) UpdatePlanAsync();}"> Update Plan </button>
         </div>
     </div>
 
@@ -195,28 +195,28 @@
         PlaceListOfUserExercisesInDictionaryForAssociatedDay(workoutListForCurrentPlan, DictionaryOfListOfUserExerciseForSelectedDay, daysOfWeek);
     }
 
-    private void PlaceListOfUserExercisesInDictionaryForAssociatedDay(List<UserWorkout> workoutsList, Dictionary<string,List<UserExercise>> dictionaryForPlan, string[] daysInWeek)
-    {
-        for(int i = 0; i < workoutsList.Count; i++)
-        {
-            var j = i;
-            dictionaryForPlan[daysInWeek[j]] = workoutsList[j].UserExercises?.ToList();
-        }
-    }
-
     // private void PlaceListOfUserExercisesInDictionaryForAssociatedDay(List<UserWorkout> workoutsList, Dictionary<string, List<UserExercise>> dictionaryForPlan, string[] daysInWeek)
     // {
-    //     int dayCount = 0; // To keep track of which day we're on
-
-    //     foreach (var workout in workoutsList)
+    //     foreach (var (day, index) in daysInWeek.Select((day, index) => (day, index)))
     //     {
-    //         if (dayCount < daysInWeek.Length)
-    //         {
-    //             dictionaryForPlan[daysInWeek[dayCount]] = workout.UserExercises?.ToList() ?? new List<UserExercise>();
-    //             dayCount++;
-    //         }
+    //         dictionaryForPlan[day] = workoutsList[index].UserExercises?.ToList();
     //     }
     // }
+
+
+    private void PlaceListOfUserExercisesInDictionaryForAssociatedDay(List<UserWorkout> workoutsList, Dictionary<string, List<UserExercise>> dictionaryForPlan, string[] daysInWeek)
+    {
+        int dayCount = 0; // To keep track of which day we're on
+
+        foreach (var workout in workoutsList)
+        {
+            if (dayCount < daysInWeek.Length)
+            {
+                dictionaryForPlan[daysInWeek[dayCount]] = workout.UserExercises?.ToList() ?? new List<UserExercise>();
+                dayCount++;
+            }
+        }
+    }
 
 
     private void UserSelectsDay(string day)
@@ -270,10 +270,10 @@
         {
             return string.Join(" ",exercises.Select(e => $"{e.Name} ({e.Sets}x{e.Repetitions}) - {e.Weight}lbs"));
         }
-        return "Rest Day. Alas..";
+        return null;
     }
 
-    private async Task AddNewPlan()
+    private async Task UpdatePlanAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -289,9 +289,9 @@
             var transaction = await ApplicationDbContext.Database.BeginTransactionAsync();
             try
             {
-                int planId = await planRepository.AddPlan(plan);
+                int planId = await planRepository.UpdatePlanAsync(plan);
 
-                await userWorkoutRepository.PersistListOfUserWorkoutsToDatabaseAsync(workoutListForCurrentPlan, planId);
+                await userWorkoutRepository.PersistUpdatedListOfUserWorkoutsToDatabaseAsync(workoutListForCurrentPlan, planId);
 
                 await transaction.CommitAsync();
                 plan = new Plan();

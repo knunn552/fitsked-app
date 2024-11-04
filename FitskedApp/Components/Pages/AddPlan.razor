@@ -42,9 +42,25 @@
             }
         </div>
 
+    @if (displayUnselectedWorkoutDays)
+    {
         <div class="d-flex justify-content-center mt-3">
             <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) AddNewPlan();}"> Save Plan </button>
         </div>
+
+        @foreach(var day in listToTrackSelectedDays)
+        {
+            <div class="d-flex justify-content-center mt-3">
+                <p class="alert-danger"> Please create a plan for @day, even if it's a rest day. </p>
+            </div>
+        }
+    }
+    else
+    {
+    <div class="d-flex justify-content-center mt-3">
+        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) AddNewPlan();}"> Save Plan </button>
+    </div>
+    }
     </div>
 
 
@@ -137,6 +153,9 @@
 
 @code {
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+    private List<string> listToTrackSelectedDays = new List<string> { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+
+
     private Plan plan = new();
     private UserExercise userExercise = new();
     private int numberOfExercisesInWorkout = 2;
@@ -144,7 +163,9 @@
     private string selectedDay = string.Empty;
     private List<UserExercise> listOfUserExercisesInSelectedDay = new();
     private List<UserWorkout> workoutListForCurrentPlan = new();
+
     private bool displayDayViewWorkout = false;
+    private bool displayUnselectedWorkoutDays = false;
     public List<ExerciseDTO> listOfExercisesByWorkoutType = new();
     private static readonly Dictionary<WorkoutType, string> StringValuesForWorkoutType = new()
     {
@@ -173,6 +194,8 @@
         selectedDay = day;
         listOfUserExercisesInSelectedDay = DictionaryOfListOfUserExerciseForSelectedDay[day];
         displayDayViewWorkout = true;
+        listToTrackSelectedDays.RemoveAll(e => e.Equals(selectedDay));
+
     }
 
     private void SaveUserWorkoutToInMemoryListOfUserWorkouts()
@@ -187,6 +210,7 @@
 
         workoutListForCurrentPlan.Add(userWorkout);
         displayDayViewWorkout = false;
+        StateHasChanged();
     }
 
     public string GetWorkoutTypeByDay(string day)
@@ -210,7 +234,7 @@
                 }
             }
         }
-        return "Nothing going on today";
+        return "Workout Type Unselected";
     }
 
     private string GetWorkoutSummary(string day)
@@ -219,38 +243,45 @@
         {
             return string.Join(" ",exercises.Select(e => $"{e.Name} ({e.Sets}x{e.Repetitions}) - {e.Weight}lbs"));
         }
-        return "Rest Day. Alas..";
+        return "No Exercises Added.";
     }
 
     private async Task AddNewPlan()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
+        if(listToTrackSelectedDays.Count == 0)
         {
-            var userId = user.FindFirst(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (!string.IsNullOrEmpty(userId))
-            {
-                plan.ApplicationUserId = userId;
-            }
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
 
-            var transaction = await ApplicationDbContext.Database.BeginTransactionAsync();
-            try
+            if (user.Identity?.IsAuthenticated == true)
             {
-                int planId = await planRepository.AddPlan(plan);
+                var userId = user.FindFirst(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    plan.ApplicationUserId = userId;
+                }
 
-                await userWorkoutRepository.PersistListOfUserWorkoutsToDatabaseAsync(workoutListForCurrentPlan, planId);
+                var transaction = await ApplicationDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    int planId = await planRepository.AddPlan(plan);
 
-                await transaction.CommitAsync();
-                plan = new Plan();
-                NavManager.NavigateTo($"/");
+                    await userWorkoutRepository.PersistListOfUserWorkoutsToDatabaseAsync(workoutListForCurrentPlan, planId);
+
+                    await transaction.CommitAsync();
+                    plan = new Plan();
+                    NavManager.NavigateTo($"/");
+                }
+                catch (Exception e)
+                {
+                    await transaction.RollbackAsync();
+                    throw new Exception($"Something went wrong with the database transaction: {e.Message}");
+                }
             }
-            catch (Exception e)
-            {
-                await transaction.RollbackAsync();
-                throw new Exception($"Something went wrong with the database transaction: {e.Message}");
-            }
+        }
+        else
+        {
+            displayUnselectedWorkoutDays = true;
         }
     }
 
