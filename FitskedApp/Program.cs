@@ -4,6 +4,7 @@ using FitskedApp.Components.Account;
 using FitskedApp.Data;
 using FitskedApp.Data.Repository;
 using FitskedApp.Data.Service;
+using FitskedApp.Utilities;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,8 @@ builder.Services.AddScoped<IUserExerciseRepository, UserExerciseRepository>();
 builder.Services.AddScoped<IExerciseService, ExerciseService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserPlanRepository, UserPlanRepository>();
+builder.Services.AddScoped<IUserService,IdentityUserService>();
+
 
 
 
