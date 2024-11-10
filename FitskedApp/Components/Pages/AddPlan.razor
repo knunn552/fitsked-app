@@ -141,6 +141,11 @@
                                 </InputSelect>
                             </div>
                         }
+                        <div>
+                            <button class="mt-3 rounded-pill mb-4 border border-2 border-danger poppins-medium bg-white main-button p-2" @onclick="AddAdditionalExerciseToWorkout">
+                                Add Exercise
+                            </button>
+                        </div>
 
                         <div class="d-flex justify-content-center">
                             <button class="mt-3 rounded-pill mb-4 border border-2 border-danger poppins-medium bg-white main-button p-2" @onclick="SaveUserWorkoutToInMemoryListOfUserWorkouts">Save Workout</button>
@@ -176,6 +181,27 @@
     };
     public WorkoutType workoutType = new();
 
+    private Dictionary<string, int> DictionaryStoringListPositionOfSelectedDay = new Dictionary<string, int>
+{
+    { "Sunday", 0 },
+    { "Monday", 1 },
+    { "Tuesday", 2 },
+    { "Wednesday", 3 },
+    { "Thursday", 4 },
+    { "Friday", 5 },
+    { "Saturday", 6 }
+};
+
+    private void AddAdditionalExerciseToWorkout()
+    {
+        if(numberOfExercisesInWorkout < 8)
+        {
+            numberOfExercisesInWorkout += 1;
+            StateHasChanged();
+        }
+
+    }
+
     private List<int> ListOfSets = ListOfNumberHelper.GenerateListOfNumbers(1, 10, 1);
     private List<int> ListOfReps = ListOfNumberHelper.GenerateListOfNumbers(2, 20, 2);
     private List<int> ListOfWeight = ListOfNumberHelper.GenerateListOfNumbers(5, 405, 5);
@@ -188,6 +214,13 @@
             {
                 DictionaryOfListOfUserExerciseForSelectedDay[day] = new List<UserExercise>();
             }
+        }
+
+        for(int i = 0; i < 7; i++)
+        {
+            var j = i;
+            UserWorkout newWorkout = new UserWorkout();
+            workoutListForCurrentPlan.Add(newWorkout);
         }
     }
 
@@ -202,17 +235,25 @@
 
     private void SaveUserWorkoutToInMemoryListOfUserWorkouts()
     {
-        DictionaryOfListOfUserExerciseForSelectedDay[selectedDay] = listOfUserExercisesInSelectedDay;
+        if (DictionaryStoringListPositionOfSelectedDay.ContainsKey(selectedDay))
+        {
+            DictionaryOfListOfUserExerciseForSelectedDay[selectedDay] = listOfUserExercisesInSelectedDay;
 
-        UserWorkout userWorkout = new UserWorkout
-            {
-                PlanId = plan.Id, // Ensure to set this before saving
-                UserExercises = listOfUserExercisesInSelectedDay
-            };
+            int dayIndex = DictionaryStoringListPositionOfSelectedDay[selectedDay];
 
-        workoutListForCurrentPlan.Add(userWorkout);
-        displayDayViewWorkout = false;
-        StateHasChanged();
+
+            workoutListForCurrentPlan.RemoveAt(dayIndex);
+
+            UserWorkout userWorkout = new UserWorkout
+                {
+                    PlanId = plan.Id,
+                    UserExercises = listOfUserExercisesInSelectedDay
+                };
+
+            workoutListForCurrentPlan.Insert(dayIndex, userWorkout);
+            displayDayViewWorkout = false;
+            StateHasChanged();
+        }
     }
 
     public string GetWorkoutTypeByDay(string day)

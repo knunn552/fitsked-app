@@ -52,20 +52,58 @@ namespace FitskedApp.Data.Repository
                 ToListAsync();
         }
 
+        //public async Task PersistUpdatedListOfUserWorkoutsToDatabaseAsync(List<UserWorkout> userWorkouts, int planId)
+        //{
+        //    try
+        //    {
+        //        foreach (UserWorkout userworkout in userWorkouts)
+        //        {
+        //            userworkout.PlanId = planId;
+        //            await UpdateWorkout(userworkout);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Unable to persist UserWorkout for Plan {planId}:", ex.Message);
+        //    }
+        //}
+
         public async Task PersistUpdatedListOfUserWorkoutsToDatabaseAsync(List<UserWorkout> userWorkouts, int planId)
         {
             try
             {
-                foreach (UserWorkout userworkout in userWorkouts)
+                // Retrieve existing workouts for the given planId
+                var existingWorkouts = await _context.UserWorkouts
+                    .Where(uw => uw.PlanId == planId)
+                    .ToListAsync();
+
+                foreach (var userWorkout in userWorkouts)
                 {
-                    userworkout.PlanId = planId;
-                    await UpdateWorkout(userworkout);
+                    userWorkout.PlanId = planId;
+
+                    // Check if the workout already exists in the database
+                    var existingWorkout = existingWorkouts.FirstOrDefault(ew => ew.Id == userWorkout.Id);
+
+                    if (existingWorkout != null)
+                    {
+                        // Update existing workout properties with new values
+                        _context.Entry(existingWorkout).CurrentValues.SetValues(userWorkout);
+                    }
+                    else
+                    {
+                        // Add new workout if it doesn't exist
+                        await _context.UserWorkouts.AddAsync(userWorkout);
+                    }
                 }
+
+                // Commit all changes in a single save
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unable to persist UserWorkout for Plan {planId}:", ex.Message);
+                Console.WriteLine($"Unable to persist UserWorkouts for Plan {planId}: {ex.Message}");
             }
         }
+
     }
 }
