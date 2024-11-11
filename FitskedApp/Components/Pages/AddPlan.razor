@@ -109,7 +109,7 @@
                             </InputSelect>
                         </div>
                         <br />
-                        @for (int i = 0; i < numberOfExercisesInWorkout; i++)
+                        @for (int i = 0; i < NumberOfUserExercisesInWorkoutForSelectedDay[selectedDay]; i++)
                         {
                             var j = i;
                             if (j >= listOfUserExercisesInSelectedDay.Count)
@@ -120,7 +120,7 @@
                             <div class="d-flex justify-content-lg-between mb-2">
 
                                 <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-3 text-center" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetListOfIndividualExercisesFromListOfExerciseType(j)">
-                                    <option value="" disabled selected> -- Select Exercise Type -- </option>
+                                    <option class="" value="" disabled selected> -- Select Exercise Type -- </option>
                                     @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
                                     {
                                         <option value="@type">@type</option>
@@ -162,7 +162,7 @@
                             </div>
                         }
                         <div>
-                            <button class="mt-3 rounded-pill mb-4 border border-2 border-danger poppins-medium bg-white main-button p-2" @onclick="AddAdditionalExerciseToWorkout">
+                            <button class="mt-3 rounded-pill mb-4 border border-2 border-danger poppins-medium bg-white main-button p-2" @onclick="() =>  AddAdditionalExerciseToWorkout(selectedDay)">
                                 Add Exercise
                             </button>
                         </div>
@@ -185,7 +185,7 @@
 
     private Plan plan = new();
     private UserExercise userExercise = new();
-    private int numberOfExercisesInWorkout = 2;
+    private int numberOfExercisesInWorkout = 1;
     private Dictionary<string, List<UserExercise>> DictionaryOfListOfUserExerciseForSelectedDay = new();
     private string selectedDay = string.Empty;
     private List<UserExercise> listOfUserExercisesInSelectedDay = new();
@@ -202,21 +202,32 @@
     public WorkoutType workoutType = new();
 
     private Dictionary<string, int> DictionaryStoringListPositionOfSelectedDay = new Dictionary<string, int>
-{
-    { "Sunday", 0 },
-    { "Monday", 1 },
-    { "Tuesday", 2 },
-    { "Wednesday", 3 },
-    { "Thursday", 4 },
-    { "Friday", 5 },
-    { "Saturday", 6 }
-};
-
-    private void AddAdditionalExerciseToWorkout()
     {
-        if(numberOfExercisesInWorkout < 8)
+        { "Sunday", 0 },
+        { "Monday", 1 },
+        { "Tuesday", 2 },
+        { "Wednesday", 3 },
+        { "Thursday", 4 },
+        { "Friday", 5 },
+        { "Saturday", 6 }
+    };
+
+    public  Dictionary<string, int> NumberOfUserExercisesInWorkoutForSelectedDay = new Dictionary<string, int>
+    {
+        { "Sunday", 1},
+        { "Monday", 1 },
+        { "Tuesday", 1},
+        { "Wednesday", 1},
+        { "Thursday", 1 },
+        { "Friday", 1},
+        { "Saturday", 1}
+    };
+
+    private void AddAdditionalExerciseToWorkout(string day)
+    {
+        if (NumberOfUserExercisesInWorkoutForSelectedDay[day] < 8)
         {
-            numberOfExercisesInWorkout += 1;
+            NumberOfUserExercisesInWorkoutForSelectedDay[day] += 1;
             StateHasChanged();
         }
 
