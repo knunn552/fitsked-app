@@ -1,6 +1,7 @@
 ﻿using FitskedApp.Models;
 using Microsoft.EntityFrameworkCore;
 using FitskedApp.DTO;
+using FitskedApp.Components.Account.Pages;
 
 namespace FitskedApp.Data.Repository
 {
@@ -35,6 +36,29 @@ namespace FitskedApp.Data.Repository
         public List<ExerciseDTO> GetExercisesFromWorkoutListBasedOnExerciseType(List<ExerciseDTO> exercises, ExerciseType exerciseType)
         {
             return exercises.Where(e => e.ExerciseType == exerciseType).ToList();
+        }
+
+        public async Task PersistUpdatedListOfUserWorkoutsToDatabaseAsync(List<UserWorkout> userWorkouts, List<int> updatedExerciseIds)
+        {
+            foreach (var userWorkout in userWorkouts)
+            {
+                foreach (var userExercise in userWorkout.UserExercises)
+                {
+                    if (updatedExerciseIds.Contains(userExercise.Id))
+                    {
+                        await UpdateExercise(userExercise);
+                    }
+                }
+            }
+        }
+
+        public async Task UpdateExercise(UserExercise userExercise)
+        {
+            if (_context.Entry(userExercise).State != EntityState.Unchanged)
+            {
+                _context.Update(userExercise);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }
