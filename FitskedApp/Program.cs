@@ -24,6 +24,7 @@ builder.Services.AddScoped<IExerciseService, ExerciseService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserPlanRepository, UserPlanRepository>();
 builder.Services.AddScoped<IUserService,IdentityUserService>();
+builder.Services.AddScoped<NavigationLinks>();
 
 
 

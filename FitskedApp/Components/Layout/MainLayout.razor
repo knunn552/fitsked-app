@@ -23,7 +23,7 @@
                         <form action="Account/Logout" method="post" class="ms-3">
                             <AntiforgeryToken />
                             <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                            <button type="submit" class="bg-white p-2 border border-2 border-danger rounded-pill poppins-medium main-button">
+                            <button type="submit" class="bg-white p-2 w-100 border border-2 border-danger rounded-pill poppins-medium main-button">
                                 <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
                             </button>
                         </form>
@@ -31,17 +31,13 @@
                 </Authorized>
                 <NotAuthorized>
                     <div class="d-flex ms-auto">
-                        <div class="nav-item px-3 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium">
-                            <a class="nav-link" href="Account/Register">
-                                <span class="bi bi-file-earmark-plus-fill-nav-menu text-black" aria-hidden="true"></span> Register
+                            <a class="text-black text-decoration-none p-2 rounded-pill bg-white border border-danger border-3 w-100 me-2 text-center main-button poppins-medium" href="Account/Register">
+                                <span class=" text-black" aria-hidden="true"></span> Register
                             </a>
-                        </div>
-
-                        <div class="nav-item px-3 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium">
-                            <a class="nav-link" href="Account/Login">
-                                <span class="bi bi-file-earmark-plus-fill-nav-menu text-black" aria-hidden="true"></span> Login
+                        
+                            <a class="text-black text-decoration-none p-2 rounded-pill bg-white border border-danger border-3 w-100 me-2 text-center main-button poppins-medium" href="Account/Login">
+                                <span class="text-black" aria-hidden="true"></span> Login
                             </a>
-                        </div>
                     </div>
                 </NotAuthorized>
             </AuthorizeView>
