@@ -143,23 +143,22 @@
 
 @code {
 
-
     [Parameter]
     public string PlanName { get; set; }
 
     [Parameter]
     public int PlanId { get; set; }
 
-    private Plan plan = new(); // Still need a plan object as well be inserting back into the database
-
-
+    private Plan plan = new();
+    private UserExercise userExercise = new();
+    public WorkoutType workoutType = new();
+    private List<UserWorkout> workoutListForCurrentPlan = new(); // This is what we'll use to retrive the current list of userworkouts for the specific planid that were working with
+    private List<UserExercise> listOfUserExercisesInSelectedDay = new();
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-
-    private int numberOfExercisesInWorkout = 2; // Instead of this equalling two, it needs to equal the count of userexercises for each workout
-                                                // Really this doesn't need to be here. We can leverage the count of userexercises in each workout within the foreach loop in the HTML above
-
-
+    private int numberOfExercisesInWorkout = 2;
+    private List<int> TrackedListOfEditedExerciseIds = new();
     private Dictionary<string, List<UserExercise>> DictionaryOfListOfUserExerciseForSelectedDay = new(); // Need this to populate a list of user exercises for a given workout/day
+    private string selectedDay = string.Empty;
 
     private Dictionary<string, int> DictionaryStoringListPositionOfSelectedDay = new Dictionary<string, int>
 {
@@ -171,31 +170,6 @@
     { "Friday", 5 },
     { "Saturday", 6 }
 };
-
-    // We need a list of UserExercise Ids that have been edited so we know which entities to locate in the database
-    // For a given exercise in a workout, we will trigger that the user exercise has been updated once the user clicks off the selection of the exercise
-
-    // We need a list of actual UserExercises that have been edited so we can update the records based on id
-
-
-
-    private List<int> TrackedListOfEditedExerciseIds = new();
-
-    public void AddEditedUserExerciseIdToTrackedListOfIds(int id)
-    {
-        TrackedListOfEditedExerciseIds.Add(id);
-        TrackedListOfEditedExerciseIds.Sort();
-    }
-
-    private UserExercise userExercise = new();
-
-    private List<UserWorkout> workoutListForCurrentPlan = new(); // This is what we'll use to retrive the current list of userworkouts for the specific planid that were working with
-
-    private string selectedDay = string.Empty;
-    private List<UserExercise> listOfUserExercisesInSelectedDay = new();
-
-
-
     private bool displayDayViewWorkout = false; // This needs to be kept to obviously populate the day view
     public List<ExerciseDTO> listOfExercisesByWorkoutType = new();
     private static readonly Dictionary<WorkoutType, string> StringValuesForWorkoutType = new()
@@ -203,7 +177,6 @@
             {WorkoutType.UpperBodyStrength, "Upper Body" },
             {WorkoutType.LowerBodyStrength, "Lower Body" }
     };
-    public WorkoutType workoutType = new();
 
     private List<int> ListOfSets = ListOfNumberHelper.GenerateListOfNumbers(1, 10, 1);
     private List<int> ListOfReps = ListOfNumberHelper.GenerateListOfNumbers(2, 20, 2);
@@ -226,18 +199,16 @@
         PlaceListOfUserExercisesInDictionaryForAssociatedDay(workoutListForCurrentPlan, DictionaryOfListOfUserExerciseForSelectedDay, daysOfWeek);
     }
 
-    // private void PlaceListOfUserExercisesInDictionaryForAssociatedDay(List<UserWorkout> workoutsList, Dictionary<string, List<UserExercise>> dictionaryForPlan, string[] daysInWeek)
-    // {
-    //     foreach (var (day, index) in daysInWeek.Select((day, index) => (day, index)))
-    //     {
-    //         dictionaryForPlan[day] = workoutsList[index].UserExercises?.ToList();
-    //     }
-    // }
+    public void AddEditedUserExerciseIdToTrackedListOfIds(int id)
+    {
+        TrackedListOfEditedExerciseIds.Add(id);
+        TrackedListOfEditedExerciseIds.Sort();
+    }
 
 
     private void PlaceListOfUserExercisesInDictionaryForAssociatedDay(List<UserWorkout> workoutsList, Dictionary<string, List<UserExercise>> dictionaryForPlan, string[] daysInWeek)
     {
-        int dayCount = 0; // To keep track of which day we're on
+        int dayCount = 0;
 
         foreach (var workout in workoutsList)
         {
@@ -342,6 +313,7 @@
                 throw new Exception($"Something went wrong with the database transaction: {e.Message}");
             }
         }
+        StateHasChanged();
     }
 
 
