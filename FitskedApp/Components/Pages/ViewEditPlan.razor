@@ -64,7 +64,10 @@
                     <EditForm Model="userExercise">
                         <DataAnnotationsValidator />
 
-                        @* <label for="workoutType"> Workout Type: </label> *@
+                        <div class="d-flex justify-content-center pt-2">
+                            <p> Please reselect all values to update this workout. Upgraded functionality coming soon. </p>
+                        </div>
+
                         <div class="d-flex justify-content-center">
                             <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="FilterListOfWorkoutTypeByExerciseTypeAsync">
                                 @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(2))
@@ -73,6 +76,7 @@
                                 }
                             </InputSelect>
                         </div>
+                        
                         <br />
                         @for (int i = 0; i < numberOfExercisesInWorkout; i++)
                         {
@@ -225,6 +229,7 @@
     {
         selectedDay = day;
         listOfUserExercisesInSelectedDay = DictionaryOfListOfUserExerciseForSelectedDay[day];
+        numberOfExercisesInWorkout = listOfUserExercisesInSelectedDay.Count;
         displayDayViewWorkout = true;
     }
 
