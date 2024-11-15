@@ -1,39 +1,40 @@
-﻿using FitskedApp.DTO;
+﻿using FitskedApp.Data.Service;
+using FitskedApp.DTO;
 using FitskedApp.Models;
-using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json;
 
-namespace FitskedApp.Data.Service
+public class ExerciseService : IExerciseService
 {
-    public class ExerciseService : IExerciseService
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly string _exerciseApiBaseUrl;
+
+    public ExerciseService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        _httpClientFactory = httpClientFactory;
+        _exerciseApiBaseUrl = configuration["ApiSettings:ExerciseApiBaseUrl"]
+            ?? throw new InvalidOperationException("Exercise API base URL is not configured.");
+    }
 
-        public ExerciseService(IHttpClientFactory httpClientFactory) 
+    public async Task<List<ExerciseDTO>> GetExerciseListAsync(WorkoutType workouttype)
+    {
+        HttpClient client = _httpClientFactory.CreateClient();
+        var workoutTypeString = workouttype.ToString();
+        try
         {
-            this._httpClientFactory = httpClientFactory;
+            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            options.Converters.Add(new JsonStringEnumConverter());
+
+            List<ExerciseDTO> exerciseList = await client.GetFromJsonAsync<List<ExerciseDTO>>(
+                $"{_exerciseApiBaseUrl}/api/exercises/by-workout-type/{workoutTypeString}", options);
+
+            return exerciseList ?? new List<ExerciseDTO>();
         }
-        public async Task<List<ExerciseDTO>> GetExerciseListAsync(WorkoutType workouttype)
+        catch (Exception ex)
         {
-            HttpClient client = _httpClientFactory.CreateClient();
-            var workoutTypeString = workouttype.ToString();
-            try
-            {
-                var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
-                options.Converters.Add(new JsonStringEnumConverter());
-
-                List<ExerciseDTO> exerciseList = await client.GetFromJsonAsync<List<ExerciseDTO>>(
-                    $"http://localhost:5279/api/exercises/by-workout-type/{workoutTypeString}", options);
-
-                return exerciseList ?? new List<ExerciseDTO>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-            return new List<ExerciseDTO>();
+            Console.WriteLine(ex.Message);
         }
 
+        return new List<ExerciseDTO>();
     }
 }
