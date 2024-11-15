@@ -16,6 +16,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddScoped<IUserPlanRepository, UserPlanRepository>();
 builder.Services.AddScoped<IUserWorkoutRepository, UserWorkoutRepository>();
