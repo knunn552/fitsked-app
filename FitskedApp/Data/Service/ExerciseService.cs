@@ -37,4 +37,4 @@ public class ExerciseService : IExerciseService
 
         return new List<ExerciseDTO>();
     }
-}
+} 
