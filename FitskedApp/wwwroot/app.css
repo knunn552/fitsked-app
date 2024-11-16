@@ -134,6 +134,11 @@ h1:focus {
 
 }
 
+.table-extra-small-font {
+    font-size: 0.6rem; /* Adjust as needed */
+}
+
+
 
 /* Fonts End */
 
