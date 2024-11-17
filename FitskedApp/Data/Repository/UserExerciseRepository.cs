@@ -20,6 +20,31 @@ namespace FitskedApp.Data.Repository
             await _context.SaveChangesAsync();
         }
 
+        public async Task DeleteExercise(int id)
+        {
+            if(id != 0)
+            {
+                var userExercise = _context.UserExercises.FindAsync(id);
+                if (userExercise != null)
+                {
+                    _context.Remove(userExercise);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            
+        }
+
+        public async Task DeleteListOfExercises(List<int> ids)
+        {
+            // Important to note that RemoveRange expects a list of entities, not just ids
+            var exercisesToDelete = await _context.UserExercises.
+                Where(exercise => ids.Contains(exercise.Id))
+                .ToListAsync();
+
+            _context.RemoveRange(exercisesToDelete);
+            await _context.SaveChangesAsync(); 
+        }
+
         public async Task<List<ExerciseDTO>> GetExercisesBasedOnWorkoutType(WorkoutType workoutType)
         {
             return await _context.Exercises.Where(e => e.WorkoutType == workoutType).
@@ -44,17 +69,26 @@ namespace FitskedApp.Data.Repository
             {
                 foreach (var userExercise in userWorkout.UserExercises)
                 {
-                    if (updatedExerciseIds.Contains(userExercise.Id))
+                    if ((updatedExerciseIds.Contains(userExercise.Id)) && userExercise.Id != 0)
                     {
                         await UpdateExercise(userExercise);
                     }
-                    // Need an if statement here if deletedExerciseId's exist then we will delete that particular exercise
-                    // Else, we will most likely add a user exercise based on the particular workoutid
                     
+                    else if(userExercise.Id == 0) // It's going to be tough to delete an exercise that is no longer in the workout.
+                    {
+                        userExercise.UserWorkoutId = userWorkout.Id;
+                        await AddUserExercise(userExercise);   
+                    }   
                 }
             }
-        }
+            
+            if (deletedExerciseIds != null)
+            {
+                await DeleteListOfExercises(deletedExerciseIds);
+            }
+            // This is where we make the deletion because there's no way we can delete an exercise if its no longer in the workout
 
+        }
         public async Task UpdateExercise(UserExercise userExercise)
         {
             if (_context.Entry(userExercise).State != EntityState.Unchanged)
@@ -63,5 +97,7 @@ namespace FitskedApp.Data.Repository
                 await _context.SaveChangesAsync();
             }
         }
+
+        
     }
 }

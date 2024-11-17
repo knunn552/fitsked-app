@@ -104,7 +104,7 @@
                         <DataAnnotationsValidator />
 
                         <div class="d-flex justify-content-center pt-2">
-                            <p> Reselect <span class="poppins-bold"> Workout Type </span>to populate existing workout. Upgrade coming soon. </p>
+                            <p> <span class="poppins-bold" style="color:red"> IMPORTANT: </span>   Reselect <span class="poppins-bold"> Workout Type </span>to populate existing workout. Upgrade coming soon. </p>
                         </div>
 
                         <div class="d-flex justify-content-center">
@@ -312,20 +312,11 @@
         TrackedListOfEditedExerciseIds.Sort();
     }
 
-    public void AddRemovedUserExerciseIdToTrackedListOfDeletedIds(int id) // User can add exercise then delete that exercise in the same sitting. At which point that user exercise will have no id, which is fine. If its value is 0 or null we can just ignore it when adding that value to the database.
+    public void AddRemovedUserExerciseIdToTrackedListOfDeletedIds(int id)
     {
         TrackedListOfDeletedExerciseIds.Add(id);
         TrackedListOfDeletedExerciseIds.Sort();
     }
-
-
-
-
-
-
-
-    // Just like the method above, we'll need to track the id of the workout(s) that were removed
-    // Just like that method, if we add a new exercise, we'll need to track the userworkout in which we added it and simply add a new record to the database.
 
 
     private void PlaceListOfUserExercisesInDictionaryForAssociatedDay(List<UserWorkout> workoutsList, Dictionary<string, List<UserExercise>> dictionaryForPlan, string[] daysInWeek)
@@ -361,12 +352,13 @@
 
             int dayIndex = DictionaryStoringListPositionOfSelectedDay[selectedDay];
 
-
+            var updatedWorkoutId = workoutListForCurrentPlan[dayIndex].Id;
             workoutListForCurrentPlan.RemoveAt(dayIndex);
 
             UserWorkout userWorkout = new UserWorkout
                 {
                     PlanId = plan.Id,
+                    Id = updatedWorkoutId,
                     UserExercises = listOfUserExercisesInSelectedDay
                 };
 

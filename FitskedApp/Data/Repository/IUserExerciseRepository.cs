@@ -10,5 +10,8 @@ namespace FitskedApp.Data.Repository
         Task AddUserExercise(UserExercise userExercise);
         Task PersistUpdatedListOfUserWorkoutsToDatabaseAsync(List<UserWorkout> userWorkouts, List<int> updatedExerciseIds, List<int> deletedExerciseIds);
         Task UpdateExercise(UserExercise userExercise);
+        Task DeleteExercise(int id);
+        Task DeleteListOfExercises(List<int> ids); 
+
     }
 }
