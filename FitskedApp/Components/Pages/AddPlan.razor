@@ -265,12 +265,13 @@
     private void RemoveAdditionalExerciseFromWorkout(string day)
     {
         NumberOfUserExercisesInWorkoutForSelectedDay[day] -= 1;
+        listOfUserExercisesInSelectedDay.RemoveAt(listOfUserExercisesInSelectedDay.Count - 1);
         StateHasChanged();  
     }
 
     private List<int> ListOfSets = ListOfNumberHelper.GenerateListOfNumbers(1, 10, 1);
     private List<int> ListOfReps = ListOfNumberHelper.GenerateListOfNumbers(2, 20, 2);
-    private List<int> ListOfWeight = ListOfNumberHelper.GenerateListOfNumbers(5, 405, 5);
+    private List<int> ListOfWeight = ListOfNumberHelper.GenerateListOfNumbers(0, 405, 5);
 
     protected override async Task OnInitializedAsync()
     {
