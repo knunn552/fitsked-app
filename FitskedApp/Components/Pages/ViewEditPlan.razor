@@ -21,7 +21,7 @@
 
     <div class="@((displayDayViewWorkout ? "blurred" : ""))">
         <div class="d-flex justify-content-center">
-            <h1> @PlanName</h1>
+        <h1 class="poppins-bold text-primary pt-5 fs-1 text-black"> @PlanName</h1>
             @* <form>
                 <div class="col-12 mb-3">
                     <label class="text-black mt-5 pt-2 d-flex justify-content-center poppins-medium" for="PlanName">Plan Name</label>
@@ -126,8 +126,6 @@
 
                             <div class="d-flex justify-content-center mb-2">
 
-
-
                                 <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-3 text-center" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetListOfIndividualExercisesFromListOfExerciseType(j)">
                                     <option class="" value="" disabled selected> -- Select Exercise Type -- </option>
                                     @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
@@ -170,7 +168,7 @@
 
                                 @if ((j > 0) && (j == NumberOfUserExercisesInWorkoutForSelectedDay[selectedDay] - 1))
                                 {
-                                    <button class=" end-0 me-5 mt-2 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-2" @onclick="() => RemoveAdditionalExerciseFromWorkout(selectedDay)">
+                                    <button class=" end-0 me-5 mt-2 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-2" @onclick="() => RemoveAdditionalExerciseFromWorkout(selectedDay, listOfUserExercisesInSelectedDay[j].Id)">
                                         Remove
                                     </button>
                                 }
@@ -208,7 +206,11 @@
     private List<UserExercise> listOfUserExercisesInSelectedDay = new();
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
     private int numberOfExercisesInWorkout = 2;
+
+
     private List<int> TrackedListOfEditedExerciseIds = new();
+    private List<int> TrackedListOfDeletedExerciseIds = new();
+
     private Dictionary<string, List<UserExercise>> DictionaryOfListOfUserExerciseForSelectedDay = new(); // Need this to populate a list of user exercises for a given workout/day
     private string selectedDay = string.Empty;
 
@@ -251,6 +253,7 @@
         workoutListForCurrentPlan = await userWorkoutRepository.GetListOfUserWorkoutsByPlanIdAsync(PlanId);
 
 
+
         foreach (var day in daysOfWeek)
         {
             if (!DictionaryOfListOfUserExerciseForSelectedDay.ContainsKey(day))
@@ -260,7 +263,31 @@
         }
 
         PlaceListOfUserExercisesInDictionaryForAssociatedDay(workoutListForCurrentPlan, DictionaryOfListOfUserExerciseForSelectedDay, daysOfWeek);
+        UpdateNumberOfUserExercisesInWorkoutForSelectedDay(workoutListForCurrentPlan, NumberOfUserExercisesInWorkoutForSelectedDay, daysOfWeek);
     }
+
+    private void UpdateNumberOfUserExercisesInWorkoutForSelectedDay(
+    List<UserWorkout> workoutsList,
+    Dictionary<string, int> userExerciseCount,
+    string[] daysInWeek)
+    {
+        int dayCount = 0;
+
+        foreach (var workout in workoutsList)
+        {
+            if (dayCount < daysInWeek.Length)
+            {
+                // Get the count of exercises for the current workout, or 0 if null
+                int exerciseCount = workout.UserExercises?.Count ?? 0;
+
+                // Update the count for the corresponding day
+                userExerciseCount[daysInWeek[dayCount]] = exerciseCount;
+
+                dayCount++;
+            }
+        }
+    }
+
 
     private void AddAdditionalExerciseToWorkout(string day)
     {
@@ -271,18 +298,34 @@
         }
     }
 
-    private void RemoveAdditionalExerciseFromWorkout(string day)
+    private void RemoveAdditionalExerciseFromWorkout(string day, int id)
     {
         NumberOfUserExercisesInWorkoutForSelectedDay[day] -= 1;
         listOfUserExercisesInSelectedDay.RemoveAt(listOfUserExercisesInSelectedDay.Count - 1);
+        AddRemovedUserExerciseIdToTrackedListOfDeletedIds(id);
         StateHasChanged();
     }
 
-    public void AddEditedUserExerciseIdToTrackedListOfIds(int id)
+    public void AddEditedUserExerciseIdToTrackedListOfEditedIds(int id)
     {
         TrackedListOfEditedExerciseIds.Add(id);
         TrackedListOfEditedExerciseIds.Sort();
     }
+
+    public void AddRemovedUserExerciseIdToTrackedListOfDeletedIds(int id) // User can add exercise then delete that exercise in the same sitting. At which point that user exercise will have no id, which is fine. If its value is 0 or null we can just ignore it when adding that value to the database.
+    {
+        TrackedListOfDeletedExerciseIds.Add(id);
+        TrackedListOfDeletedExerciseIds.Sort();
+    }
+
+
+
+
+
+
+
+    // Just like the method above, we'll need to track the id of the workout(s) that were removed
+    // Just like that method, if we add a new exercise, we'll need to track the userworkout in which we added it and simply add a new record to the database.
 
 
     private void PlaceListOfUserExercisesInDictionaryForAssociatedDay(List<UserWorkout> workoutsList, Dictionary<string, List<UserExercise>> dictionaryForPlan, string[] daysInWeek)
@@ -381,7 +424,7 @@
             var transaction = await ApplicationDbContext.Database.BeginTransactionAsync();
             try
             {
-                await userExerciseRepository.PersistUpdatedListOfUserWorkoutsToDatabaseAsync(workoutListForCurrentPlan, TrackedListOfEditedExerciseIds);
+                await userExerciseRepository.PersistUpdatedListOfUserWorkoutsToDatabaseAsync(workoutListForCurrentPlan, TrackedListOfEditedExerciseIds, TrackedListOfDeletedExerciseIds);
 
                 await transaction.CommitAsync();
                 plan = new Plan();
@@ -445,7 +488,7 @@
 
     public void BindValuesFromDtoToUserExercise(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
-        AddEditedUserExerciseIdToTrackedListOfIds(userExercise.Id);
+        AddEditedUserExerciseIdToTrackedListOfEditedIds(userExercise.Id);
         PutExerciseIdInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
         PutExerciseTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
         PutWorkoutTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);

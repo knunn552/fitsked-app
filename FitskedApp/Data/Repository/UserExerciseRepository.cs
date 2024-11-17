@@ -38,7 +38,7 @@ namespace FitskedApp.Data.Repository
             return exercises.Where(e => e.ExerciseType == exerciseType).ToList();
         }
 
-        public async Task PersistUpdatedListOfUserWorkoutsToDatabaseAsync(List<UserWorkout> userWorkouts, List<int> updatedExerciseIds)
+        public async Task PersistUpdatedListOfUserWorkoutsToDatabaseAsync(List<UserWorkout> userWorkouts, List<int> updatedExerciseIds, List<int> deletedExerciseIds)
         {
             foreach (var userWorkout in userWorkouts)
             {
@@ -48,6 +48,9 @@ namespace FitskedApp.Data.Repository
                     {
                         await UpdateExercise(userExercise);
                     }
+                    // Need an if statement here if deletedExerciseId's exist then we will delete that particular exercise
+                    // Else, we will most likely add a user exercise based on the particular workoutid
+                    
                 }
             }
         }
