@@ -66,23 +66,24 @@
             }
         </div>
 
+    <div class="d-flex justify-content-center mt-3">
+        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="NavigationLinks.GoToViewPlansPage"> My Plans </button>
+    </div>
 
+    <div class="d-flex justify-content-center mt-3">
+        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) AddNewPlan();}"> Save Plan </button>
+    </div>
 
-    @if (displayUnselectedWorkoutDays || displayBlankPlanError)
+    @if(displayBlankPlanError)
     {
-
-        <div class="d-flex justify-content-center mt-3">
-            <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="NavigationLinks.GoToViewPlansPage"> My Plans </button>
-        </div>
-
-            <div class="d-flex justify-content-center mt-3">
-                <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) AddNewPlan();}"> Save Plan </button>
-            </div>
-
         <div class="d-flex justify-content-center mt-3">
             <p class="alert-danger"> Add a plan name to this baby! </p>
         </div>
+    }
 
+    @if (displayUnselectedWorkoutDays)
+    {
+        
         @foreach(var day in listToTrackSelectedDays)
         {
             <div class="d-flex justify-content-center mt-3">
@@ -90,18 +91,7 @@
             </div>
         }
     }
-    else
-    {
-
-        <div class="d-flex justify-content-center mt-3">
-            <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="NavigationLinks.GoToViewPlansPage"> My Plans </button>
-        </div>
-
-        <div class="d-flex justify-content-center mt-3">
-            <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) AddNewPlan();}"> Save Plan </button>
-        </div>
-    }
-    </div>
+</div>
 
 
 
@@ -121,23 +111,47 @@
 
                         @* <label for="workoutType"> Workout Type: </label> *@
                         <div class="d-flex justify-content-center">
-                            <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center"
-                                         id="workoutType"
-                                         @bind-Value="userExercise.WorkoutType"
-                                         @bind-Value:after="FilterExercisesByWorkoutTypeAsync">
+                            @if (userSelectedWorkoutTypeInDayView == false)
+                            {
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center blinking-border"
+                                             id="workoutType"
+                                             @bind-Value="userExercise.WorkoutType"
+                                             @bind-Value:after="FilterExercisesByWorkoutTypeAsync">
 
-                                @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(3))
-                                {
-                                    if (type == WorkoutType.FillerValue)
+                                    @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(3))
                                     {
-                                        <option value="@type" disabled selected hidden>@StringValuesForWorkoutType[type]</option>
+                                        if (type == WorkoutType.FillerValue)
+                                        {
+                                            <option value="@type" disabled selected hidden>@StringValuesForWorkoutType[type]</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@type">@StringValuesForWorkoutType[type]</option>
+                                        }
                                     }
-                                    else
+                                </InputSelect>
+                            }
+                            else
+                            {
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center"
+                                             id="workoutType"
+                                             @bind-Value="userExercise.WorkoutType"
+                                             @bind-Value:after="FilterExercisesByWorkoutTypeAsync">
+
+                                    @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(3))
                                     {
-                                        <option value="@type">@StringValuesForWorkoutType[type]</option>
+                                        if (type == WorkoutType.FillerValue)
+                                        {
+                                            <option value="@type" disabled selected hidden>@StringValuesForWorkoutType[type]</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@type">@StringValuesForWorkoutType[type]</option>
+                                        }
                                     }
-                                }
-                            </InputSelect>
+                                </InputSelect>
+                            }
+                            
 
 
                         </div>
@@ -153,26 +167,50 @@
                             <div class="d-flex justify-content-center mb-2">
 
 
+                                @if (userSelectedExerciseTypeInDayView == true)
+                                {
+                                    <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-4 text-center"
+                                                 id="exerciseType"
+                                                 @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType"
+                                                 @bind-Value:after="() => GetListOfIndividualExercisesFromListOfExerciseType(j)">
 
-                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-4 text-center"
-                                             id="exerciseType"
-                                             @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType"
-                                             @bind-Value:after="() => GetListOfIndividualExercisesFromListOfExerciseType(j)">
-
-                                    @foreach (var type in Enum.GetValues(typeof(ExerciseType)).Cast<ExerciseType>().Take(4))
-                                    {
-                                        if (type == ExerciseType.FillerValue)
+                                        @foreach (var type in Enum.GetValues(typeof(ExerciseType)).Cast<ExerciseType>().Take(4))
                                         {
-                                            <option value="@type" disabled selected hidden>@StringValuesForExerciseType[type]</option>
+                                            if (type == ExerciseType.FillerValue)
+                                            {
+                                                <option value="@type" disabled selected hidden>@StringValuesForExerciseType[type]</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@type">@StringValuesForExerciseType[type]</option>
+                                            }
                                         }
-                                        else
+                                    </InputSelect>
+                                }
+                                else
+                                {
+                                    <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-4 text-center blinking-border"
+                                                 id="exerciseType"
+                                                 @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType"
+                                                 @bind-Value:after="() => GetListOfIndividualExercisesFromListOfExerciseType(j)">
+
+                                        @foreach (var type in Enum.GetValues(typeof(ExerciseType)).Cast<ExerciseType>().Take(4))
                                         {
-                                            <option value="@type">@StringValuesForExerciseType[type]</option>
+                                            if (type == ExerciseType.FillerValue)
+                                            {
+                                                <option value="@type" disabled selected hidden>@StringValuesForExerciseType[type]</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@type">@StringValuesForExerciseType[type]</option>
+                                            }
                                         }
-                                    }
-                                </InputSelect>
+                                    </InputSelect>
+                                }
 
 
+                                @if(userSelectedExerciseInDayView == true)
+                                {
                                     <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-4 text-center" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType)">
                                         <option value="" disabled selected> -- Exercise -- </option>
                                         @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
@@ -180,6 +218,18 @@
                                             <option value="@exercise.Name">@exercise.Name</option>
                                         }
                                     </InputSelect>
+                                }
+                                else
+                                {
+                                    <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-4 text-center blinking-border" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType)">
+                                        <option value="" disabled selected> -- Exercise -- </option>
+                                        @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
+                                        {
+                                            <option value="@exercise.Name">@exercise.Name</option>
+                                        }
+                                    </InputSelect>
+                                }
+
 
                                     <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-1 text-center" id="sets" @bind-Value="listOfUserExercisesInSelectedDay[j].Sets">
                                         <option value="" disabled selected> -- Sets -- </option>
@@ -244,8 +294,13 @@
 
     private bool displayDayViewWorkout = false;
     private bool displayUnselectedWorkoutDays = false;
-    private bool userHasEnteredPlanName = false;
     private bool displayBlankPlanError = false;
+    private bool userHasEnteredPlanName = false;
+
+    private bool userSelectedWorkoutTypeInDayView = false;
+    private bool userSelectedExerciseTypeInDayView = true;
+    private bool userSelectedExerciseInDayView = true;
+
     public List<ExerciseDTO> listOfExercisesByWorkoutType = new();
     private static readonly Dictionary<WorkoutType, string> StringValuesForWorkoutType = new()
     {
@@ -284,6 +339,17 @@
         { "Thursday", 1 },
         { "Friday", 1},
         { "Saturday", 1}
+    };
+
+    public Dictionary<string, int> DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDay  = new Dictionary<string, int>
+    {
+        { "Sunday", 0},
+        { "Monday", 0},
+        { "Tuesday", 0},
+        { "Wednesday", 0},
+        { "Thursday", 0},
+        { "Friday", 0},
+        { "Saturday", 0}
     };
 
     private void AddAdditionalExerciseToWorkout(string day)
@@ -352,6 +418,9 @@
 
             workoutListForCurrentPlan.Insert(dayIndex, userWorkout);
             displayDayViewWorkout = false;
+            userSelectedWorkoutTypeInDayView = false;
+            userSelectedExerciseTypeInDayView = true;
+            userSelectedExerciseInDayView = true;
             StateHasChanged();
         }
     }
@@ -392,7 +461,7 @@
     private async Task AddNewPlan()
     {
         CheckIfPlanNameHasValue(plan);
-        if(userHasEnteredPlanName == true)
+        if(userHasEnteredPlanName)
         {
             if(listToTrackSelectedDays.Count == 0)
             {
@@ -433,6 +502,7 @@
         else
         {
             displayBlankPlanError = true;
+            CheckIfUserHasCreatedWorkoutForEveryDay(listToTrackSelectedDays);
         }
 
     }
@@ -445,12 +515,21 @@
         }
     }
 
-    
+    public void CheckIfUserHasCreatedWorkoutForEveryDay(List<string> selectedDays)
+    {
+        if(selectedDays.Count != 0)
+        {
+            displayUnselectedWorkoutDays = true;
+        }
+    }
+
+
 
     public async Task FilterExercisesByWorkoutTypeAsync()
     {
-        listOfExercisesByWorkoutType = await exerciseService.GetExerciseListAsync(userExercise.WorkoutType); // This method replaced the original method that was retrieving the List Of Exercises from the Web App Db
-        // listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
+        userSelectedWorkoutTypeInDayView = true;
+        userSelectedExerciseTypeInDayView = false;
+        listOfExercisesByWorkoutType = await exerciseService.GetExerciseListAsync(userExercise.WorkoutType);
         foreach (var exercise in listOfUserExercisesInSelectedDay)
         {
             exercise.FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, exercise.ExerciseType);
@@ -458,10 +537,12 @@
         StateHasChanged();
     }
 
-    
+
 
     public async Task GetListOfIndividualExercisesFromListOfExerciseType(int index)
     {
+        userSelectedExerciseTypeInDayView = true;
+        userSelectedExerciseInDayView = false;
         var selectedExerciseType = listOfUserExercisesInSelectedDay[index].ExerciseType;
         listOfUserExercisesInSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);
         await InvokeAsync(StateHasChanged);
@@ -487,6 +568,7 @@
 
     public void BindValuesFromDtoToUserExercise(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
+        userSelectedExerciseInDayView = true;
         PutExerciseIdInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
         PutExerciseTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
         PutWorkoutTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
