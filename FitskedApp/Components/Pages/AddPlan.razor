@@ -121,12 +121,25 @@
 
                         @* <label for="workoutType"> Workout Type: </label> *@
                         <div class="d-flex justify-content-center">
-                            <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="FilterListOfWorkoutTypeByExerciseTypeAsync">
-                                @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(2))
+                            <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center"
+                                         id="workoutType"
+                                         @bind-Value="userExercise.WorkoutType"
+                                         @bind-Value:after="FilterExercisesByWorkoutTypeAsync">
+
+                                @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(3))
                                 {
-                                    <option value="@type"> @StringValuesForWorkoutType[type] </option>
+                                    if (type == WorkoutType.FillerValue)
+                                    {
+                                        <option value="@type" disabled selected hidden>@StringValuesForWorkoutType[type]</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@type">@StringValuesForWorkoutType[type]</option>
+                                    }
                                 }
                             </InputSelect>
+
+
                         </div>
                         <br />
                         @for (int i = 0; i < NumberOfUserExercisesInWorkoutForSelectedDay[selectedDay]; i++)
@@ -139,18 +152,29 @@
 
                             <div class="d-flex justify-content-center mb-2">
 
-                               
-                                
-                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-3 text-center" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetListOfIndividualExercisesFromListOfExerciseType(j)">
-                                        <option class="" value="" disabled selected> -- Select Exercise Type -- </option>
-                                        @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
+
+
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-4 text-center"
+                                             id="exerciseType"
+                                             @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType"
+                                             @bind-Value:after="() => GetListOfIndividualExercisesFromListOfExerciseType(j)">
+
+                                    @foreach (var type in Enum.GetValues(typeof(ExerciseType)).Cast<ExerciseType>().Take(4))
+                                    {
+                                        if (type == ExerciseType.FillerValue)
                                         {
-                                            <option value="@type">@type</option>
+                                            <option value="@type" disabled selected hidden>@StringValuesForExerciseType[type]</option>
                                         }
-                                    </InputSelect>
+                                        else
+                                        {
+                                            <option value="@type">@StringValuesForExerciseType[type]</option>
+                                        }
+                                    }
+                                </InputSelect>
+
 
                                     <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-4 text-center" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType)">
-                                        <option value="" disabled selected> -- Select Exercise -- </option>
+                                        <option value="" disabled selected> -- Exercise -- </option>
                                         @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
                                         {
                                             <option value="@exercise.Name">@exercise.Name</option>
@@ -203,7 +227,6 @@
             </div>
         </div>
     </div>
-    
 }
 
 @code {
@@ -226,9 +249,19 @@
     public List<ExerciseDTO> listOfExercisesByWorkoutType = new();
     private static readonly Dictionary<WorkoutType, string> StringValuesForWorkoutType = new()
     {
+            {WorkoutType.FillerValue, " -- Workout Type -- "},
             {WorkoutType.UpperBodyStrength, "Upper Body" },
             {WorkoutType.LowerBodyStrength, "Lower Body" }
     };
+
+    private static readonly Dictionary<ExerciseType, string> StringValuesForExerciseType = new()
+    {
+        {ExerciseType.FillerValue, " -- Exercise Type -- "},
+        {ExerciseType.Core, "Core"},
+        {ExerciseType.Secondary, "Secondary"},
+        {ExerciseType.Accessory, "Accessory"}
+    };
+
     public WorkoutType workoutType = new();
 
     private Dictionary<string, int> DictionaryStoringListPositionOfSelectedDay = new Dictionary<string, int>
@@ -414,7 +447,7 @@
 
     
 
-    public async Task FilterListOfWorkoutTypeByExerciseTypeAsync()
+    public async Task FilterExercisesByWorkoutTypeAsync()
     {
         listOfExercisesByWorkoutType = await exerciseService.GetExerciseListAsync(userExercise.WorkoutType); // This method replaced the original method that was retrieving the List Of Exercises from the Web App Db
         // listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);

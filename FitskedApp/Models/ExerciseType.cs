@@ -2,6 +2,7 @@
 {
     public enum ExerciseType
     {
+        FillerValue,
         Core,
         Secondary,
         Accessory

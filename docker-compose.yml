@@ -1,5 +1,6 @@
 version: '3.8'
 
+ 
 services:
   # Blazor App Service
   blazorapp:
@@ -19,13 +20,14 @@ services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sql_server2022
+    # ports 1443
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Sportlife#32#sqlserver#32#
     networks:
       - mynetwork
     volumes:
-      - sql_data:/var/opt/mssql
+      - sql_data:/var/opt/mssql 
 
   # Exercise API Service
   exerciseapi:

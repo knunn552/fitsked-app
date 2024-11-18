@@ -34,3 +34,4 @@ EXPOSE 8080
 
 # Set the startup command
 ENTRYPOINT ["dotnet", "FitskedApp.dll"]
+

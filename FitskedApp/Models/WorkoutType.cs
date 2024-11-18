@@ -2,6 +2,7 @@
 {
     public enum WorkoutType
     {
+        FillerValue,
         LowerBodyStrength,
         UpperBodyStrength,
         FullBodyStrength,
