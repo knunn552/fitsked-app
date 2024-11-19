@@ -12,8 +12,17 @@
 
 <PageTitle>Log in</PageTitle>
 
-@* <h1>Log in</h1> *@
-<div class="d-flex justify-content-center mt-5 pt-5">
+<div class="d-flex justify-content-center mt-5">
+    <div class="text-center">
+        <!-- Welcome message outside the login box -->
+        <h3 class="poppins-bold text-dark-red">Welcome back, how are the gains coming?</h3>
+        <p class="poppins-medium text-dark-red">
+            We hope your muscles aren’t as rusty as your login credentials. Let’s get you back to crushing those workouts!
+        </p>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center">
     <section class="border border-4 border-warning shadow m-5 rounded-div p-4">
         <StatusMessage Message="@errorMessage" />
         <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
@@ -23,14 +32,14 @@
             <!-- Email Input Field -->
             <div class="form-floating btn-custom mb-3">
                 <InputText @bind-Value="Input.Email" class="form-control rounded-div border border-2 border-danger inner-input-shadow" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label for="email" class="form-label">Email</label>
+                <label for="email">Email</label>
                 <ValidationMessage For="() => Input.Email" class="text-danger" />
             </div>
 
             <!-- Password Input Field -->
             <div class="form-floating btn-custom mb-3">
                 <InputText type="password" @bind-Value="Input.Password" class="form-control rounded-div border border-2 border-danger inner-input-shadow" autocomplete="current-password" aria-required="true" placeholder="password" />
-                <label for="password" class="form-label">Password</label>
+                <label for="password">Password</label>
                 <ValidationMessage For="() => Input.Password" class="text-danger" />
             </div>
 
@@ -43,13 +52,10 @@
             </div>
 
             <!-- Login Button -->
-            <div>
-                <button type="submit" class="btn-custom p-3 w-100 rounded-pill border border-2 border-danger bg-white main-button">Log in</button>
-            </div>
+            <button type="submit" class="bg-white p-3 w-100 rounded-pill border border-2 border-danger main-button">Log in</button>
         </EditForm>
     </section>
 </div>
-
 
 @code {
     private string? errorMessage;
@@ -74,8 +80,6 @@
 
     public async Task LoginUser()
     {
-        // This doesn't count login failures towards account lockout
-        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
         var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
         if (result.Succeeded)
         {

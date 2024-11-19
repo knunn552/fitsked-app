@@ -6,61 +6,49 @@
 
 <PageTitle>Home</PageTitle>
 
-@* <div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Fitsked</a>
-    </div>
-</div> *@
-
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" style="display:none" />
 
 <div class="d-flex justify-content-center" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="row">
-        @* <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div> *@
         <div class="d-flex justify-content-center align-items-center pt-5 mt-5">
             <img src="fitsked-logo1.png" alt="Logo" class="main-page-logo me-3" />
         </div>
 
-        <h2 class="poppins-bold d-flex justify-content-center mb-4"> your move. </h2>
+        <h2 class="poppins-bold text-center mb-4 text-black">your move.</h2>
 
         <AuthorizeView>
             <Authorized>
                 <div class="d-flex justify-content-center">
                     <div class="d-flex flex-column align-items-center">
-                        <a class="text-black text-decoration-none p-2 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium" href="/user-plans">
-                            <span class="text-black" aria-hidden="true"></span> My Plans
+                        <a class="text-black text-decoration-none p-3 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium" href="/user-plans">
+                            My Plans
                         </a>
-                        <a class="text-black text-decoration-none p-2 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium" href="/add-plan">
-                            <span class="text-black" aria-hidden="true"></span> Add New Plan
+                        <a class="text-black text-decoration-none p-3 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium" href="/add-plan">
+                            Add New Plan
                         </a>
-                       
-
-                        
-                            
-                        
                     </div>
                 </div>
             </Authorized>
             <NotAuthorized>
                 <div class="d-flex justify-content-center">
-                    <div class="d-flex flex-column align-items-center">
-                        
-                            <a class="text-black text-decoration-none p-2 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium" href="Account/Register">
-                                <span class="text-black" aria-hidden="true"></span> I'm a newbie
-                            </a>
-                       
-
-                            <a class="text-black text-decoration-none p-2 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium" href="Account/Login">
-                                <span class="text-black" aria-hidden="true"></span> I'm a regular
-                            </a>
-       
+                    <div class="text-center">
+                        <p class="poppins-medium text-black">
+                            Welcome to Fitsked, short for "fitness schedule"—a personalized workout app designed by personal trainers!
+                            Our intelligent algorithm ensures you never repeat the same workout within a given week, empowering you to move freely and confidently in all aspects of life!
+                        </p>
                     </div>
                 </div>
 
+                <div class="d-flex justify-content-center">
+                    <div class="d-flex flex-column align-items-center">
+                        <a class="text-black text-decoration-none p-3 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium" href="Account/Register">
+                            I'm a newbie
+                        </a>
+                        <a class="text-black text-decoration-none p-3 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium" href="Account/Login">
+                            I'm a regular
+                        </a>
+                    </div>
+                </div>
             </NotAuthorized>
         </AuthorizeView>
     </nav>
@@ -86,4 +74,3 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }
-

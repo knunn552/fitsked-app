@@ -10,8 +10,20 @@
 
 <PageTitle>Confirm email</PageTitle>
 
-<h1>Confirm email</h1>
-<StatusMessage Message="@statusMessage" />
+<div class="d-flex justify-content-center mt-5">
+    <div class="text-center">
+        <h3 class="poppins-bold text-dark-red">Thank you for confirming your email!</h3>
+        <p class="poppins-medium text-dark-red">
+            Your account is now activated. You can log in to access your personalized fitness plan.
+        </p>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center mt-4">
+    <a href="/Account/Login" class="btn-custom p-3 rounded-pill border border-2 border-danger bg-white text-decoration-none poppins-medium">
+        Go to Login Page
+    </a>
+</div>
 
 @code {
     private string? statusMessage;

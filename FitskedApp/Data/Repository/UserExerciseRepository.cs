@@ -54,7 +54,8 @@ namespace FitskedApp.Data.Repository
                     Name = e.Name,
                     Description = e.Description,
                     WorkoutType = e.WorkoutType,
-                    ExerciseType = e.ExerciseType
+                    ExerciseType = e.ExerciseType,
+                    VideoUrl = e.VideoUrl
                 }).ToListAsync();
         }
 

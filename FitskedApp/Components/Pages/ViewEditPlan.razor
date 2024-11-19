@@ -99,9 +99,13 @@
 
                         @if ((userSelectedWorkoutTypeInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] != 1))
                         {
-                            <div class="d-flex justify-content-center pt-2">
-                                <p> <span class="poppins-bold" style="color:red"> IMPORTANT: </span> To load existing workout, reselect <span class="poppins-bold"> @GetWorkoutTypeByDay(selectedDay) </span>. To change workout type, pick a new one and start fresh. </p>
-                            </div>
+                            @if(GetWorkoutTypeByDay(selectedDay) != "Workout Type")
+                            {
+                                <div class="d-flex justify-content-center pt-2">
+                                    <p> <span class="poppins-bold" style="color:red"> IMPORTANT: </span> To load existing workout, reselect <span class="poppins-bold"> @GetWorkoutTypeByDay(selectedDay) </span>. To change workout type, pick a new one and start fresh. </p>
+                                </div>
+                            }
+                            
                             <div class="d-flex justify-content-center">
                                 <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center blinking-border" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="() => FilterListOfWorkoutTypeByExerciseTypeAsync(selectedDay)">
                                     @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(3))

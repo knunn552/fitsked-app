@@ -10,13 +10,9 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Register confirmation</PageTitle>
+<PageTitle>Register Confirmation</PageTitle>
 
-<h1>Register confirmation</h1>
-
-<StatusMessage Message="@statusMessage" />
-
-@if (emailConfirmationLink is not null)
+@* @if (emailConfirmationLink is not null)
 {
     <p>
         This app does not currently have a real email sender registered, see <a href="https://aka.ms/aspaccountconf">these docs</a> for how to configure a real email sender.
@@ -26,8 +22,29 @@
 else
 {
     <p>Please check your email to confirm your account.</p>
-}
+} *@
 
+<div class="d-flex justify-content-center mt-5">
+    <div class="text-center">
+        <h3 class="poppins-bold text-dark-red">Almost there!</h3>
+        <p class="poppins-medium text-dark-red">
+            Please click the link below to activate your account.
+        </p>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center mt-4">
+    <a href="@emailConfirmationLink" class="btn-custom p-3 rounded-pill border border-2 border-danger bg-white text-decoration-none poppins-medium">
+        Confirm Your Account
+    </a>
+</div>
+
+@* <div class="d-flex justify-content-center mt-4">
+    <p class="poppins-medium text-muted">
+        Didn’t receive an email? Check your spam folder or <a href="mailto:support@fitskedapp.com" class="text-danger text-decoration-none">contact support</a>.
+    </p>
+</div>
+ *@
 @code {
     private string? emailConfirmationLink;
     private string? statusMessage;
@@ -46,17 +63,18 @@ else
         if (Email is null)
         {
             RedirectManager.RedirectTo("");
+            return;
         }
 
         var user = await UserManager.FindByEmailAsync(Email);
         if (user is null)
         {
             HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            statusMessage = "Error finding user for unspecified email";
+            statusMessage = "Error finding user for unspecified email.";
         }
-        else if (EmailSender is IdentityNoOpEmailSender)
+        else
         {
-            // Once you add a real email sender, you should remove this code that lets you confirm the account
+            // Generate confirmation link for the email
             var userId = await UserManager.GetUserIdAsync(user);
             var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
