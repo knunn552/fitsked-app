@@ -74,10 +74,14 @@
         <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) AddNewPlan();}"> Save Plan </button>
     </div>
 
+    <div class="d-flex justify-content-center pt-4">
+        <p class="poppins-medium"><span class="poppins-bold" style="color:green">TIP:</span> Save your plan and complete it later in <span class="poppins-bold"> My Plans </span> . Before clicking "Save Plan," create filler workouts for each day by clicking "Save Workout."</p>
+    </div>
+
     @if(displayBlankPlanError)
     {
         <div class="d-flex justify-content-center mt-3">
-            <p class="alert-danger"> Add a plan name to this baby! </p>
+            <p class="alert-warning"> Give your plan some identity—add a name! </p>
         </div>
     }
 
@@ -87,11 +91,13 @@
         @foreach(var day in listToTrackSelectedDays)
         {
             <div class="d-flex justify-content-center mt-3">
-                <p class="alert-danger"> Please create a plan for @day, even if it's a rest day. </p>
+                <p class="alert-warning"> Don’t skip @day—add a workout, even if it’s just a filler or rest day! </p>
             </div>
         }
     }
 </div>
+
+
 
 
 
@@ -111,7 +117,7 @@
 
                         @* <label for="workoutType"> Workout Type: </label> *@
                         <div class="d-flex justify-content-center">
-                            @if ((userSelectedWorkoutTypeInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] != 3))
+                            @if ((userSelectedWorkoutTypeInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] == 0))
                             {
                                 <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center blinking-border"
                                              id="workoutType"
@@ -165,7 +171,7 @@
                             }
 
                             <div class="d-flex justify-content-center mb-2">
-                                @if ((userSelectedExerciseTypeInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] != 3))
+                                @if ((userSelectedExerciseTypeInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] == 1))
                                 {
                                     <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-4 text-center blinking-border"
                                                  id="exerciseType"
@@ -207,7 +213,7 @@
                                 }
 
 
-                                @if ((userSelectedExerciseInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] != 3))
+                                @if ((userSelectedExerciseInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] == 2))
                                 {
                                     <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-4 text-center blinking-border" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType,selectedDay)">
                                         <option value="" disabled selected> -- Exercise -- </option>
@@ -268,7 +274,7 @@
                         </div>
 
                         <div class="d-flex justify-content-center">
-                            <button class="mt-3 rounded-pill mb-4 border border-2 border-danger poppins-medium bg-white main-button p-2" @onclick="SaveUserWorkoutToInMemoryListOfUserWorkouts">Save Workout</button>
+                            <button class="mt-3 rounded-pill mb-4 border border-2 border-danger poppins-medium bg-white main-button p-2" @onclick="SaveUserWorkoutToInMemoryListOfUserWorkouts">Add Workout</button>
                         </div>
                     </EditForm>
                 </div>
@@ -502,7 +508,6 @@
             displayBlankPlanError = true;
             CheckIfUserHasCreatedWorkoutForEveryDay(listToTrackSelectedDays);
         }
-
     }
 
     public void CheckIfPlanNameHasValue(Plan plan)
