@@ -1,26 +1,25 @@
-# Use the official .NET SDK image to build the app
+# Here we are exhibiting a multi stage build in the dockerfile
+# Although this is a multi stage build. There will only be one image created, which uses the runtime build. 
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copy the solution file
+
 COPY FitskedApp.sln ./
 
-# Copy all the project files for the application, API, and test projects
 COPY FitskedApp/FitskedApp.csproj FitskedApp/
 COPY FitskedApp.Client/FitskedApp.Client.csproj FitskedApp.Client/
-COPY fitsked-web-api/fitsked-web-api.csproj fitsked-web-api/
 COPY FitskedApp.Test/FitskedApp.Test.csproj FitskedApp.Test/
 
-# Restore dependencies (this will restore for all projects referenced in the solution)
 RUN dotnet restore
 
+# We load the csproj files first because they contain all the dependencies and our app and the files within most likely rely on those
 # Copy the rest of the files for all projects
 COPY FitskedApp/ FitskedApp/
 COPY FitskedApp.Client/ FitskedApp.Client/
-COPY fitsked-web-api/ fitsked-web-api/
 COPY FitskedApp.Test/ FitskedApp.Test/
 
-# Publish the app (adjust path as needed for the main project)
+# Specified the container directory where the published application with reside
 RUN dotnet publish FitskedApp/FitskedApp.csproj -c Release -o /out
 
 # Use the ASP.NET Core runtime image
@@ -28,10 +27,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /out .
 
-# Expose the port the app runs on
-# This needs to be changed to 8080
+# Were "exposing" the port that the application runs on, but this is only for documentation purposes. 
 EXPOSE 8080
 
-# Set the startup command
+# We are specifying basically what gets run in the container command line to start the app
 ENTRYPOINT ["dotnet", "FitskedApp.dll"]
 
