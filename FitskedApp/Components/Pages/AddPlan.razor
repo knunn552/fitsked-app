@@ -175,7 +175,7 @@
                             }
 
                             <div class="d-flex justify-content-center mb-2">
-                                @if ((userSelectedExerciseTypeInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] == 1))
+                                @if ((userSelectedExerciseTypeInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] == 1) && (j == 0))
                                 {
                                     @if (userSelectedExerciseInDayViewForVideoIconAppearance == true)
                                     {
@@ -232,7 +232,7 @@
                                 }
 
 
-                                @if ((userSelectedExerciseInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] == 2))
+                                @if ((userSelectedExerciseInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] == 2) && (j == 0))
                                 {
                                     <InputSelect class="rounded-pill bg-white inner-input-shadow user-exercise-select-height col-4 text-center blinking-border d-flex align-items-center" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType,selectedDay)">
                                         <option value="" disabled selected> -- Exercise -- </option>
