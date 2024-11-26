@@ -4,49 +4,41 @@ using FitskedApp.Models;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 
-namespace FitskedApp.Data.Service
+public class ExerciseService : IExerciseService
 {
-    public class ExerciseService : IExerciseService
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly string _apiBaseUrl;
+    private readonly ILogger<ExerciseService> _logger;
+
+    public ExerciseService(IHttpClientFactory httpClientFactory, ILogger<ExerciseService> logger)
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _apiBaseUrl;
-        private readonly ILogger<ExerciseService> _logger;
+        _httpClientFactory = httpClientFactory;
+        _apiBaseUrl = Environment.GetEnvironmentVariable("API_BASE_URL")
+                      ?? throw new InvalidOperationException("API Base URL is not configured. Set the 'API_BASE_URL' environment variable.");
+        _logger = logger;
+    }
 
-        public ExerciseService(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<ExerciseService> logger)
+    public async Task<List<ExerciseDTO>> GetExerciseListAsync(WorkoutType workouttype)
+    {
+        HttpClient client = _httpClientFactory.CreateClient();
+        var workoutTypeString = workouttype.ToString();
+
+        try
         {
-            _httpClientFactory = httpClientFactory;
-            _apiBaseUrl = configuration["ApiSettings:BaseUrl"];
-
-            if (string.IsNullOrEmpty(_apiBaseUrl))
+            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
             {
-                throw new InvalidOperationException("API Base URL is not configured.");
-            }
+                Converters = { new JsonStringEnumConverter() }
+            };
 
-            _logger = logger;
+            List<ExerciseDTO> exerciseList = await client.GetFromJsonAsync<List<ExerciseDTO>>(
+                $"{_apiBaseUrl}/api/exercises/by-workout-type/{workoutTypeString}", options);
+
+            return exerciseList ?? new List<ExerciseDTO>();
         }
-
-        public async Task<List<ExerciseDTO>> GetExerciseListAsync(WorkoutType workouttype)
+        catch (Exception ex)
         {
-            HttpClient client = _httpClientFactory.CreateClient();
-            var workoutTypeString = workouttype.ToString();
-
-            try
-            {
-                var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
-                {
-                    Converters = { new JsonStringEnumConverter() }
-                };
-
-                List<ExerciseDTO> exerciseList = await client.GetFromJsonAsync<List<ExerciseDTO>>(
-                    $"{_apiBaseUrl}/api/exercises/by-workout-type/{workoutTypeString}", options);
-
-                return exerciseList ?? new List<ExerciseDTO>();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching exercises for workout type: {WorkoutType}", workoutTypeString);
-                return new List<ExerciseDTO>();  // Or handle this error more effectively based on your requirements
-            }
+            _logger.LogError(ex, "Error fetching exercises for workout type: {WorkoutType}", workoutTypeString);
+            return new List<ExerciseDTO>();
         }
     }
 }
