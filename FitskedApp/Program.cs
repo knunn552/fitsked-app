@@ -12,7 +12,12 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-// Add services to the container.
+if (Environment.GetEnvironmentVariable("AWS_EC2") == "true")
+{
+    builder.WebHost.UseUrls("http://0.0.0.0:8080");
+}
+
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
