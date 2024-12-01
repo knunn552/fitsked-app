@@ -315,6 +315,19 @@
     private List<UserExercise> listOfUserExercisesInSelectedDay = new();
     private List<UserWorkout> workoutListForCurrentPlan = new();
 
+    // Adding List of Workouts that have already been selected 
+
+    // Right now, were getting back a list of exercises based on selected workout type from the external database api
+    // We need to, OnInitialize, get a listofexercisesforplan
+    // This method needs to be in the ExerciseService and get back all Exercises
+    // Need to create an API endpoint as well
+    private List<ExerciseDTO> fullListOfExerciseDTO = new();
+
+
+    // On Selection of UserWorkoutType, the listofexercisesforplan will filter down on the in memory listofexercises
+    // Based on whatever exercise is selected, we will need to remove that from the inmemory list of exercises and add it to the list of added workouts for a plan
+    // In addition to adding exercises, Going to have to take into account if an exercise is removed or changed and adjust the in memory lists accordingly.
+
     private bool displayDayViewWorkout = false;
     private bool displayUnselectedWorkoutDays = false;
     private bool displayBlankPlanError = false;
@@ -412,6 +425,7 @@
             UserWorkout newWorkout = new UserWorkout();
             workoutListForCurrentPlan.Add(newWorkout);
         }
+        fullListOfExerciseDTO = await exerciseService.GetFullExerciseListAsync();
     }
 
     private void UserSelectsDay(string day)

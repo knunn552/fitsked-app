@@ -41,4 +41,27 @@ public class ExerciseService : IExerciseService
             return new List<ExerciseDTO>();
         }
     }
+
+    public async Task<List<ExerciseDTO>> GetFullExerciseListAsync()
+    {
+        HttpClient client = _httpClientFactory.CreateClient();
+
+        try
+        {
+            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+            {
+                Converters = { new JsonStringEnumConverter() }
+            };
+
+            List<ExerciseDTO> exerciseList = await client.GetFromJsonAsync<List<ExerciseDTO>>(
+                $"{_apiBaseUrl}/api/exercises", options);
+
+            return exerciseList ?? new List<ExerciseDTO>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching exercises");
+            return new List<ExerciseDTO>();
+        }
+    }
 }
