@@ -149,7 +149,7 @@
                                              id="workoutType"
                                              @bind-Value="userExercise.WorkoutType"
                                              @bind-Value:after="() => FilterExercisesByWorkoutTypeAsync(selectedDay)">
-
+                                    
                                     @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(3))
                                     {
                                         if (type == WorkoutType.FillerValue)
