@@ -5,7 +5,7 @@ namespace FitskedApp.Data.Service
 {
     public interface IExerciseService
     {
-        public Task<List<ExerciseDTO>> GetExerciseListAsync(WorkoutType workoutType);
+        public List<ExerciseDTO> GetExerciseListBasedOnWorkoutType(WorkoutType workoutType, List<ExerciseDTO> exerciseDTOs);
         public Task<List<ExerciseDTO>> GetFullExerciseListAsync();
     }
 }

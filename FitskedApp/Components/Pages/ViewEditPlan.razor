@@ -397,8 +397,8 @@
         {
             userExercise.WorkoutType = WorkoutType.FillerValue;
         }
-        
-        
+
+
         selectedDay = day;
         listOfUserExercisesInSelectedDay = DictionaryOfListOfUserExerciseForSelectedDay[day];
         numberOfExercisesInWorkout = listOfUserExercisesInSelectedDay.Count;
@@ -497,14 +497,16 @@
 
 
 
-    public async Task FilterListOfWorkoutTypeByExerciseTypeAsync(string day)
+    public void FilterListOfWorkoutTypeByExerciseTypeAsync(string day)
     {
+        // IMPORTANT: THE BELOW EXERCISES VARIABLE IS ONLY FOR TEMPORARY USE AFTER WE MADE CHANGES IN THE EXERCISE SERVICE FOR THE ADDPLAN COMPONENT. WILL NEED TO MAKE EQUIVALENT CHANGES IN THE VIEWEDIT PLAN COMPONENT
+        List<ExerciseDTO> exercises = new();
         userSelectedWorkoutTypeInDayView = true;
         if (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[day] < 1)
         {
             DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[day]++;
         }
-        listOfExercisesByWorkoutType = await exerciseService.GetExerciseListAsync(userExercise.WorkoutType); // This method replaced the original method that was retrieving the List Of Exercises from the Web App Db
+        listOfExercisesByWorkoutType = exerciseService.GetExerciseListBasedOnWorkoutType(userExercise.WorkoutType, exercises); // This method replaced the original method that was retrieving the List Of Exercises from the Web App Db
                                                                                                              // listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
         foreach (var exercise in listOfUserExercisesInSelectedDay)
         {

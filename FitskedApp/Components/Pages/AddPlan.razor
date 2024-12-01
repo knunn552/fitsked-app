@@ -238,7 +238,7 @@
                                         <option value="" disabled selected> -- Exercise -- </option>
                                         @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
                                         {
-                                            <option value="@exercise.Name">@exercise.Name</option>
+                                                <option value="@exercise.Name">@exercise.Name</option>
                                         }
                                     </InputSelect>
                                 }
@@ -248,7 +248,8 @@
                                         <option value="" disabled selected> -- Exercise -- </option>
                                         @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
                                         {
-                                            <option value="@exercise.Name">@exercise.Name</option>
+                                                <option value="@exercise.Name">@exercise.Name</option>
+
                                         }
                                     </InputSelect>
                                 }
@@ -315,16 +316,58 @@
     private List<UserExercise> listOfUserExercisesInSelectedDay = new();
     private List<UserWorkout> workoutListForCurrentPlan = new();
 
-    // Adding List of Workouts that have already been selected 
-
-    // Right now, were getting back a list of exercises based on selected workout type from the external database api
-    // We need to, OnInitialize, get a listofexercisesforplan
-    // This method needs to be in the ExerciseService and get back all Exercises
-    // Need to create an API endpoint as well
+    // Adding List of Exercises that will be instantiated On page initialization
     private List<ExerciseDTO> fullListOfExerciseDTO = new();
+    // Adding List of Workouts that have already been selected 
+    private List<UserExercise> listOfAlreadySelectedExercises = new();
+
+    public void RemoveSelectedExerciseFromAvailableList(UserExercise selectedExercise)
+    {
+        string exerciseName = selectedExercise.Name;
+        fullListOfExerciseDTO.RemoveAll(e => e.Name == exerciseName);
+        StateHasChanged();
+    }
+
+    private void RemoveExerciseFromExerciseListFilteredByWorkoutType(UserExercise exercise, List<ExerciseDTO> filteredExerciseList)
+    {
+        fullListOfExerciseDTO.RemoveAll(e => e.Name == exercise.Name);
+        filteredExerciseList.RemoveAll(e => e.Name == exercise.Name);
+        StateHasChanged();
+    }
+
+    public void AddSelectedExerciseToListOfSelectedExercises(UserExercise selectedExercise)
+    {
+        listOfAlreadySelectedExercises.Add(selectedExercise);
+    }
+
+    // public bool CheckIfGivenUserExerciseHasAlreadyBeenSelected(ExerciseDTO exercise, List<UserExercise> listOfPreviouslySelectedExercises)
+    // {
+    //     foreach (UserExercise userExercise in listOfPreviouslySelectedExercises)
+    //     {
+    //         if(exercise.Name == userExercise.Name)
+    //         {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
+
+    
+
+    public void AddChangedExerciseToAvailableListOfExercises()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void AddRemovedExerciseToAvailableListOfExercises()
+    {
+        throw new NotImplementedException();
+    }
 
 
-    // On Selection of UserWorkoutType, the listofexercisesforplan will filter down on the in memory listofexercises
+
+
+
     // Based on whatever exercise is selected, we will need to remove that from the inmemory list of exercises and add it to the list of added workouts for a plan
     // In addition to adding exercises, Going to have to take into account if an exercise is removed or changed and adjust the in memory lists accordingly.
 
@@ -404,6 +447,8 @@
         listOfUserExercisesInSelectedDay.RemoveAt(listOfUserExercisesInSelectedDay.Count - 1);
         StateHasChanged();  
     }
+
+
 
     private List<int> ListOfSets = ListOfNumberHelper.GenerateListOfNumbers(1, 10, 1);
     private List<int> ListOfReps = ListOfNumberHelper.GenerateListOfNumbers(2, 20, 2);
@@ -564,7 +609,7 @@
 
 
 
-    public async Task FilterExercisesByWorkoutTypeAsync(string day)
+    public void FilterExercisesByWorkoutTypeAsync(string day)
     {
         userSelectedWorkoutTypeInDayView = true;
         userSelectedExerciseTypeInDayView = false;
@@ -575,7 +620,7 @@
         }
 
 
-        listOfExercisesByWorkoutType = await exerciseService.GetExerciseListAsync(userExercise.WorkoutType);
+        listOfExercisesByWorkoutType = exerciseService.GetExerciseListBasedOnWorkoutType(userExercise.WorkoutType, fullListOfExerciseDTO);
         foreach (var exercise in listOfUserExercisesInSelectedDay)
         {
             exercise.FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, exercise.ExerciseType);
@@ -583,8 +628,6 @@
 
         StateHasChanged();
     }
-
-
 
 
     public async Task GetListOfIndividualExercisesFromListOfExerciseType(int index, string day)
@@ -598,6 +641,7 @@
 
         var selectedExerciseType = listOfUserExercisesInSelectedDay[index].ExerciseType;
         listOfUserExercisesInSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);
+        // ListOfUserExercisesInSelectedDay probably needs to be updated as well.
         await InvokeAsync(StateHasChanged);
     }
 
@@ -640,5 +684,7 @@
         PutExerciseTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
         PutWorkoutTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
         PutVideoUrlInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
+        RemoveSelectedExerciseFromAvailableList(userExercise);
+        RemoveExerciseFromExerciseListFilteredByWorkoutType(userExercise, listOfExercisesToFilterOn);
     } 
 }

@@ -18,28 +18,11 @@ public class ExerciseService : IExerciseService
         _logger = logger;
     }
 
-    public async Task<List<ExerciseDTO>> GetExerciseListAsync(WorkoutType workouttype)
+    public List<ExerciseDTO> GetExerciseListBasedOnWorkoutType(WorkoutType workouttype, List<ExerciseDTO> exerciseDTOs)
     {
-        HttpClient client = _httpClientFactory.CreateClient();
         var workoutTypeString = workouttype.ToString();
-
-        try
-        {
-            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
-            {
-                Converters = { new JsonStringEnumConverter() }
-            };
-
-            List<ExerciseDTO> exerciseList = await client.GetFromJsonAsync<List<ExerciseDTO>>(
-                $"{_apiBaseUrl}/api/exercises/by-workout-type/{workoutTypeString}", options);
-
-            return exerciseList ?? new List<ExerciseDTO>();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error fetching exercises for workout type: {WorkoutType}", workoutTypeString);
-            return new List<ExerciseDTO>();
-        }
+        return exerciseDTOs.Where(exercise => exercise.WorkoutType == workouttype).ToList();
+        
     }
 
     public async Task<List<ExerciseDTO>> GetFullExerciseListAsync()
@@ -53,10 +36,10 @@ public class ExerciseService : IExerciseService
                 Converters = { new JsonStringEnumConverter() }
             };
 
-            List<ExerciseDTO> exerciseList = await client.GetFromJsonAsync<List<ExerciseDTO>>(
+            List<ExerciseDTO> _exerciseDTOs = await client.GetFromJsonAsync<List<ExerciseDTO>>(
                 $"{_apiBaseUrl}/api/exercises", options);
 
-            return exerciseList ?? new List<ExerciseDTO>();
+            return _exerciseDTOs ?? new List<ExerciseDTO>();
         }
         catch (Exception ex)
         {
