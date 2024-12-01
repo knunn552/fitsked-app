@@ -352,7 +352,7 @@
     //     return false;
     // }
 
-    
+
 
     public void AddChangedExerciseToAvailableListOfExercises()
     {
@@ -476,9 +476,18 @@
     private void UserSelectsDay(string day)
     {
         selectedDay = day;
+        if (DictionaryOfListOfUserExerciseForSelectedDay[day].FirstOrDefault() == null)
+        {
+            userExercise.WorkoutType = WorkoutType.FillerValue;
+        }
+        else
+        {
+            userExercise.WorkoutType = DictionaryOfListOfUserExerciseForSelectedDay[day].FirstOrDefault().WorkoutType;
+        }
         listOfUserExercisesInSelectedDay = DictionaryOfListOfUserExerciseForSelectedDay[day];
         displayDayViewWorkout = true;
         listToTrackSelectedDays.RemoveAll(e => e.Equals(selectedDay));
+        StateHasChanged();
 
     }
 
