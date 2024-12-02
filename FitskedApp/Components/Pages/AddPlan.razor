@@ -234,7 +234,7 @@
 
                                 @if ((userSelectedExerciseInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] == 2) && (j == 0))
                                 {
-                                    <InputSelect class="rounded-pill bg-white inner-input-shadow user-exercise-select-height col-4 text-center blinking-border d-flex align-items-center" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType,selectedDay)">
+                                    <InputSelect class="rounded-pill bg-white inner-input-shadow user-exercise-select-height col-4 text-center blinking-border d-flex align-items-center" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType,selectedDay,j)">
                                         <option value="" disabled selected> -- Exercise -- </option>
                                         @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
                                         {
@@ -244,7 +244,7 @@
                                 }
                                 else
                                 {
-                                    <InputSelect class="rounded-pill bg-white inner-input-shadow user-exercise-select-height col-4 text-center d-flex align-items-center" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType,selectedDay)">
+                                    <InputSelect class="rounded-pill bg-white inner-input-shadow user-exercise-select-height col-4 text-center d-flex align-items-center" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType,selectedDay,j)">
                                         <option value="" disabled selected> -- Exercise -- </option>
                                         @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
                                         {
@@ -281,7 +281,7 @@
 
                                 @if ((j > 0) && (j == NumberOfUserExercisesInWorkoutForSelectedDay[selectedDay] - 1))
                                 {
-                                    <button class=" end-0 me-5 mt-2 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-2" @onclick="() => RemoveAdditionalExerciseFromWorkout(selectedDay)">
+                                    <button class=" end-0 me-5 mt-2 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-2" @onclick="() => ThingsToDoOnClickRemove(selectedDay,j,listOfUserExercisesInSelectedDay[j].Name, listOfUserExercisesInSelectedDay[j].FilteredExercises)">
                                         Remove
                                     </button>
                                 }
@@ -318,58 +318,116 @@
 
     // Adding List of Exercises that will be instantiated On page initialization
     private List<ExerciseDTO> fullListOfExerciseDTO = new();
+    private List<ExerciseDTO> listStoringSelectedExercises = new();
     // Adding List of Workouts that have already been selected 
-    private List<UserExercise> listOfAlreadySelectedExercises = new();
 
-    public void RemoveSelectedExerciseFromAvailableList(UserExercise selectedExercise)
+    public Dictionary<string, Dictionary<int, string>> previouslySelectedExercisesForSelectedDay = new()
+{
+    { "Sunday", new Dictionary<int, string>() },
+    { "Monday", new Dictionary<int, string>() },
+    { "Tuesday", new Dictionary<int, string>() },
+    { "Wednesday", new Dictionary<int, string>() },
+    { "Thursday", new Dictionary<int, string>() },
+    { "Friday", new Dictionary<int, string>() },
+    { "Saturday", new Dictionary<int, string>() }
+};
+
+    // NOTE: I think this is going to be more complex than originally anticipated. Because what if the user re-filters a particular user workout... I'm treating everything like there's one twice filtered this but I think there can be 3 filtered lists across the page... 
+
+    public void RemoveSelectedExerciseFromAvailableList(string exerciseName,string day, int j)
     {
-        string exerciseName = selectedExercise.Name;
+        AddSelectedExerciseToListOfSelectedExercises(fullListOfExerciseDTO.Find(e => e.Name == exerciseName));
         fullListOfExerciseDTO.RemoveAll(e => e.Name == exerciseName);
+
+        if (!previouslySelectedExercisesForSelectedDay[day].ContainsKey(j))
+        {
+            previouslySelectedExercisesForSelectedDay[day].Add(j, exerciseName);
+        }
         StateHasChanged();
     }
 
-    private void RemoveExerciseFromExerciseListFilteredByWorkoutType(UserExercise exercise, List<ExerciseDTO> filteredExerciseList)
+    public void AddSelectedExerciseToListOfSelectedExercises(ExerciseDTO selectedExercise)
     {
-        fullListOfExerciseDTO.RemoveAll(e => e.Name == exercise.Name);
-        filteredExerciseList.RemoveAll(e => e.Name == exercise.Name);
+        listStoringSelectedExercises.Add(selectedExercise);
+    }
+
+    private void RemoveExerciseFromExerciseListFilteredByWorkoutType(string name, List<ExerciseDTO> filteredExerciseList, int j, string day)
+    {
+
+        filteredExerciseList.RemoveAll(e => e.Name == name); 
+
+        if (previouslySelectedExercisesForSelectedDay[selectedDay][j] != name)
+        {
+            ExerciseDTO exerciseDTO = listStoringSelectedExercises.Find(e => e.Name == previouslySelectedExercisesForSelectedDay[selectedDay][j]);
+            filteredExerciseList.Add(exerciseDTO); 
+        }
         StateHasChanged();
     }
 
-    public void AddSelectedExerciseToListOfSelectedExercises(UserExercise selectedExercise)
+    
+
+
+    public void UpdateListOfPreviouslySelectedExercisesForSelectedDay(int j, string selectedDay, string name)
     {
-        listOfAlreadySelectedExercises.Add(selectedExercise);
+        if (previouslySelectedExercisesForSelectedDay[selectedDay][j] != name) // If the names don't equal, that means is has been actually updated not just to same exercise being selected again
+        {
+            ExerciseDTO previouslySelectedxerciseDTO = listStoringSelectedExercises.Find(e => e.Name == previouslySelectedExercisesForSelectedDay[selectedDay][j]);
+            fullListOfExerciseDTO.Add(previouslySelectedxerciseDTO);
+            listStoringSelectedExercises.Remove(previouslySelectedxerciseDTO);
+            previouslySelectedExercisesForSelectedDay[selectedDay][j] = name;
+        }
     }
 
-    // public bool CheckIfGivenUserExerciseHasAlreadyBeenSelected(ExerciseDTO exercise, List<UserExercise> listOfPreviouslySelectedExercises)
-    // {
-    //     foreach (UserExercise userExercise in listOfPreviouslySelectedExercises)
-    //     {
-    //         if(exercise.Name == userExercise.Name)
-    //         {
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
-
-
-
-    public void AddChangedExerciseToAvailableListOfExercises()
+    private void RemoveAdditionalExerciseFromWorkout(string day)
     {
-        throw new NotImplementedException();
+        NumberOfUserExercisesInWorkoutForSelectedDay[day] -= 1;
+        listOfUserExercisesInSelectedDay.RemoveAt(listOfUserExercisesInSelectedDay.Count - 1);
+        StateHasChanged();
     }
 
-    public void AddRemovedExerciseToAvailableListOfExercises()
+    private void ThingsToDoOnClickRemove(string day, int i, string exerciseName, List<ExerciseDTO> listOfExDto)
     {
-        throw new NotImplementedException();
+        if (!string.IsNullOrEmpty(exerciseName))
+        {
+            ExerciseDTO exerciseDTO = GetExerciseDTOFromListStoringSelectedExercises(exerciseName);
+
+            AddExerciseDTOToFullList(exerciseDTO);
+             
+
+            if (previouslySelectedExercisesForSelectedDay.ContainsKey(day)
+                && previouslySelectedExercisesForSelectedDay[day].ContainsKey(i))
+            {
+                previouslySelectedExercisesForSelectedDay[day].Remove(i);
+            }
+
+            RemoveExerciseDTOFromListStoringSelectedExercisesByName(exerciseDTO);
+        }
+
+        RemoveAdditionalExerciseFromWorkout(day);
     }
 
 
+    public ExerciseDTO GetExerciseDTOFromListStoringSelectedExercises(string name)
+    {
+        ExerciseDTO previouslySelectedxerciseDTO = listStoringSelectedExercises.Find(e => e.Name == name);
+        return previouslySelectedxerciseDTO;
+    }
+
+    public void AddExerciseDTOToFullList(ExerciseDTO dto)
+    {
+        fullListOfExerciseDTO.Add(dto);
+    }
+
+    public void RemoveExerciseDTOFromListStoringSelectedExercisesByName(ExerciseDTO dto)
+    {
+        listStoringSelectedExercises.Remove(dto);
+    }
+
+    
+
+    // Do we also need to remove the key value pair in the dictionary for a given day, int j, and exercise name
 
 
-
-    // Based on whatever exercise is selected, we will need to remove that from the inmemory list of exercises and add it to the list of added workouts for a plan
-    // In addition to adding exercises, Going to have to take into account if an exercise is removed or changed and adjust the in memory lists accordingly.
 
     private bool displayDayViewWorkout = false;
     private bool displayUnselectedWorkoutDays = false;
@@ -441,14 +499,7 @@
         }
     }
 
-    private void RemoveAdditionalExerciseFromWorkout(string day)
-    {
-        NumberOfUserExercisesInWorkoutForSelectedDay[day] -= 1;
-        listOfUserExercisesInSelectedDay.RemoveAt(listOfUserExercisesInSelectedDay.Count - 1);
-        StateHasChanged();  
-    }
-
-
+    
 
     private List<int> ListOfSets = ListOfNumberHelper.GenerateListOfNumbers(1, 10, 1);
     private List<int> ListOfReps = ListOfNumberHelper.GenerateListOfNumbers(2, 20, 2);
@@ -679,7 +730,7 @@
     }
 
 
-    public void BindValuesFromDtoToUserExercise(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn,string day)
+    public void BindValuesFromDtoToUserExercise(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn,string day, int j)
     {
         userSelectedExerciseInDayView = true;
         userSelectedExerciseInDayViewForVideoIconAppearance = true;
@@ -693,7 +744,9 @@
         PutExerciseTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
         PutWorkoutTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
         PutVideoUrlInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
-        RemoveSelectedExerciseFromAvailableList(userExercise);
-        RemoveExerciseFromExerciseListFilteredByWorkoutType(userExercise, listOfExercisesToFilterOn);
+        RemoveSelectedExerciseFromAvailableList(name,day,j);
+        RemoveExerciseFromExerciseListFilteredByWorkoutType(name, listOfExercisesToFilterOn, j, day); // This RemoveExerciseFromExerciseListFilteredByWorkoutType method can be overloaded and we can utilize polymorphism. For now, let's see if it works
+        UpdateListOfPreviouslySelectedExercisesForSelectedDay(j, day, name);
+        StateHasChanged();
     } 
 }
