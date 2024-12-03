@@ -332,11 +332,6 @@
     { "Saturday", new Dictionary<int, string>() }
 };
 
-
-    // We need to keep track of two things:
-    // 1. Make sure to remove exercises from the filtered list for a userexercise in selected day based on the stored list
-    // 2. Make sure to readd exercises to the filtred list for a user workout if for some reason the user removes or changes an exercise in another workout which would need to be reflect in the other days. We could have to filter based on exercise type most likely
-
     // Another option is the create a dictionary storing the filtered list of exercises based on the workouttype and exercise type Dictionary<WorkoutType,Dictionary<ExerciseType, ListOfExerciseDtos>>
     // Were going to create a single source of truth for all filtered exercises
     public Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> DictionaryStoringFilteredExercisesBasedOnWorkoutTypeAndExerciseType = new()
@@ -381,28 +376,59 @@
     Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> dictionaryHoldingFilteredExerciseValues,
     List<UserExercise> listOfUserExercisesForDay)
     {
-        foreach (UserExercise userExercise in listOfUserExercisesForDay)
+        if(listOfUserExercisesForDay.Count != 0)
         {
-            WorkoutType workoutType = userExercise.WorkoutType;
-            ExerciseType exerciseType = userExercise.ExerciseType;
-            string selectedExerciseName = userExercise.Name;
-
-            var exercisesToRemove = new List<ExerciseDTO>();
-
-            foreach (ExerciseDTO exercise in userExercise.FilteredExercises)
+            foreach (UserExercise userExercise in listOfUserExercisesForDay)
             {
-                if (exercise.Name != selectedExerciseName &&
-                    dictionaryHoldingFilteredExerciseValues[workoutType][exerciseType]
-                    .Any(selectedExercise => exercise.Name == selectedExercise.Name))
+                WorkoutType workoutType = userExercise.WorkoutType;
+                ExerciseType exerciseType = userExercise.ExerciseType;
+                string selectedExerciseName = userExercise.Name;
+
+                var exercisesToRemove = new List<ExerciseDTO>();
+
+                foreach (ExerciseDTO exercise in userExercise.FilteredExercises)
                 {
-                    exercisesToRemove.Add(exercise);
+                    if (exercise.Name != selectedExerciseName &&
+                        dictionaryHoldingFilteredExerciseValues[workoutType][exerciseType]
+                        .Any(selectedExercise => exercise.Name == selectedExercise.Name))
+                    {
+                        exercisesToRemove.Add(exercise);
+                    }
+                }
+
+                foreach (var exercise in exercisesToRemove)
+                {
+                    userExercise.FilteredExercises.Remove(exercise);
                 }
             }
+        }
+        
+    }
 
-            foreach (var exercise in exercisesToRemove)
-            {
-                userExercise.FilteredExercises.Remove(exercise);
-            }
+    // public void UpdateOneSourceOfTruthDictionaryOnModifieExercise(int j, string selectedDay, string name, WorkoutType workoutType, ExerciseType exerciseType)
+    // {
+    //     // NOTE: I feel the location where this takes effect might need to happen after the click instead of after selecting "Save Workout" because what if the user wants to select an exercise for the same exercise type in the same workout that they expect to be filtered.
+    //     // NOTE: So, right now, this is our problem. previouslySelectedExercisesForSelectedDay has already changed to the selected exercises, so we need to figure out how to judge whether the exercise had been modified. 
+    //     if (previouslySelectedExercisesForSelectedDay[selectedDay][j] != name) // If the names don't equal, that means is has been actually updated not just to same exercise being selected again
+    //     {
+    //         ExerciseDTO previouslySelectedxerciseDTO = listStoringSelectedExercises.Find(e => e.Name == previouslySelectedExercisesForSelectedDay[selectedDay][j]);
+    //         DictionaryStoringFilteredExercisesBasedOnWorkoutTypeAndExerciseType[workoutType][exerciseType].Remove(previouslySelectedxerciseDTO); // This seems weird, but its going to be added to the Dictionary - we're accounting for that elsewhere
+    //     }
+    // }
+
+    public void UpdateListOfPreviouslySelectedExercisesForSelectedDay(int j, string selectedDay, string name, WorkoutType workoutType, ExerciseType exerciseType)
+    {
+        if (previouslySelectedExercisesForSelectedDay[selectedDay][j] != name) // If the names don't equal, that means is has been actually updated not just to same exercise being selected again
+        {
+            // IMPORTANT: BEFORE ADDING OR REMOVING A VALUE FROM THE DICTIONARY STORING FILTERED EXERCISES, NEED TO MAKE SURE THE THE DICIONTARY HAS THE EXERCISETYPE AS A VALUE!!!!!
+            ExerciseDTO previouslySelectedxerciseDTO = listStoringSelectedExercises.Find(e => e.Name == previouslySelectedExercisesForSelectedDay[selectedDay][j]);
+            DictionaryStoringFilteredExercisesBasedOnWorkoutTypeAndExerciseType[workoutType][exerciseType].Remove(previouslySelectedxerciseDTO);
+            // When does the Side Lunges get added into the Dictionary above?
+            fullListOfExerciseDTO.Add(previouslySelectedxerciseDTO);
+            listStoringSelectedExercises.Remove(previouslySelectedxerciseDTO);
+            previouslySelectedExercisesForSelectedDay[selectedDay][j] = name;
+            ExerciseDTO newlyAddedSelectedExercise = listStoringSelectedExercises.Find(e => e.Name == previouslySelectedExercisesForSelectedDay[selectedDay][j]);
+            DictionaryStoringFilteredExercisesBasedOnWorkoutTypeAndExerciseType[workoutType][exerciseType].Add(newlyAddedSelectedExercise);
         }
     }
 
@@ -437,17 +463,6 @@
         StateHasChanged();
     }
 
-
-    public void UpdateListOfPreviouslySelectedExercisesForSelectedDay(int j, string selectedDay, string name)
-    {
-        if (previouslySelectedExercisesForSelectedDay[selectedDay][j] != name) // If the names don't equal, that means is has been actually updated not just to same exercise being selected again
-        {
-            ExerciseDTO previouslySelectedxerciseDTO = listStoringSelectedExercises.Find(e => e.Name == previouslySelectedExercisesForSelectedDay[selectedDay][j]);
-            fullListOfExerciseDTO.Add(previouslySelectedxerciseDTO);
-            listStoringSelectedExercises.Remove(previouslySelectedxerciseDTO);
-            previouslySelectedExercisesForSelectedDay[selectedDay][j] = name;
-        }
-    }
 
     private void RemoveAdditionalExerciseFromWorkout(string day)
     {
@@ -493,12 +508,6 @@
     {
         listStoringSelectedExercises.Remove(dto);
     }
-
-
-
-    // Do we also need to remove the key value pair in the dictionary for a given day, int j, and exercise name
-
-
 
     private bool displayDayViewWorkout = false;
     private bool displayUnselectedWorkoutDays = false;
@@ -817,9 +826,13 @@
         PutExerciseTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
         PutWorkoutTypeInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
         PutVideoUrlInUserExerciseBasedOnName(userExercise, name, listOfExercisesToFilterOn);
+
         RemoveSelectedExerciseFromAvailableList(name,day,j);
         RemoveExerciseFromExerciseListFilteredByWorkoutType(name, listOfExercisesToFilterOn, j, day); // This RemoveExerciseFromExerciseListFilteredByWorkoutType method can be overloaded and we can utilize polymorphism. For now, let's see if it works
-        UpdateListOfPreviouslySelectedExercisesForSelectedDay(j, day, name);
+       
+        UpdateListOfPreviouslySelectedExercisesForSelectedDay(j, day, name, userExercise.WorkoutType, userExercise.ExerciseType);
+        // UpdateOneSourceOfTruthDictionaryOnModifieExercise(j, day, name, userExercise.WorkoutType, userExercise.ExerciseType);
+        
         StateHasChanged();
     } 
 }
