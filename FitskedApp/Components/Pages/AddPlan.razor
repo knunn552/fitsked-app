@@ -1,6 +1,7 @@
 ﻿@page "/add-plan"
 @using FitskedApp.DTO
 @using FitskedApp.Data
+@using FitskedApp.Helpers
 @using FitskedApp.Models
 @using FitskedApp.Utilities
 @using FitskedApp.Data.Repository
@@ -10,6 +11,7 @@
 @inject IUserExerciseRepository userExerciseRepository
 @inject IUserWorkoutRepository userWorkoutRepository
 @inject IExerciseService exerciseService
+@inject IFilteredExercisesManager exercisesManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ApplicationDbContext ApplicationDbContext
 @inject NavigationManager NavManager
@@ -17,7 +19,6 @@
 @inject NavigationLinks NavigationLinks
 
 <PageTitle> Add Plan </PageTitle>
-
 
     <div class="@((displayDayViewWorkout ? "blurred" : ""))">
         <div class="d-flex justify-content-center">
@@ -102,11 +103,6 @@
         }
     }
 </div>
-
-
-
-
-
 
 @if(displayDayViewWorkout)
 {
@@ -306,8 +302,6 @@
 @code {
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
     private List<string> listToTrackSelectedDays = new List<string> { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-
-
     private Plan plan = new();
     private UserExercise userExercise = new();
     private int numberOfExercisesInWorkout = 1;
@@ -332,19 +326,25 @@
     { "Saturday", new Dictionary<int, string>() }
 };
 
-    // Another option is the create a dictionary storing the filtered list of exercises based on the workouttype and exercise type Dictionary<WorkoutType,Dictionary<ExerciseType, ListOfExerciseDtos>>
-    // Were going to create a single source of truth for all filtered exercises
+
     public Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> DictionaryStoringFilteredExercisesBasedOnWorkoutTypeAndExerciseType = new()
     {
-        { WorkoutType.UpperBodyStrength, new Dictionary<ExerciseType, List<ExerciseDTO>>() },
-        { WorkoutType.LowerBodyStrength, new Dictionary<ExerciseType, List<ExerciseDTO>>() }
+        { WorkoutType.UpperBodyStrength, new Dictionary<ExerciseType, List<ExerciseDTO>>
+            {
+                { ExerciseType.Core, new List<ExerciseDTO>() },
+                { ExerciseType.Secondary, new List<ExerciseDTO>() },
+                { ExerciseType.Accessory, new List<ExerciseDTO>() }
+            }
+        },
+        { WorkoutType.LowerBodyStrength, new Dictionary<ExerciseType, List<ExerciseDTO>>
+            {
+                { ExerciseType.Core, new List<ExerciseDTO>() },
+                { ExerciseType.Secondary, new List<ExerciseDTO>() },
+                { ExerciseType.Accessory, new List<ExerciseDTO>() }
+            }
+        }
     };
-    // Step 1: Create functionality so that for each userexercise, based on exercise type, the selected exercise (if not null) will be placed in the list of exercise DTO. This will happen on SaveWorkout
-    // Step 2: Upon Selecting the day, each userexercises list should be filtered to reflect the available list of exercises for a particular exercise type.
 
-    // We will take the exercises stored in the listOfUserExercisesForSelectedDay
-    // Turn those userexercises in ExerciseDTO
-    // Put the ExerciseDTO where they belong within the dictionary based on their workouttype and exercise type
 
     public void PlaceSelectedInFilteredBin(Dictionary<string, List<UserExercise>> dictionaryHoldingExercises, string selectedDay)
     {
@@ -372,38 +372,111 @@
         }
     }
 
+    // public void UpdateAllFilterExerciseListForEachUserExerciseInSelectedDay(
+    // Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> dictionaryHoldingFilteredExerciseValues,
+    // List<UserExercise> listOfUserExercisesForDay)
+    // {
+    //     if(listOfUserExercisesForDay.Count != 0)
+    //     {
+    //         foreach (UserExercise userExercise in listOfUserExercisesForDay)
+    //         {
+    //             WorkoutType workoutType = userExercise.WorkoutType;
+    //             ExerciseType exerciseType = userExercise.ExerciseType;
+    //             string selectedExerciseName = userExercise.Name;
+
+    //             var exercisesToRemove = new List<ExerciseDTO>();
+    //             var exerciseToAdd = new List<ExerciseDTO>();
+
+
+
+    //             foreach (ExerciseDTO exercise in userExercise.FilteredExercises)
+    //             {
+    //                 if (exercise.Name != selectedExerciseName &&
+    //                     dictionaryHoldingFilteredExerciseValues[workoutType][exerciseType]
+    //                     .Any(selectedExercise => exercise.Name == selectedExercise.Name))
+    //                 {
+    //                     exercisesToRemove.Add(exercise);
+    //                 }
+    //             }
+
+    //             foreach (ExerciseDTO exercise in userExercise.FilteredExercises)
+    //             {
+    //                 ExercisesToAddToFilteredUserExerciseList(exercise);
+    //             }
+
+    //             foreach (var exercise in exercisesToRemove)
+    //             {
+    //                 userExercise.FilteredExercises.Remove(exercise);
+    //             }
+    //         }
+    //     }  
+    // }
+
+    // public List<ExerciseDTO> ExercisesToAddToFilteredUserExerciseList(ExerciseDTO userExercise)
+    // {
+    //     return fullListOfExerciseDTO
+    //         .Where(dto => dto.WorkoutType == userExercise.WorkoutType &&
+    //                       dto.ExerciseType == userExercise.ExerciseType &&
+    //                       !userExercise.Any(filtered => filtered.Name == dto.Name))
+    //         .ToList();
+    // }
+
     public void UpdateAllFilterExerciseListForEachUserExerciseInSelectedDay(
     Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> dictionaryHoldingFilteredExerciseValues,
     List<UserExercise> listOfUserExercisesForDay)
     {
-        if(listOfUserExercisesForDay.Count != 0)
+        if (listOfUserExercisesForDay.Count == 0) return;
+
+        foreach (UserExercise userExercise in listOfUserExercisesForDay)
         {
-            foreach (UserExercise userExercise in listOfUserExercisesForDay)
-            {
-                WorkoutType workoutType = userExercise.WorkoutType;
-                ExerciseType exerciseType = userExercise.ExerciseType;
-                string selectedExerciseName = userExercise.Name;
-
-                var exercisesToRemove = new List<ExerciseDTO>();
-
-                foreach (ExerciseDTO exercise in userExercise.FilteredExercises)
-                {
-                    if (exercise.Name != selectedExerciseName &&
-                        dictionaryHoldingFilteredExerciseValues[workoutType][exerciseType]
-                        .Any(selectedExercise => exercise.Name == selectedExercise.Name))
-                    {
-                        exercisesToRemove.Add(exercise);
-                    }
-                }
-
-                foreach (var exercise in exercisesToRemove)
-                {
-                    userExercise.FilteredExercises.Remove(exercise);
-                }
-            }
+            UpdateFilteredExercisesForUserExercise(
+                dictionaryHoldingFilteredExerciseValues,
+                userExercise);
         }
-        
     }
+
+    private void UpdateFilteredExercisesForUserExercise(
+        Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> dictionaryHoldingFilteredExerciseValues,
+        UserExercise userExercise)
+    {
+        WorkoutType workoutType = userExercise.WorkoutType;
+        ExerciseType exerciseType = userExercise.ExerciseType;
+        string selectedExerciseName = userExercise.Name;
+
+        // Determine exercises to remove
+        var exercisesToRemove = userExercise.FilteredExercises
+            .Where(exercise =>
+                exercise.Name != selectedExerciseName &&
+                dictionaryHoldingFilteredExerciseValues[workoutType][exerciseType]
+                    .Any(selectedExercise => selectedExercise.Name == exercise.Name))
+            .ToList();
+
+        // Determine exercises to add
+        var exercisesToAdd = ExercisesToAddToFilteredUserExerciseList(userExercise);
+
+        // Remove invalid exercises
+        foreach (var exercise in exercisesToRemove)
+        {
+            userExercise.FilteredExercises.Remove(exercise);
+        }
+
+        // Add new valid exercises
+        foreach (var exercise in exercisesToAdd)
+        {
+            userExercise.FilteredExercises.Add(exercise);
+        }
+    }
+
+    private List<ExerciseDTO> ExercisesToAddToFilteredUserExerciseList(UserExercise userExercise)
+    {
+        return fullListOfExerciseDTO
+            .Where(dto => dto.WorkoutType == userExercise.WorkoutType &&
+                          dto.ExerciseType == userExercise.ExerciseType &&
+                          !userExercise.FilteredExercises.Any(filtered => filtered.Name == dto.Name))
+            .ToList();
+    }
+
+
 
     // public void UpdateOneSourceOfTruthDictionaryOnModifieExercise(int j, string selectedDay, string name, WorkoutType workoutType, ExerciseType exerciseType)
     // {
@@ -422,6 +495,11 @@
         {
             // IMPORTANT: BEFORE ADDING OR REMOVING A VALUE FROM THE DICTIONARY STORING FILTERED EXERCISES, NEED TO MAKE SURE THE THE DICIONTARY HAS THE EXERCISETYPE AS A VALUE!!!!!
             ExerciseDTO previouslySelectedxerciseDTO = listStoringSelectedExercises.Find(e => e.Name == previouslySelectedExercisesForSelectedDay[selectedDay][j]);
+            
+            if (!DictionaryStoringFilteredExercisesBasedOnWorkoutTypeAndExerciseType[workoutType].ContainsKey(exerciseType))
+            {
+                DictionaryStoringFilteredExercisesBasedOnWorkoutTypeAndExerciseType[workoutType][exerciseType] = new List<ExerciseDTO>();
+            }
             DictionaryStoringFilteredExercisesBasedOnWorkoutTypeAndExerciseType[workoutType][exerciseType].Remove(previouslySelectedxerciseDTO);
             // When does the Side Lunges get added into the Dictionary above?
             fullListOfExerciseDTO.Add(previouslySelectedxerciseDTO);
@@ -831,7 +909,12 @@
         RemoveExerciseFromExerciseListFilteredByWorkoutType(name, listOfExercisesToFilterOn, j, day); // This RemoveExerciseFromExerciseListFilteredByWorkoutType method can be overloaded and we can utilize polymorphism. For now, let's see if it works
        
         UpdateListOfPreviouslySelectedExercisesForSelectedDay(j, day, name, userExercise.WorkoutType, userExercise.ExerciseType);
-        // UpdateOneSourceOfTruthDictionaryOnModifieExercise(j, day, name, userExercise.WorkoutType, userExercise.ExerciseType);
+        
+        // Right now, the FilteredExercises for each UserExercise in each day in being updated upon user selecting the day. Now, we need the same functionality to happen
+        // Consider putting the below after onclick to create that dynamic user experience:
+        PlaceSelectedInFilteredBin(DictionaryOfListOfUserExerciseForSelectedDay, day);
+        UpdateAllFilterExerciseListForEachUserExerciseInSelectedDay(DictionaryStoringFilteredExercisesBasedOnWorkoutTypeAndExerciseType, listOfUserExercisesInSelectedDay);
+
         
         StateHasChanged();
     } 
