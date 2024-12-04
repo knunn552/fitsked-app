@@ -435,7 +435,6 @@
         displayDayViewWorkout = true;
         ListStoringUnclickedDays.RemoveAll(e => e.Equals(selectedDay));
         StateHasChanged();
-
     }
 
     private void SaveUserWorkoutToInMemoryListOfUserWorkouts()
@@ -511,36 +510,90 @@
     List<UserExercise> listOfUserExercisesForDay)
     {
         if (listOfUserExercisesForDay.Count == 0) return;
+
         foreach (UserExercise userExercise in listOfUserExercisesForDay)
         {
-            UpdateFilteredExercisesForUserExercise(dictionaryWithSelectedExercises,userExercise);
+            UpdateFilteredExercisesForUserExercise(dictionaryWithSelectedExercises, userExercise);
+        }
+
+        StateHasChanged();
+    }
+    
+    public void UpdateSelectableExerciseListForEachUserExercise(
+        Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> dictionaryWithSelectedExercises,
+        List<UserExercise> listOfUserExercisesForDay,
+        UserExercise clickedUserExercise)
+    {
+        if (listOfUserExercisesForDay.Count == 0) return;
+
+        foreach (UserExercise userExercise in listOfUserExercisesForDay)
+        {
+            if (userExercise != clickedUserExercise)
+            {
+                UpdateFilteredExercisesForUserExercise(dictionaryWithSelectedExercises, userExercise);
+            }
         }
 
         StateHasChanged();
     }
 
 
+
+    // private void UpdateFilteredExercisesForUserExercise(
+    //     Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> dictionaryWithSelectedExercises,
+    //     UserExercise userExercise)
+    // {
+    //     WorkoutType workoutType = userExercise.WorkoutType;
+    //     ExerciseType exerciseType = userExercise.ExerciseType;
+    //     string selectedExerciseName = userExercise.Name;
+
+    //     // So before the following LINQ query, we might have to remove Deadlift from the filteredlist BEFORE the linq query
+    //     var exercisesToRemove = userExercise.FilteredExercises
+    //         .Where(exercise => exercise.Name != selectedExerciseName && 
+    //             dictionaryWithSelectedExercises[workoutType][exerciseType].Any(selectedExercise => selectedExercise.Name == exercise.Name)).ToList();
+
+    //     var exercisesToAdd = ExercisesToAddToFilteredUserExerciseLists(userExercise);
+
+    //     exercisesFilterManager.RemoveItemsFromList(exercisesToRemove, userExercise.FilteredExercises);
+    //     var exercise = userExercise.FilteredExercises.Where(e => e.Name == userExercise.Name);
+
+    //     exercisesFilterManager.AddItemsToList(exercisesToAdd, userExercise.FilteredExercises);
+    // }
+
     private void UpdateFilteredExercisesForUserExercise(
-        Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> dictionaryWithSelectedExercises,
-        UserExercise userExercise)
+    Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> dictionaryWithSelectedExercises,
+    UserExercise userExercise)
     {
         WorkoutType workoutType = userExercise.WorkoutType;
         ExerciseType exerciseType = userExercise.ExerciseType;
         string selectedExerciseName = userExercise.Name;
 
-        // So before the following LINQ query, we might have to remove Deadlift from the filteredlist BEFORE the linq query
+        // Remove exercises that match criteria for removal
         var exercisesToRemove = userExercise.FilteredExercises
-            .Where(exercise => exercise.Name != selectedExerciseName && 
+            .Where(exercise => exercise.Name != selectedExerciseName &&
                 dictionaryWithSelectedExercises[workoutType][exerciseType].Any(selectedExercise => selectedExercise.Name == exercise.Name)).ToList();
 
         // Determine exercises to add to filtered list
-        var exercisesToAdd = ExercisesToAddToFilteredUserExerciseList(userExercise);
+        var exercisesToAdd = ExercisesToAddToFilteredUserExerciseLists(userExercise);
 
+        // Perform removal and addition operations
         exercisesFilterManager.RemoveItemsFromList(exercisesToRemove, userExercise.FilteredExercises);
         exercisesFilterManager.AddItemsToList(exercisesToAdd, userExercise.FilteredExercises);
+
+        // Move the current selected exercise to the top of the filtered list
+        var selectedExercise = userExercise.FilteredExercises.FirstOrDefault(e => e.Name == selectedExerciseName);
+        if (selectedExercise != null)
+        {
+            userExercise.FilteredExercises.Remove(selectedExercise);
+            userExercise.FilteredExercises.Insert(0, selectedExercise);
+        }
     }
 
-    private List<ExerciseDTO> ExercisesToAddToFilteredUserExerciseList(UserExercise userExercise)
+    
+
+    
+
+    private List<ExerciseDTO> ExercisesToAddToFilteredUserExerciseLists(UserExercise userExercise)
     {
         return fullListOfExerciseDTO
             .Where(dto => dto.WorkoutType == userExercise.WorkoutType &&
@@ -607,7 +660,7 @@
             exercisesFilterManager.RemoveItemFromList(exerciseDTO, listStoringSelectedExercises);
             listOfExercisesByWorkoutType.Add(exerciseDTO); // I believe we are already doing this somethingwhere. This should do the trick for now but we really not the find where the exercise is getting readded and use that.
             DictionaryStoringFilteredExercises[exercise.WorkoutType][exercise.ExerciseType].RemoveAll(e => e.Name == exerciseName); // Might need to add some exception handling around here. 
-            UpdateSelectableExerciseListForEachUserExercise(DictionaryStoringFilteredExercises, ListOfUserExercisePerDay[day]);
+            UpdateSelectableExerciseListForEachUserExercise(DictionaryStoringFilteredExercises, ListOfUserExercisePerDay[day],exercise);
         }
 
         RemoveAdditionalExerciseFromWorkout(day);
@@ -799,7 +852,7 @@
         // Right now, the FilteredExercises for each UserExercise in each day in being updated upon user selecting the day. Now, we need the same functionality to happen
         // Consider putting the below after onclick to create that dynamic user experience:
         PutSelectedExercisesInFilteredBin(ListOfUserExercisePerDay, day);
-        UpdateSelectableExerciseListForEachUserExercise(DictionaryStoringFilteredExercises, listOfUserExercisesInSelectedDay);
+        UpdateSelectableExerciseListForEachUserExercise(DictionaryStoringFilteredExercises, listOfUserExercisesInSelectedDay, userExercise);
 
         StateHasChanged();
     } 
