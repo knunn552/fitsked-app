@@ -528,7 +528,7 @@
 
         foreach (UserExercise userExercise in listOfUserExercisesForDay)
         {
-            if (userExercise != clickedUserExercise)
+            if ((userExercise != clickedUserExercise) && (userExercise.ExerciseType == clickedUserExercise.ExerciseType))
             {
                 UpdateFilteredExercisesForUserExercise(dictionaryWithSelectedExercises, userExercise);
             }
