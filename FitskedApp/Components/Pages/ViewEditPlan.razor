@@ -5,6 +5,7 @@
 @using FitskedApp.Utilities
 @using FitskedApp.Data.Repository
 @using FitskedApp.Data.Service
+@using FitskedApp.Helpers
 @rendermode InteractiveServer
 @inject IUserPlanRepository planRepository
 @inject IUserExerciseRepository userExerciseRepository
@@ -12,22 +13,21 @@
 @inject IExerciseService exerciseService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ApplicationDbContext ApplicationDbContext
+@inject IFilteredExercisesManager exercisesFilterManager
 @inject NavigationManager NavManager
 @inject NavigationLinks NavigationLinks
 
 <PageTitle> Edit Plan </PageTitle>
 
-
-
     <div class="@((displayDayViewWorkout ? "blurred" : ""))">
         <div class="d-flex justify-content-center">
-        <h1 class="poppins-bold text-primary pt-5 fs-1 text-black"> @PlanName</h1>
+        <h1 class="poppins-bold text-primary pt-1 fs-1 text-black"> @PlanName</h1>
         </div>
 
     <div class="row border-4 rounded-div border border-warning p-3 bg-white w-auto mb-2 inner-input-shadow">
         @foreach (var day in daysOfWeek)
         {
-            if (DictionaryOfListOfUserExerciseForSelectedDay.TryGetValue(day, out var exercises))
+            if (ListOfUserExercisePerDay.TryGetValue(day, out var exercises))
             {
                 <div class="col text-center mt-2 mb-2 m-lg-2 day-card rounded-div mr-1 rounded-div border border-3 border-danger ps-2 pe-2"
                      @onclick="() => { if (!displayDayViewWorkout) UserSelectsDay(day); }">
@@ -83,7 +83,6 @@
     </div>
     </div>
 
-
 @if(displayDayViewWorkout)
 {
     <div class="overlay">
@@ -97,7 +96,7 @@
                     <EditForm Model="userExercise">
                         <DataAnnotationsValidator />
 
-                        @if ((userSelectedWorkoutTypeInDayView == false) && (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[selectedDay] != 1))
+                        @if ((userSelectedWorkoutTypeInDayView == false) && (UserClickCountPerDay[selectedDay] != 1))
                         {
                             @if(GetWorkoutTypeByDay(selectedDay) != "Workout Type")
                             {
@@ -142,7 +141,7 @@
                         }
 
 
-                        @for (int i = 0; i < NumberOfUserExercisesInWorkoutForSelectedDay[selectedDay]; i++)
+                        @for (int i = 0; i < UserExerciseTotalCountPerDay[selectedDay]; i++)
                         {
                             var j = i;
                             if (j >= listOfUserExercisesInSelectedDay.Count)
@@ -198,7 +197,7 @@
                                     }
                                 </InputSelect>
 
-                                @if ((j > 0) && (j == NumberOfUserExercisesInWorkoutForSelectedDay[selectedDay] - 1))
+                                @if ((j > 0) && (j == UserExerciseTotalCountPerDay[selectedDay] - 1))
                                 {
                                     <button class=" end-0 me-5 mt-2 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-2" @onclick="() => RemoveAdditionalExerciseFromWorkout(selectedDay, listOfUserExercisesInSelectedDay[j].Id)">
                                         Remove
@@ -224,53 +223,42 @@
 }
 
 @code {
-
     [Parameter]
     public string PlanName { get; set; }
-
     [Parameter]
     public int PlanId { get; set; }
 
     private Plan plan = new();
     private UserExercise userExercise = new();
     public WorkoutType workoutType = new();
-    private List<UserWorkout> workoutListForCurrentPlan = new(); // This is what we'll use to retrive the current list of userworkouts for the specific planid that were working with
-    private List<UserExercise> listOfUserExercisesInSelectedDay = new();
-    private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-    private int numberOfExercisesInWorkout = 2;
 
+
+    private bool displayDayViewWorkout = false;
+    private bool displayUnselectedWorkoutDays = false;
+    private bool displayBlankPlanError = false;
+    private bool userHasEnteredPlanName = false;
     private bool userSelectedWorkoutTypeInDayView = false;
+    private bool userSelectedExerciseTypeInDayView = true;
+    private bool userSelectedExerciseInDayView = true;
+    private bool userSelectedExerciseInDayViewForVideoIconAppearance = false;
+    private int numberOfExercisesInWorkout = 1;
+    private string selectedDay = string.Empty;
 
 
+    private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+
+    private List<UserWorkout> workoutListForCurrentPlan = new(); // This is what we'll use to retrive the current list of userworkouts for the specific planid that were working with. This is also what we use to store the final result of the plan in to update plan. Totally different and seperate from filtering data structures.
+    private List<UserExercise> listOfUserExercisesInSelectedDay = new();
+    public List<ExerciseDTO> listOfExercisesByWorkoutType = new();
+    private List<ExerciseDTO> fullListOfExerciseDTO = new(); // This came from AddPlan
+    private List<ExerciseDTO> listStoringSelectedExercises = new(); // This came from AddPlan // Make sure that workoutListForCurrentPlan and fullListOfExerciseDto don't collide
+    private List<int> ListOfSets = ListOfNumberHelper.GenerateListOfNumbers(1, 10, 1);
+    private List<int> ListOfReps = ListOfNumberHelper.GenerateListOfNumbers(2, 20, 2);
+    private List<int> ListOfWeight = ListOfNumberHelper.GenerateListOfNumbers(5, 405, 5);
     private List<int> TrackedListOfEditedExerciseIds = new();
     private List<int> TrackedListOfDeletedExerciseIds = new();
 
-    private Dictionary<string, List<UserExercise>> DictionaryOfListOfUserExerciseForSelectedDay = new(); // Need this to populate a list of user exercises for a given workout/day
-    private string selectedDay = string.Empty;
-
-    private Dictionary<string, int> DictionaryStoringListPositionOfSelectedDay = new Dictionary<string, int>
-{
-    { "Sunday", 0 },
-    { "Monday", 1 },
-    { "Tuesday", 2 },
-    { "Wednesday", 3 },
-    { "Thursday", 4 },
-    { "Friday", 5 },
-    { "Saturday", 6 }
-};
-
-    public Dictionary<string, int> NumberOfUserExercisesInWorkoutForSelectedDay = new Dictionary<string, int>
-    {
-        { "Sunday", 1},
-        { "Monday", 1 },
-        { "Tuesday", 1},
-        { "Wednesday", 1},
-        { "Thursday", 1 },
-        { "Friday", 1},
-        { "Saturday", 1}
-    };
-
-    public Dictionary<string, int> DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff = new Dictionary<string, int>
+    public Dictionary<string, int> UserClickCountPerDay = new Dictionary<string, int>
     {
         { "Sunday", 0},
         { "Monday", 0},
@@ -280,18 +268,12 @@
         { "Friday", 0},
         { "Saturday", 0}
     };
-
-    private bool displayDayViewWorkout = false; // This needs to be kept to obviously populate the day view
-    public List<ExerciseDTO> listOfExercisesByWorkoutType = new();
-
-
     private static readonly Dictionary<WorkoutType, string> StringValuesForWorkoutType = new()
     {
             {WorkoutType.FillerValue, " -- Workout Type -- "},
             {WorkoutType.UpperBodyStrength, "Upper Body" },
             {WorkoutType.LowerBodyStrength, "Lower Body" }
     };
-
     private static readonly Dictionary<ExerciseType, string> StringValuesForExerciseType = new()
     {
         {ExerciseType.FillerValue, " -- Exercise Type -- "},
@@ -299,84 +281,198 @@
         {ExerciseType.Secondary, "Secondary"},
         {ExerciseType.Accessory, "Accessory"}
     };
+    private Dictionary<string, List<UserExercise>> ListOfUserExercisePerDay = new(); // Need this to populate a list of user exercises for a given workout/day
+    private Dictionary<string, int> ListPositionForDay = new Dictionary<string, int>
+{
+    { "Sunday", 0 },
+    { "Monday", 1 },
+    { "Tuesday", 2 },
+    { "Wednesday", 3 },
+    { "Thursday", 4 },
+    { "Friday", 5 },
+    { "Saturday", 6 }
+}; // This was already in ViewEditPlan 
+    public Dictionary<string, int> UserExerciseTotalCountPerDay = new Dictionary<string, int>
+    {
+        { "Sunday", 1},
+        { "Monday", 1 },
+        { "Tuesday", 1},
+        { "Wednesday", 1},
+        { "Thursday", 1 },
+        { "Friday", 1},
+        { "Saturday", 1}
+    }; // This was already in ViewEditPlan
+    public Dictionary<string, Dictionary<int, string>> previousExerciseSelectionsPerDay = new()
+{
+    { "Sunday", new Dictionary<int, string>() },
+    { "Monday", new Dictionary<int, string>() },
+    { "Tuesday", new Dictionary<int, string>() },
+    { "Wednesday", new Dictionary<int, string>() },
+    { "Thursday", new Dictionary<int, string>() },
+    { "Friday", new Dictionary<int, string>() },
+    { "Saturday", new Dictionary<int, string>() }
+}; // This came from AddPlan // This tells us what the selected exercise was for a userexercise before removing or modifying the exercise
+    public Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> DictionaryStoringFilteredExercises = new()
+    {
+        // TODO: Fix this. Entirety of logic will most likely need to be redone.
+        { WorkoutType.UpperBodyStrength, new Dictionary<ExerciseType, List<ExerciseDTO>>
+            {
+                { ExerciseType.Core, new List<ExerciseDTO>() },
+                { ExerciseType.Secondary, new List<ExerciseDTO>() },
+                { ExerciseType.Accessory, new List<ExerciseDTO>() },
+                { ExerciseType.FillerValue, new List<ExerciseDTO>()}
+            }
+        },
+        { WorkoutType.LowerBodyStrength, new Dictionary<ExerciseType, List<ExerciseDTO>>
+            {
+                { ExerciseType.Core, new List<ExerciseDTO>() },
+                { ExerciseType.Secondary, new List<ExerciseDTO>() },
+                { ExerciseType.Accessory, new List<ExerciseDTO>() },
+                { ExerciseType.FillerValue, new List<ExerciseDTO>()}
+            }
+        },
+        { WorkoutType.FillerValue, new Dictionary<ExerciseType, List<ExerciseDTO>>
+            {
+                { ExerciseType.Core, new List<ExerciseDTO>() },
+                { ExerciseType.Secondary, new List<ExerciseDTO>() },
+                { ExerciseType.Accessory, new List<ExerciseDTO>() },
+                { ExerciseType.FillerValue, new List<ExerciseDTO>()}
+            }
+        }
+    }; // This came from AddPlan // This is the source of truth for all filtered/selected exercises
 
-    private List<int> ListOfSets = ListOfNumberHelper.GenerateListOfNumbers(1, 10, 1);
-    private List<int> ListOfReps = ListOfNumberHelper.GenerateListOfNumbers(2, 20, 2);
-    private List<int> ListOfWeight = ListOfNumberHelper.GenerateListOfNumbers(5, 405, 5);
 
     protected override async Task OnInitializedAsync()
     {
         plan = planRepository.GetPlanById(PlanId);
         workoutListForCurrentPlan = await userWorkoutRepository.GetListOfUserWorkoutsByPlanIdAsync(PlanId);
 
-
-
         foreach (var day in daysOfWeek)
         {
-            if (!DictionaryOfListOfUserExerciseForSelectedDay.ContainsKey(day))
+            if (!ListOfUserExercisePerDay.ContainsKey(day))
             {
-                DictionaryOfListOfUserExerciseForSelectedDay[day] = new List<UserExercise>();
+                ListOfUserExercisePerDay[day] = new List<UserExercise>();
             }
         }
 
-        PlaceListOfUserExercisesInDictionaryForAssociatedDay(workoutListForCurrentPlan, DictionaryOfListOfUserExerciseForSelectedDay, daysOfWeek);
-        UpdateNumberOfUserExercisesInWorkoutForSelectedDay(workoutListForCurrentPlan, NumberOfUserExercisesInWorkoutForSelectedDay, daysOfWeek);
+        MapUserExercisesToDay(workoutListForCurrentPlan, ListOfUserExercisePerDay, daysOfWeek);
+        SyncExerciseCountWithDays(workoutListForCurrentPlan, UserExerciseTotalCountPerDay, daysOfWeek);
+        fullListOfExerciseDTO = await exerciseService.GetFullExerciseListAsync();
+
+        PutSelectedExercisesInList(ListOfUserExercisePerDay, listStoringSelectedExercises, fullListOfExerciseDTO);
+        MapUserExercisesToFilteredDictionary(ListOfUserExercisePerDay, fullListOfExerciseDTO, DictionaryStoringFilteredExercises);
+        RemoveSelectedExercisesFromList(ListOfUserExercisePerDay, fullListOfExerciseDTO); // This removes the exercise from the list that we will filter on
+        AddExerciseNamesToPreviousSelections();
     }
 
-    private void UpdateNumberOfUserExercisesInWorkoutForSelectedDay(
-    List<UserWorkout> workoutsList,
-    Dictionary<string, int> userExerciseCount,
-    string[] daysInWeek)
+
+    private void PutSelectedExercisesInList(Dictionary<string, List<UserExercise>> dictionary,List<ExerciseDTO> listStoringSelectedExercises,List<ExerciseDTO> fullList)
     {
-        int dayCount = 0;
-
-        foreach (var workout in workoutsList)
+        foreach (var dayEntry in dictionary)
         {
-            if (dayCount < daysInWeek.Length)
+            string day = dayEntry.Key;
+            List<UserExercise> exercisesForDay = dayEntry.Value;
+
+            if (exercisesForDay == null)
+                continue;
+
+            foreach (UserExercise userExercise in exercisesForDay)
             {
-                // Get the count of exercises for the current workout, or 0 if null
-                int exerciseCount = workout.UserExercises?.Count ?? 0;
+                if (userExercise == null || string.IsNullOrWhiteSpace(userExercise.Name))
+                    continue;
 
-                // Update the count for the corresponding day
-                userExerciseCount[daysInWeek[dayCount]] = exerciseCount;
 
-                dayCount++;
+                List<ExerciseDTO> matchingExercises = fullList
+                    .FindAll(e => e.Name.Equals(userExercise.Name, StringComparison.OrdinalIgnoreCase));
+
+                listStoringSelectedExercises.AddRange(matchingExercises);
+            }
+        }
+    }
+    private void RemoveSelectedExercisesFromList(Dictionary<string, List<UserExercise>> dictionary, List<ExerciseDTO> fullListOfExerciseDTO)
+    {
+        foreach (string day in daysOfWeek)
+        {
+            List<ExerciseDTO> exerciseList = new();
+            foreach(UserExercise exercise in dictionary[day])
+            {
+                fullListOfExerciseDTO.RemoveAll(e => e.Name == exercise.Name);
+            }
+        } 
+    }
+    // Need to update previousExerciseSelectionsPerDay, DictionaryStoringFilteredExercises, and listOfExercisesByWorkoutType
+    // Also need to add the functionality in FilterListOfWorkoutTypeByExerciseTypeAsync & GetListOfIndividualExercisesFromListOfExerciseType so the filtering is done on the fullListOfDto
+    // I don't think its currently pulling from the API but we can fix if need be.
+    public void AddExerciseNamesToPreviousSelections()
+    {
+        foreach (var dayEntry in ListOfUserExercisePerDay)
+        {
+            string day = dayEntry.Key; // Get the day of the week
+            List<UserExercise> exercisesForDay = dayEntry.Value;
+
+            if (exercisesForDay == null || !previousExerciseSelectionsPerDay.ContainsKey(day))
+                continue;
+
+            // Get the target dictionary for the day
+            var previousSelectionsForDay = previousExerciseSelectionsPerDay[day];
+
+            // Add all exercise names with a unique key
+            foreach (var userExercise in exercisesForDay)
+            {
+                if (userExercise == null || string.IsNullOrWhiteSpace(userExercise.Name))
+                    continue;
+
+             // I really don't intuitively understand what this is doing but we are going to roll with it and come back later if we need to.
+                int newKey = previousSelectionsForDay.Count > 0
+                    ? previousSelectionsForDay.Keys.Max() + 1
+                    : 0;
+
+                previousSelectionsForDay[newKey] = userExercise.Name;
+            }
+        }
+    }
+    public void MapUserExercisesToFilteredDictionary(
+    Dictionary<string, List<UserExercise>> listOfUserExercisePerDay,
+    List<ExerciseDTO> fullListOfExerciseDTO,
+    Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> dictionaryStoringFilteredExercises)
+    {
+        foreach (var dayEntry in listOfUserExercisePerDay)
+        {
+            var userExercises = dayEntry.Value;
+
+            foreach (var userExercise in userExercises)
+            {
+                if (userExercise == null || string.IsNullOrWhiteSpace(userExercise.Name))
+                    continue;
+
+                var matchingExerciseDTO = fullListOfExerciseDTO
+                    .FirstOrDefault(dto => dto.Name.Equals(userExercise.Name, StringComparison.OrdinalIgnoreCase));
+
+                if (matchingExerciseDTO == null)
+                    continue;
+
+                if (!dictionaryStoringFilteredExercises.ContainsKey(userExercise.WorkoutType))
+                    continue;
+
+                var exerciseTypeDictionary = dictionaryStoringFilteredExercises[userExercise.WorkoutType];
+
+                if (!exerciseTypeDictionary.ContainsKey(userExercise.ExerciseType))
+                    continue;
+
+                exerciseTypeDictionary[userExercise.ExerciseType].Add(matchingExerciseDTO);
             }
         }
     }
 
 
-    private void AddAdditionalExerciseToWorkout(string day)
-    {
-        if (NumberOfUserExercisesInWorkoutForSelectedDay[day] < 8)
-        {
-            NumberOfUserExercisesInWorkoutForSelectedDay[day] += 1;
-            StateHasChanged();
-        }
-    }
 
-    private void RemoveAdditionalExerciseFromWorkout(string day, int id)
-    {
-        NumberOfUserExercisesInWorkoutForSelectedDay[day] -= 1;
-        listOfUserExercisesInSelectedDay.RemoveAt(listOfUserExercisesInSelectedDay.Count - 1);
-        AddRemovedUserExerciseIdToTrackedListOfDeletedIds(id);
-        StateHasChanged();
-    }
-
-    public void AddEditedUserExerciseIdToTrackedListOfEditedIds(int id)
-    {
-        TrackedListOfEditedExerciseIds.Add(id);
-        TrackedListOfEditedExerciseIds.Sort();
-    }
-
-    public void AddRemovedUserExerciseIdToTrackedListOfDeletedIds(int id)
-    {
-        TrackedListOfDeletedExerciseIds.Add(id);
-        TrackedListOfDeletedExerciseIds.Sort();
-    }
+    
 
 
-    private void PlaceListOfUserExercisesInDictionaryForAssociatedDay(List<UserWorkout> workoutsList, Dictionary<string, List<UserExercise>> dictionaryForPlan, string[] daysInWeek)
+
+
+
+    private void MapUserExercisesToDay(List<UserWorkout> workoutsList, Dictionary<string, List<UserExercise>> dictionaryForPlan, string[] daysInWeek)
     {
         int dayCount = 0;
 
@@ -389,32 +485,54 @@
             }
         }
     }
+    private void SyncExerciseCountWithDays(List<UserWorkout> workoutsList,Dictionary<string, int> userExerciseCount,string[] daysInWeek)
+    {
+        int dayCount = 0;
 
-
+        foreach (var workout in workoutsList)
+        {
+            if (dayCount < daysInWeek.Length)
+            {
+                int exerciseCount = workout.UserExercises?.Count ?? 0;
+                userExerciseCount[daysInWeek[dayCount]] = exerciseCount;
+                dayCount++;
+            }
+        }
+    }
+    
+    
     private void UserSelectsDay(string day)
     {
-        if (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[day] < 1)
+        if (UserClickCountPerDay[day] < 1)
         {
             userExercise.WorkoutType = WorkoutType.FillerValue;
         }
 
-
         selectedDay = day;
-        listOfUserExercisesInSelectedDay = DictionaryOfListOfUserExerciseForSelectedDay[day];
+        listOfUserExercisesInSelectedDay = ListOfUserExercisePerDay[day];
         numberOfExercisesInWorkout = listOfUserExercisesInSelectedDay.Count;
         displayDayViewWorkout = true;
     }
 
-
+    public void AddEditedUserExerciseIdToTrackedListOfEditedIds(int id)
+    {
+        TrackedListOfEditedExerciseIds.Add(id);
+        TrackedListOfEditedExerciseIds.Sort();
+    }
+    public void AddRemovedUserExerciseIdToTrackedListOfDeletedIds(int id)
+    {
+        TrackedListOfDeletedExerciseIds.Add(id);
+        TrackedListOfDeletedExerciseIds.Sort();
+    }
 
     private void SaveUserWorkoutToInMemoryListOfUserWorkouts()
     {
         userSelectedWorkoutTypeInDayView = false;
-        if (DictionaryStoringListPositionOfSelectedDay.ContainsKey(selectedDay))
+        if (ListPositionForDay.ContainsKey(selectedDay))
         {
-            DictionaryOfListOfUserExerciseForSelectedDay[selectedDay] = listOfUserExercisesInSelectedDay;
+            ListOfUserExercisePerDay[selectedDay] = listOfUserExercisesInSelectedDay;
 
-            int dayIndex = DictionaryStoringListPositionOfSelectedDay[selectedDay];
+            int dayIndex = ListPositionForDay[selectedDay];
 
             var updatedWorkoutId = workoutListForCurrentPlan[dayIndex].Id;
             workoutListForCurrentPlan.RemoveAt(dayIndex);
@@ -430,39 +548,33 @@
             displayDayViewWorkout = false;
         }
     }
-
-    public string GetWorkoutTypeByDay(string day)
+    
+    
+    public void FilterListOfWorkoutTypeByExerciseTypeAsync(string day)
     {
-        if (DictionaryOfListOfUserExerciseForSelectedDay.TryGetValue(day, out var userWorkout) && userWorkout?.Any() == true)
+        List<ExerciseDTO> exercises = new();
+        userSelectedWorkoutTypeInDayView = true;
+        if (UserClickCountPerDay[day] < 1)
         {
-            var userExercise = userWorkout.FirstOrDefault();
-            if (userExercise != null)
-            {
-                var enumValue = userExercise.WorkoutType;
-                switch (enumValue)
-                {
-                    case WorkoutType.UpperBodyStrength:
-                        return "Upper Body";
-
-                    case WorkoutType.LowerBodyStrength:
-                        return "Lower Body";
-
-                    default:
-                        return "Workout Type";
-                }
-            }
+            UserClickCountPerDay[day]++;
         }
-        return "Err";
+        
+        listOfExercisesByWorkoutType = exerciseService.GetExerciseListBasedOnWorkoutType(userExercise.WorkoutType, exercises); 
+
+        foreach (var exercise in listOfUserExercisesInSelectedDay)
+        {
+            exercise.FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, exercise.ExerciseType);
+        }
+        StateHasChanged();
+    }
+    public async Task GetListOfIndividualExercisesFromListOfExerciseType(int index)
+    {
+        var selectedExerciseType = listOfUserExercisesInSelectedDay[index].ExerciseType;
+        listOfUserExercisesInSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);
+        await InvokeAsync(StateHasChanged);
     }
 
-    private string GetWorkoutSummary(string day)
-    {
-        if (DictionaryOfListOfUserExerciseForSelectedDay.TryGetValue(day, out var exercises) && exercises.Any())
-        {
-            return "";
-        }
-        return "No Exercises Added.";
-    }
+
 
     private async Task UpdatePlanAsync()
     {
@@ -494,36 +606,52 @@
         }
         StateHasChanged();
     }
-
-
-
-    public void FilterListOfWorkoutTypeByExerciseTypeAsync(string day)
+    private void AddAdditionalExerciseToWorkout(string day)
     {
-        // IMPORTANT: THE BELOW EXERCISES VARIABLE IS ONLY FOR TEMPORARY USE AFTER WE MADE CHANGES IN THE EXERCISE SERVICE FOR THE ADDPLAN COMPONENT. WILL NEED TO MAKE EQUIVALENT CHANGES IN THE VIEWEDIT PLAN COMPONENT
-        List<ExerciseDTO> exercises = new();
-        userSelectedWorkoutTypeInDayView = true;
-        if (DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[day] < 1)
+        if (UserExerciseTotalCountPerDay[day] < 8)
         {
-            DictionaryToTrackNumberOfSelectionsDuringDayViewToTurnOnBlinkingInputsAfterFirstRoundOfSelectionPerDayOff[day]++;
+            UserExerciseTotalCountPerDay[day] += 1;
+            StateHasChanged();
         }
-        listOfExercisesByWorkoutType = exerciseService.GetExerciseListBasedOnWorkoutType(userExercise.WorkoutType, exercises); // This method replaced the original method that was retrieving the List Of Exercises from the Web App Db
-                                                                                                             // listOfExercisesByWorkoutType = await userExerciseRepository.GetExercisesBasedOnWorkoutType(userExercise.WorkoutType);
-        foreach (var exercise in listOfUserExercisesInSelectedDay)
-        {
-            exercise.FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, exercise.ExerciseType);
-        }
+    }
+    private void RemoveAdditionalExerciseFromWorkout(string day, int id)
+    {
+        UserExerciseTotalCountPerDay[day] -= 1;
+        listOfUserExercisesInSelectedDay.RemoveAt(listOfUserExercisesInSelectedDay.Count - 1);
+        AddRemovedUserExerciseIdToTrackedListOfDeletedIds(id);
         StateHasChanged();
     }
-
-
-
-    public async Task GetListOfIndividualExercisesFromListOfExerciseType(int index)
+    private string GetWorkoutSummary(string day)
     {
-        var selectedExerciseType = listOfUserExercisesInSelectedDay[index].ExerciseType;
-        listOfUserExercisesInSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);
-        await InvokeAsync(StateHasChanged);
+        if (ListOfUserExercisePerDay.TryGetValue(day, out var exercises) && exercises.Any())
+        {
+            return "";
+        }
+        return "No Exercises Added.";
     }
+    public string GetWorkoutTypeByDay(string day)
+    {
+        if (ListOfUserExercisePerDay.TryGetValue(day, out var userWorkout) && userWorkout?.Any() == true)
+        {
+            var userExercise = userWorkout.FirstOrDefault();
+            if (userExercise != null)
+            {
+                var enumValue = userExercise.WorkoutType;
+                switch (enumValue)
+                {
+                    case WorkoutType.UpperBodyStrength:
+                        return "Upper Body";
 
+                    case WorkoutType.LowerBodyStrength:
+                        return "Lower Body";
+
+                    default:
+                        return "Workout Type";
+                }
+            }
+        }
+        return "Err";
+    }
     public void PutExerciseIdInUserExerciseBasedOnName(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
         try
@@ -536,19 +664,16 @@
             Console.WriteLine("Please select an exercise from the list: {0}", e.Message);
         }
     }
-
     public void PutWorkoutTypeInUserExerciseBasedOnName(UserExercise userExercise,string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
         var filteredExercise = listOfExercisesToFilterOn.Where(e => e.Name == name).FirstOrDefault();
         userExercise.WorkoutType = filteredExercise.WorkoutType;
     }
-
     public void PutExerciseTypeInUserExerciseBasedOnName(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
         var filteredExercise = listOfExercisesToFilterOn.Where(e => e.Name == name).FirstOrDefault(); // Really this should be put into its own method
         userExercise.ExerciseType = filteredExercise.ExerciseType;
     }
-
     public void BindValuesFromDtoToUserExercise(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
         AddEditedUserExerciseIdToTrackedListOfEditedIds(userExercise.Id);
