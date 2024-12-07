@@ -96,7 +96,7 @@
                     <EditForm Model="userExercise">
                         <DataAnnotationsValidator />
 
-                        @if ((userSelectedWorkoutTypeInDayView == false) && (UserClickCountPerDay[selectedDay] != 1))
+                        @* @if ((userSelectedWorkoutTypeInDayView == false) && (UserClickCountPerDay[selectedDay] != 1))
                         {
                             @if(GetWorkoutTypeByDay(selectedDay) != "Workout Type")
                             {
@@ -122,7 +122,7 @@
                             </div>
                         }
                         else
-                        {
+                        { *@
                             <div class="d-flex justify-content-center">
                                 <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center" id="workoutType" @bind-Value="userExercise.WorkoutType" @bind-Value:after="() => FilterExercisesByWorkoutTypeAsync(selectedDay)">
                                     @foreach (var type in Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>().Take(3))
@@ -138,7 +138,7 @@
                                     }
                                 </InputSelect>
                             </div>
-                        }
+                        @* } *@
 
 
                         @for (int i = 0; i < UserExerciseTotalCountPerDay[selectedDay]; i++)
@@ -237,7 +237,7 @@
     private bool displayUnselectedWorkoutDays = false;
     private bool displayBlankPlanError = false;
     private bool userHasEnteredPlanName = false;
-    private bool userSelectedWorkoutTypeInDayView = false;
+    // private bool userSelectedWorkoutTypeInDayView = false;
     private bool userSelectedExerciseTypeInDayView = true;
     private bool userSelectedExerciseInDayView = true;
     private bool userSelectedExerciseInDayViewForVideoIconAppearance = false;
@@ -367,20 +367,43 @@
     private void UserSelectsDay(string day)
     {
         // This is just for the blinking UI effect. We'll probably need to remove it as well because We will have the actual WorkoutType for each UserWorkout or foreach UserExercise in each workout if its not null and if it is then we use filler value
-        if (UserClickCountPerDay[day] < 1)
-        {
-            userExercise.WorkoutType = WorkoutType.FillerValue;
-        }
-
+        // if (UserClickCountPerDay[day] < 1)
+        // {
+        //     userExercise.WorkoutType = WorkoutType.FillerValue;
+        // }
         selectedDay = day;
+        
         listOfUserExercisesInSelectedDay = ListOfUserExercisePerDay[day]; // Right here the values for the day should be updated. I see. We don't have a statehaschanged. But then again, we shouldn't have to have a state is changed because its the values are bound to the list... Unless Blazors binding feature stopped working.
         UpdateSelectableExerciseListForEachUserExercise(DictionaryStoringFilteredExercises, listOfUserExercisesInSelectedDay);
         numberOfExercisesInWorkout = listOfUserExercisesInSelectedDay.Count;
+        userExercise.WorkoutType = listOfUserExercisesInSelectedDay.FirstOrDefault().WorkoutType; // This works, the workouttype is showing, but are the exercises actually filtered per day. At this point, we need to the check if the filtered list is actually filtered by the workout type. If not we need to call the method.
+        FilterExercisesByWorkoutTypeAsync(day); // Not sure what this will do but let's see. We hoping that it gives each userrexercise within the workout a list of filtered exercises
+                                                // So what we need to do is create method that will bring in a dto from the liststoringselectedexercises based on the name of the userexercise and put that into the list of FilteredExercises for each user exercise.
+        PutCurrentExerciseInFilteredList(day);
+        
         displayDayViewWorkout = true;
+        StateHasChanged();
     }
+
+    public void PutCurrentExerciseInFilteredList(string day)
+    {
+        List<UserExercise> exerciseList = new();
+        exerciseList = ListOfUserExercisePerDay[day];
+
+        foreach(UserExercise exercise in exerciseList)
+        {
+            ExerciseDTO dTO = new();
+            dTO = listStoringSelectedExercises.FirstOrDefault(e => e.Name == exercise.Name); // Can't use Where is the LINQ query because Where returns an IEnumerable. We need a singular DTO
+            
+            exercise.FilteredExercises.Add(dTO);
+            // I'm guessing that the userexercises with filteredexercises being just the selected exercise will be fine. Ones with multiple values will likely need to be filtered. 
+        }
+    }
+
+
     private void SaveUserWorkoutToInMemoryListOfUserWorkouts()
     {
-        userSelectedWorkoutTypeInDayView = false;
+        // userSelectedWorkoutTypeInDayView = false; This was meant to get the blinking functionality to work. Now we may have solved that and the workout type for the respective day shows up.
         if (ListPositionForDay.ContainsKey(selectedDay)) // List position is just telling us which UserExercise we need to edit I think. We can keep that. Not apart of the filtering logic but real logic to impacts db
         {
             ListOfUserExercisePerDay[selectedDay] = listOfUserExercisesInSelectedDay;
@@ -421,6 +444,7 @@
         listOfUserExercisesInSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);
         await InvokeAsync(StateHasChanged);
     }
+    
     public void PutSelectedExercisesInFilteredBin(
     Dictionary<string, List<UserExercise>> listOfUserExercisePerDay,
     string selectedDay)
@@ -828,10 +852,6 @@
                           !userExercise.FilteredExercises.Any(filtered => filtered.Name == dto.Name))
             .ToList();
     }
-    
-
-    
-
     public void UpdateListOfPreviouslySelectedExercisesForSelectedDay(
     int j,
     string selectedDay,

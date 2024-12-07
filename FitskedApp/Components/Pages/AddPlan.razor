@@ -16,7 +16,8 @@
 @inject ApplicationDbContext ApplicationDbContext
 @inject NavigationManager NavManager
 @inject IUserService identityUserService
-@inject NavigationLinks NavigationLinks
+@inject NavigationLinks navLinksManager
+@inject IJSRuntime jsRuntime
 
 <PageTitle> Add Plan </PageTitle>
 
@@ -68,7 +69,7 @@
         </div>
 
     <div class="d-flex justify-content-center mt-3">
-        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="NavigationLinks.GoToViewPlansPage"> My Plans </button>
+        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="navLinksManager.GoToViewPlansPage"> My Plans </button>
     </div>
 
     <div class="d-flex justify-content-center mt-3">
@@ -114,7 +115,7 @@
                 </div>
                 <hr class="border border-2 border-danger" />
                 <div class="container d-flex justify-content-center">
-                    <EditForm Model="userExercise">
+                    <EditForm Model="userExercise.WorkoutType">
                         <DataAnnotationsValidator />
 
                         <div class="d-flex justify-content-center">
@@ -174,10 +175,9 @@
                                 {
                                     @if (userSelectedExerciseInDayViewForVideoIconAppearance == true)
                                     {
-                                            <a href="@listOfUserExercisesInSelectedDay[j].VideoUrl" target="_blank" class="text-decoration-none col-1 d-flex justify-content-center align-items-center">
-                                                <i class="fa-solid fa-video fa-lg "></i>
-                                            </a>
-                                        <!-- We will need to create a function that gets the hyperlink for an exercise based on the exercise binding j and the selected day-->
+                                        <a class="text-decoration-none col-1 d-flex justify-content-center align-items-center" @onclick="() => (navLinksManager.GoToNavigationLink(listOfUserExercisesInSelectedDay[j].VideoUrl))">
+                                            <i class="fa-solid fa-video fa-lg"></i>
+                                        </a>
                                     }
 
                                     <InputSelect class="rounded-pill bg-white inner-input-shadow user-exercise-select-height col-3 text-center blinking-border"
@@ -202,8 +202,8 @@
                                 {
                                     @if (userSelectedExerciseInDayViewForVideoIconAppearance == true)
                                     {
-                                        <a href="@listOfUserExercisesInSelectedDay[j].VideoUrl" target="_blank" class="text-decoration-none col-1 d-flex justify-content-center align-items-center">
-                                            <i class="fa-solid fa-video fa-lg "></i>
+                                        <a class="text-decoration-none col-1 d-flex justify-content-center align-items-center" @onclick="() => (navLinksManager.GoToNavigationLink(listOfUserExercisesInSelectedDay[j].VideoUrl))">
+                                            <i class="fa-solid fa-video fa-lg" ></i>
                                         </a>
                                     }
                                     
@@ -428,7 +428,7 @@
         }
         fullListOfExerciseDTO = await exerciseService.GetFullExerciseListAsync();
     }
-    
+
     private void UserSelectsDay(string day)
     {
         selectedDay = day;
@@ -492,23 +492,21 @@
 
         StateHasChanged();
     }
-    public void PutSelectedExercisesInFilteredBin(Dictionary<string, List<UserExercise>> listOfUserExercisePerDay, string selectedDay)
+    public void PutSelectedExerciseInFilteredBin(Dictionary<string, List<UserExercise>> listOfUserExercisePerDay, string selectedDay, int j) // Just adding to filtered list so we know which exercises have been selected in the pool of workouts
     {
-        foreach (UserExercise exercise in listOfUserExercisePerDay[selectedDay])
-        {
-            if (!string.IsNullOrEmpty(exercise.Name))
-            {
-                ExerciseDTO dto = new ExerciseDTO
-                    {
-                        Name = exercise.Name,
-                        VideoUrl = exercise.VideoUrl,
-                        ExerciseType = exercise.ExerciseType,
-                        WorkoutType = exercise.WorkoutType
-                    };
+        UserExercise selectedExercise = new();
+        selectedExercise = listOfUserExercisePerDay[selectedDay][j];
 
-                DictionaryStoringFilteredExercises[dto.WorkoutType][dto.ExerciseType].Add(dto);
-            }
-        }
+
+        ExerciseDTO dto = new ExerciseDTO
+                {
+                Name = selectedExercise.Name,
+                VideoUrl = selectedExercise.VideoUrl,
+                ExerciseType = selectedExercise.ExerciseType,
+                WorkoutType = selectedExercise.WorkoutType
+                };
+
+        DictionaryStoringFilteredExercises[dto.WorkoutType][dto.ExerciseType].Add(dto);
     }
     public void UpdateSelectableExerciseListForEachUserExercise(
     Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> dictionaryWithSelectedExercises,
@@ -529,7 +527,7 @@
 
         foreach (UserExercise userExercise in listOfUserExercisesForDay)
         {
-            if ((userExercise != clickedUserExercise) && (userExercise.ExerciseType == clickedUserExercise.ExerciseType))
+            if ((userExercise.Name != clickedUserExercise.Name) && (userExercise.ExerciseType == clickedUserExercise.ExerciseType))
             {
                 UpdateFilteredExercisesForUserExercise(dictionaryWithSelectedExercises, userExercise);
             }
@@ -571,14 +569,15 @@
                           !userExercise.FilteredExercises.Any(filtered => filtered.Name == dto.Name))
             .ToList();
     }
+    
     public void UpdateListOfPreviouslySelectedExercisesForSelectedDay(int j, string selectedDay, string name, WorkoutType workoutType, ExerciseType exerciseType)
     {
-        if (previousExerciseSelectionsPerDay[selectedDay][j] != name)
+        if (previousExerciseSelectionsPerDay[selectedDay][j] != name) // This basically just checks that the exercise change was an actual change and not just the selection of the same value
         {
             ExerciseDTO previouslySelectedexerciseDTO = listStoringSelectedExercises.Find(e => e.Name == previousExerciseSelectionsPerDay[selectedDay][j]);
             fullListOfExerciseDTO.Add(previouslySelectedexerciseDTO);
             listStoringSelectedExercises.Remove(previouslySelectedexerciseDTO);
-            DictionaryStoringFilteredExercises[workoutType][exerciseType].RemoveAll(e => e.Name == previouslySelectedexerciseDTO.Name);
+            DictionaryStoringFilteredExercises[workoutType][exerciseType].RemoveAll(e => e.Name == previouslySelectedexerciseDTO.Name); // So were removing all (really just one) of the exercise that was changed because if its changed then the user can still select it
             previousExerciseSelectionsPerDay[selectedDay][j] = name;
         }
     }
@@ -586,7 +585,6 @@
     {
         ExerciseDTO dto = fullListOfExerciseDTO.Find(e => e.Name == exerciseName);
         exercisesFilterManager.AddItemToList(dto, listStoringSelectedExercises);
-
         fullListOfExerciseDTO.RemoveAll(e => e.Name == exerciseName);
 
         if (!previousExerciseSelectionsPerDay[day].ContainsKey(j))
@@ -707,7 +705,7 @@
 
                         await transaction.CommitAsync();
                         plan = new Plan();
-                        NavigationLinks.GoToViewPlansPage();
+                        navLinksManager.GoToViewPlansPage();
                     }
                     catch (Exception e)
                     {
@@ -796,8 +794,8 @@
         
         // Right now, the FilteredExercises for each UserExercise in each day in being updated upon user selecting the day. Now, we need the same functionality to happen
         // Consider putting the below after onclick to create that dynamic user experience:
-        PutSelectedExercisesInFilteredBin(ListOfUserExercisePerDay, day);
-        UpdateSelectableExerciseListForEachUserExercise(DictionaryStoringFilteredExercises, listOfUserExercisesInSelectedDay, userExercise);
+        PutSelectedExerciseInFilteredBin(ListOfUserExercisePerDay, day,j);
+        UpdateSelectableExerciseListForEachUserExercise(DictionaryStoringFilteredExercises, listOfUserExercisesInSelectedDay, userExercise); // This is where we the logic for putting squats up at the front should be
 
         StateHasChanged();
     } 
