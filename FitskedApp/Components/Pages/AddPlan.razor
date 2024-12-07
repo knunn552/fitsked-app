@@ -170,7 +170,7 @@
                                 listOfUserExercisesInSelectedDay.Add(new UserExercise());
                             }
 
-                            <div class="d-flex justify-content-center mb-2">
+                            <div class="d-flex justify-content-center justify-content-between mb-2">
                                 @if ((userSelectedExerciseTypeInDayView == false) && (UserClickCountPerDay[selectedDay] == 1) && (j == 0))
                                 {
                                     @if (userSelectedExerciseInDayViewForVideoIconAppearance == true)
@@ -276,10 +276,20 @@
 
                                 @if ((j > 0) && (j == UserExerciseTotalCountPerDay[selectedDay] - 1))
                                 {
-                                    <button class=" end-0 me-5 mt-2 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-2" @onclick="() => ThingsToDoOnClickRemove(selectedDay,j,listOfUserExercisesInSelectedDay[j].Name, listOfUserExercisesInSelectedDay[j].FilteredExercises,listOfUserExercisesInSelectedDay[j])">
-                                        Remove
+                                    <button class="end-0 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-1"
+                                            @onclick="() => ThingsToDoOnClickRemove(selectedDay, j, listOfUserExercisesInSelectedDay[j].Name, listOfUserExercisesInSelectedDay[j].FilteredExercises, listOfUserExercisesInSelectedDay[j])">
+                                        <i class="fa-solid fa-trash-can"></i>
                                     </button>
                                 }
+                                else
+                                {
+                                    <button class="end-0 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-1"
+                                            style="visibility: hidden;">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                }
+
+
                             </div>
                         }
                         <div>
