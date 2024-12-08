@@ -93,7 +93,7 @@
                 </div>
                 <hr class="border border-2 border-danger" />
                 <div class="container d-flex justify-content-center">
-                    <EditForm Model="userExercise">
+                    <EditForm Model="userExercise.WorkoutType">
                         <DataAnnotationsValidator />
 
                         @* @if ((userSelectedWorkoutTypeInDayView == false) && (UserClickCountPerDay[selectedDay] != 1))
@@ -151,7 +151,7 @@
 
                             <div class="d-flex justify-content-center mb-2">
 
-                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-3 text-center" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => GetListOfIndividualExercisesFromListOfExerciseType(j)">
+                                <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-3 text-center" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => ChangeExercisePoolBasedOnExerciseType(j)">
                                     @foreach (var type in Enum.GetValues(typeof(ExerciseType)).Cast<ExerciseType>().Take(4))
                                     {
                                         if (type == ExerciseType.FillerValue)
@@ -199,14 +199,22 @@
 
                                 @if ((j > 0) && (j == UserExerciseTotalCountPerDay[selectedDay] - 1))
                                 {
-                                    <button class=" end-0 me-5 mt-2 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-2" @onclick="() => RemoveAdditionalExerciseFromWorkout(selectedDay, listOfUserExercisesInSelectedDay[j].Id)">
-                                        Remove
+                                    <button class="end-0 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-1"
+                                            @onclick="() => ThingsToDoOnClickRemove(selectedDay, j, listOfUserExercisesInSelectedDay[j].Name, listOfUserExercisesInSelectedDay[j].FilteredExercises, listOfUserExercisesInSelectedDay[j])">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="end-0 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-1"
+                                            style="visibility: hidden;">
+                                        <i class="fa-solid fa-trash-can"></i>
                                     </button>
                                 }
                             </div>
                         }
                         <div>
-                            <button class="mt-3 rounded-pill mb-4 border border-2 border-danger poppins-medium bg-white main-button p-2" @onclick="() =>  AddAdditionalExerciseToWorkout(selectedDay)">
+                            <button class="mt-3 rounded-pill mb-4 border border-2 border-danger poppins-medium bg-white main-button p-2" @onclick="() => AddAdditionalExerciseToWorkout(selectedDay)">
                                 Add Exercise
                             </button>
                         </div>
@@ -438,7 +446,7 @@
 
         StateHasChanged();
     }
-    public async Task GetListOfIndividualExercisesFromListOfExerciseType(int index)
+    public async Task ChangeExercisePoolBasedOnExerciseType(int index)
     {
         var selectedExerciseType = listOfUserExercisesInSelectedDay[index].ExerciseType;
         listOfUserExercisesInSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);
