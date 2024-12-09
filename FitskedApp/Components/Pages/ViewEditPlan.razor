@@ -205,7 +205,7 @@
                                 @if ((j > 0) && (j == UserExerciseTotalCountPerDay[selectedDay] - 1))
                                 {
                                     <button class="end-0 user-exercise-select-height col-1 bg-white border border-0" style="color:darkred"
-                                            @onclick="() => ThingsToDoOnClickRemove(selectedDay, j, listOfUserExercisesInSelectedDay[j].Name, listOfUserExercisesInSelectedDay[j])">
+                                            @onclick="() => ThingsToDoOnClickRemove(selectedDay, j, listOfUserExercisesInSelectedDay[j].Name, listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Id)">
                                         <i class="fa-solid fa-trash-can fa-xl"></i>
                                     </button>
                                 }
@@ -494,7 +494,7 @@
         StateHasChanged();
     }
     
-    private void ThingsToDoOnClickRemove(string day, int i, string exerciseName, UserExercise exercise)
+    private void ThingsToDoOnClickRemove(string day, int i, string exerciseName, UserExercise exercise, int id)
     {
         if (!string.IsNullOrEmpty(exerciseName))
         {
@@ -515,7 +515,7 @@
             UpdateSelectableExerciseListForEachUserExercise(DictionaryStoringFilteredExercises, ListOfUserExercisePerDay[day], exercise);
         }
 
-        RemoveAdditionalExerciseFromWorkout(day, exercise.ExerciseId);
+        RemoveAdditionalExerciseFromWorkout(day, id);
         StateHasChanged();
     }
 
