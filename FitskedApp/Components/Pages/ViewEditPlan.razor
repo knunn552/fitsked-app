@@ -399,21 +399,14 @@
     }
     private void UserSelectsDay(string day)
     {
-        // This is just for the blinking UI effect. We'll probably need to remove it as well because We will have the actual WorkoutType for each UserWorkout or foreach UserExercise in each workout if its not null and if it is then we use filler value
-        // if (UserClickCountPerDay[day] < 1)
-        // {
-        //     userExercise.WorkoutType = WorkoutType.FillerValue;
-        // }
         selectedDay = day;
-        
-        listOfUserExercisesInSelectedDay = ListOfUserExercisePerDay[day]; // Right here the values for the day should be updated. I see. We don't have a statehaschanged. But then again, we shouldn't have to have a state is changed because its the values are bound to the list... Unless Blazors binding feature stopped working.
+        listOfUserExercisesInSelectedDay = ListOfUserExercisePerDay[day];
         UpdateSelectableExerciseListForEachUserExercise(DictionaryStoringFilteredExercises, listOfUserExercisesInSelectedDay, day);
         numberOfExercisesInWorkout = listOfUserExercisesInSelectedDay.Count;
-        userExercise.WorkoutType = listOfUserExercisesInSelectedDay.FirstOrDefault().WorkoutType; // This works, the workouttype is showing, but are the exercises actually filtered per day. At this point, we need to the check if the filtered list is actually filtered by the workout type. If not we need to call the method.
-        FilterExercisesByWorkoutTypeAsync(day, workoutTypePerDay[day]); // Not sure what this will do but let's see. We hoping that it gives each userrexercise within the workout a list of filtered exercises
+        userExercise.WorkoutType = listOfUserExercisesInSelectedDay.FirstOrDefault().WorkoutType; 
+        FilterExercisesByWorkoutTypeAsync(day, workoutTypePerDay[day]); 
                                                 // So what we need to do is create method that will bring in a dto from the liststoringselectedexercises based on the name of the userexercise and put that into the list of FilteredExercises for each user exercise.
         PutCurrentExerciseInFilteredList(day);
-        
         displayDayViewWorkout = true;
         StateHasChanged();
     }
@@ -886,19 +879,19 @@
                           !userExercise.FilteredExercises.Any(filtered => filtered.Name == dto.Name))
             .ToList();
     }
-    public void UpdateListOfPreviouslySelectedExercisesForSelectedDay(int j,string selectedDay,string name,WorkoutType workoutType,ExerciseType exerciseType)
+    public void UpdateListOfPreviouslySelectedExercisesForSelectedDay(int j, string selectedDay, string name, WorkoutType workoutType, ExerciseType exerciseType)
     {
-        if (previousExerciseSelectionsPerDay[selectedDay][j] != name)
+        if (previousExerciseSelectionsPerDay[selectedDay][j] != name) // This basically just checks that the exercise change was an actual change and not just the selection of the same value
         {
-            ExerciseDTO previouslySelectedExerciseDTO = listStoringSelectedExercises
-                .Find(e => e.Name == previousExerciseSelectionsPerDay[selectedDay][j]);
+            ExerciseDTO previouslySelectedexerciseDTO = listStoringSelectedExercises.Find(e => e.Name == previousExerciseSelectionsPerDay[selectedDay][j]);
+            if(previouslySelectedexerciseDTO != null) // Now that were null checking here, we aren't able to plug squats in, but atleast we've got the null checking figured out - partially.
+            {
+                fullListOfExerciseDTO.Add(previouslySelectedexerciseDTO);
+                listStoringSelectedExercises.Remove(previouslySelectedexerciseDTO);
+                DictionaryStoringFilteredExercises[workoutType][exerciseType].RemoveAll(e => e.Name == previouslySelectedexerciseDTO.Name); // So were removing all (really just one) of the exercise that was changed because if its changed then the user can still select it
+                previousExerciseSelectionsPerDay[selectedDay][j] = name;
+            }
 
-            fullListOfExerciseDTO.Add(previouslySelectedExerciseDTO);
-            listStoringSelectedExercises.Remove(previouslySelectedExerciseDTO);
-            DictionaryStoringFilteredExercises[workoutType][exerciseType]
-                .RemoveAll(e => e.Name == previouslySelectedExerciseDTO.Name);
-
-            previousExerciseSelectionsPerDay[selectedDay][j] = name;
         }
     }
     public void RemoveSelectedExerciseFromAvailableList(string exerciseName, string day, int j)

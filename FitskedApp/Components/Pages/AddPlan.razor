@@ -519,11 +519,11 @@
         workoutTypePerDay[day] = workoutType;
         listOfExercisesByWorkoutType = exerciseService.GetExerciseListBasedOnWorkoutType(userExercise.WorkoutType, fullListOfExerciseDTO);
 
-        // Literally don't think the foreach loop below is doing anything productive
-        // foreach (var exercise in listOfUserExercisesInSelectedDay) // upon second selection, listOfUserExerciseInSelectedDay is 0, that's our problem
-        // {
-        //     exercise.FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, exercise.ExerciseType);
-        // }
+        
+        foreach (var exercise in listOfUserExercisesInSelectedDay) // upon second selection, listOfUserExerciseInSelectedDay is 0, that's our problem
+        {
+            exercise.FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, exercise.ExerciseType);
+        }
 
         if (IntialWorkoutTypeSelectionState[day])
         {
@@ -539,14 +539,13 @@
                     }
                 }
                 exercise.FilteredExercises.RemoveAll(e => itemsToRemove.Contains(e.Name));
-                exercise.ExerciseType = ExerciseType.FillerValue; // The question is, what do the first user exercise look like when we initially select a workouttype
+                // exercise.ExerciseType = ExerciseType.FillerValue; // The question is, what do the first user exercise look like when we initially select a workouttype
                                                                   // exercise.WorkoutType = WorkoutType.FillerValue;
             } 
         }
 
         IntialWorkoutTypeSelectionState[day] = true;
         StateHasChanged();
-
     }
 
     public void PutSelectedExerciseInFilteredBin(Dictionary<string, List<UserExercise>> listOfUserExercisePerDay, string selectedDay, int j) // Just adding to filtered list so we know which exercises have been selected in the pool of workouts
@@ -864,6 +863,9 @@
         }
      
     }
+    
+    
+    
     private void RemoveAdditionalExerciseFromWorkout(string day)
     {
         UserExerciseTotalCountPerDay[day] -= 1;
