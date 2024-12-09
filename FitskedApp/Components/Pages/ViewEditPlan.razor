@@ -152,7 +152,9 @@
 
                             <div class="d-flex justify-content-center mb-2">
 
-                                  
+                                <a class="text-decoration-none col-1 d-flex justify-content-center align-items-center" @onclick="() => (navLinksManager.GoToNavigationLink(listOfUserExercisesInSelectedDay[j].VideoUrl))">
+                                    <i class="fa-solid fa-video fa-xl"></i>
+                                </a>
 
                                 <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height col-3 text-center" id="exerciseType" @bind-Value="listOfUserExercisesInSelectedDay[j].ExerciseType" @bind-Value:after="() => ChangeExercisePoolBasedOnExerciseType(j)">
                                     @foreach (var type in Enum.GetValues(typeof(ExerciseType)).Cast<ExerciseType>().Take(4))
@@ -200,6 +202,20 @@
                                     }
                                 </InputSelect>
 
+                                @if ((j > 0) && (j == UserExerciseTotalCountPerDay[selectedDay] - 1))
+                                {
+                                    <button class="end-0 user-exercise-select-height col-1 bg-white border border-0" style="color:darkred"
+                                            @onclick="() => ThingsToDoOnClickRemove(selectedDay, j, listOfUserExercisesInSelectedDay[j].Name, listOfUserExercisesInSelectedDay[j])">
+                                        <i class="fa-solid fa-trash-can fa-xl"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="end-0 user-exercise-select-height col-1 bg-white border border-0"
+                                            style="visibility: hidden; color:darkred">
+                                        <i class="fa-solid fa-trash-can fa-xl"></i>
+                                    </button>
+                                }
                                 
                             </div>
                         }
