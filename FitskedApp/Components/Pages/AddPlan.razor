@@ -176,7 +176,7 @@
                                     @if (userSelectedExerciseInDayViewForVideoIconAppearance == true)
                                     {
                                         <a class="text-decoration-none col-1 d-flex justify-content-center align-items-center" @onclick="() => (navLinksManager.GoToNavigationLink(listOfUserExercisesInSelectedDay[j].VideoUrl))">
-                                            <i class="fa-solid fa-video fa-lg"></i>
+                                            <i class="fa-solid fa-video fa-xl"></i>
                                         </a>
                                     }
 
@@ -276,16 +276,16 @@
 
                                 @if ((j > 0) && (j == UserExerciseTotalCountPerDay[selectedDay] - 1))
                                 {
-                                    <button class="end-0 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-1"
+                                    <button class="end-0 user-exercise-select-height col-1 bg-white border border-0" style="color:darkred"
                                             @onclick="() => ThingsToDoOnClickRemove(selectedDay, j, listOfUserExercisesInSelectedDay[j].Name, listOfUserExercisesInSelectedDay[j])">
-                                        <i class="fa-solid fa-trash-can"></i>
+                                        <i class="fa-solid fa-trash-can fa-xl"></i>
                                     </button>
                                 }
                                 else
                                 {
-                                    <button class="end-0 rounded-pill border border-2 border-danger poppins-medium bg-white user-exercise-select-height col-1"
-                                            style="visibility: hidden;">
-                                        <i class="fa-solid fa-trash-can"></i>
+                                    <button class="end-0 user-exercise-select-height col-1 bg-white border border-0"
+                                            style="visibility: hidden; color:darkred">
+                                        <i class="fa-solid fa-trash-can fa-xl"></i>
                                     </button>
                                 }
 
@@ -821,7 +821,7 @@
     }
     private void AddAdditionalExerciseToWorkout(string day)
     {
-        if (UserExerciseTotalCountPerDay[day] < 8)
+        if (UserExerciseTotalCountPerDay[day] < 15)
         {
             UserExerciseTotalCountPerDay[day] += 1;
             StateHasChanged();
@@ -839,17 +839,30 @@
     public void PutWorkoutTypeInUserExerciseBasedOnName(UserExercise userExercise,string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
         var filteredExercise = listOfExercisesToFilterOn.Where(e => e.Name == name).FirstOrDefault();
-        userExercise.WorkoutType = filteredExercise.WorkoutType;
+        
+        if (filteredExercise != null)
+        {
+            userExercise.WorkoutType = filteredExercise.WorkoutType;
+        }
+        
     }
     public void PutExerciseTypeInUserExerciseBasedOnName(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
         var filteredExercise = listOfExercisesToFilterOn.Where(e => e.Name == name).FirstOrDefault(); // Really this should be put into its own method
-        userExercise.ExerciseType = filteredExercise.ExerciseType;
+        if (filteredExercise != null)
+        {
+            userExercise.ExerciseType = filteredExercise.ExerciseType;
+        }
+        
     }
     public void PutVideoUrlInUserExerciseBasedOnName(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
         var filteredExercise = listOfExercisesToFilterOn.Where(e => e.Name == name).FirstOrDefault(); // Really this should be put into its own method
-        userExercise.VideoUrl = filteredExercise.VideoUrl;
+        if (filteredExercise != null)
+        {
+            userExercise.VideoUrl = filteredExercise.VideoUrl;
+        }
+     
     }
     private void RemoveAdditionalExerciseFromWorkout(string day)
     {
