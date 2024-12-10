@@ -324,9 +324,7 @@
     private bool userHasMadeInitalWorkoutTypeSelection = false;
     private int numberOfExercisesInWorkout = 1;
     private string selectedDay = string.Empty;
-
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-
     private List<int> ListOfSets = ListOfNumberHelper.GenerateListOfNumbers(1, 10, 1);
     private List<int> ListOfReps = ListOfNumberHelper.GenerateListOfNumbers(2, 20, 2);
     private List<int> ListOfWeight = ListOfNumberHelper.GenerateListOfNumbers(0, 405, 5);
@@ -336,6 +334,7 @@
     private List<ExerciseDTO> fullListOfExerciseDTO = new();
     private List<ExerciseDTO> listStoringSelectedExercises = new();
     public List<ExerciseDTO> listOfExercisesByWorkoutType = new();
+
 
     public Dictionary<string, List<UserExercise>> ListOfUserExercisePerDay = new();
     public Dictionary<string, Dictionary<int, string>> previousExerciseSelectionsPerDay = new()
@@ -464,6 +463,8 @@
 
     private void UserSelectsDay(string day)
     {
+        // IMPORTANT: MAYBE, UPON PAGE LOAD, WE NEED TO UPDATE THE LIST OF WORKOUT TYPE BASED ON THE WORKOUT TYPE OF THE FIRST USEREXERCISE. AND THIS WOULD ONLY BE LIKE IF THERE WERE GREATER THAN 1 USER EXERCISE IN THE WORKOUT
+        // Or maybe just automatically the listofexercises by user will be updated and reflected based on the current workout type of the day
         selectedDay = day;
         if (ListOfUserExercisePerDay[day].FirstOrDefault() == null)
         {
@@ -517,9 +518,10 @@
         }
 
         workoutTypePerDay[day] = workoutType;
+        // Maybe we outta start getting the listOfExercisesByWorkoutType by the workout type specified for the day
         listOfExercisesByWorkoutType = exerciseService.GetExerciseListBasedOnWorkoutType(userExercise.WorkoutType, fullListOfExerciseDTO);
 
-        
+
         foreach (var exercise in listOfUserExercisesInSelectedDay) // upon second selection, listOfUserExerciseInSelectedDay is 0, that's our problem
         {
             exercise.FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, exercise.ExerciseType);
@@ -539,8 +541,8 @@
                     }
                 }
                 exercise.FilteredExercises.RemoveAll(e => itemsToRemove.Contains(e.Name));
-                // exercise.ExerciseType = ExerciseType.FillerValue; // The question is, what do the first user exercise look like when we initially select a workouttype
-                                                                  // exercise.WorkoutType = WorkoutType.FillerValue;
+                // exercise.ExerciseType = ExerciseType.FillerValue; 
+                // exercise.WorkoutType = WorkoutType.FillerValue;
             } 
         }
 
@@ -580,7 +582,7 @@
             }
 
         }
-            
+
         StateHasChanged();
     }
 
@@ -838,12 +840,12 @@
     public void PutWorkoutTypeInUserExerciseBasedOnName(UserExercise userExercise,string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
         var filteredExercise = listOfExercisesToFilterOn.Where(e => e.Name == name).FirstOrDefault();
-        
+
         if (filteredExercise != null)
         {
             userExercise.WorkoutType = filteredExercise.WorkoutType;
         }
-        
+
     }
     public void PutExerciseTypeInUserExerciseBasedOnName(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
@@ -852,7 +854,7 @@
         {
             userExercise.ExerciseType = filteredExercise.ExerciseType;
         }
-        
+
     }
     public void PutVideoUrlInUserExerciseBasedOnName(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn)
     {
@@ -861,11 +863,11 @@
         {
             userExercise.VideoUrl = filteredExercise.VideoUrl;
         }
-     
+
     }
-    
-    
-    
+
+
+
     private void RemoveAdditionalExerciseFromWorkout(string day)
     {
         UserExerciseTotalCountPerDay[day] -= 1;
@@ -903,6 +905,15 @@
         }
 
         var selectedExerciseType = listOfUserExercisesInSelectedDay[index].ExerciseType;
+        listOfExercisesByWorkoutType = await exerciseService.GetFullExerciseListAsync(); // This is probably not the solution but its working towards it. It might be as the below logic is checking for duplicates but its probably best to get a list based on the exercises that haven't been selected.
+        listOfExercisesByWorkoutType = listOfExercisesByWorkoutType.Where(e => e.WorkoutType == workoutTypePerDay[day]).ToList();
+
+        listOfExercisesByWorkoutType = listOfExercisesByWorkoutType
+    .Where(exercise => !listStoringSelectedExercises.Any(exerciseDTO => exercise.Name == exerciseDTO.Name))
+    .ToList();
+
+
+
         listOfUserExercisesInSelectedDay[index].FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, selectedExerciseType);
 
         UserExercise previousUserExercise = listOfUserExercisesInSelectedDay[index];

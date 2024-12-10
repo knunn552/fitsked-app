@@ -45,20 +45,6 @@ namespace FitskedApp.Data.Repository
             await _context.SaveChangesAsync(); 
         }
 
-        public async Task<List<ExerciseDTO>> GetExercisesBasedOnWorkoutType(WorkoutType workoutType)
-        {
-            return await _context.Exercises.Where(e => e.WorkoutType == workoutType).
-                Select(e => new ExerciseDTO
-                {
-                    ExerciseId = e.Id,
-                    Name = e.Name,
-                    Description = e.Description,
-                    WorkoutType = e.WorkoutType,
-                    ExerciseType = e.ExerciseType,
-                    VideoUrl = e.VideoUrl
-                }).ToListAsync();
-        }
-
         public List<ExerciseDTO> GetExercisesFromWorkoutListBasedOnExerciseType(List<ExerciseDTO> exercises, ExerciseType exerciseType)
         {
             return exercises.Where(e => e.ExerciseType == exerciseType).ToList();
