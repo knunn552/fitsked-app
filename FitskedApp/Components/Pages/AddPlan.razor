@@ -73,17 +73,18 @@
     </div>
 
     <div class="d-flex justify-content-center mt-3">
-        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) AddNewPlan();}"> Save Plan </button>
+        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) AddNewPlan();}"> Save This Plan </button>
     </div>
 
-    <div class="d-flex justify-content-center pt-4">
+    @* The below div should only come up when a user tries to save an incomplete plan. It should just be readily visible at the start. *@
+    @* <div class="d-flex justify-content-center pt-4">
         <p class="poppins-medium">
             <span class="poppins-bold" style="color:green">TIP:</span> If you're time-crunched, save your plan and complete it later in
             <span class="poppins-bold"> My Plans </span>.
             <br />
             Before clicking "Save Plan," be sure to create a filler exercise for each day by clicking each day and selecting "Save Workout."
         </p>
-    </div>
+    </div> *@
     
 
     @if(displayBlankPlanError)
@@ -407,7 +408,7 @@
         { "Thursday", 1 },
         { "Friday", 1},
         { "Saturday", 1}
-    };
+    }; // Really don't even need this. We can just get the count of UserExercise in ListOfUserExercisePerDay
     public Dictionary<string, int> UserClickCountPerDay = new Dictionary<string, int>
     {
         { "Sunday", 0},
@@ -417,7 +418,7 @@
         { "Thursday", 0},
         { "Friday", 0},
         { "Saturday", 0}
-    };
+    }; // Doesn't Apply To ViewEditPlan
     public Dictionary<string, bool> IntialWorkoutTypeSelectionState = new Dictionary<string, bool>
 {
     { "Sunday", false },

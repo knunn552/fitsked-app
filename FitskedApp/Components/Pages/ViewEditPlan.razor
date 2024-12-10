@@ -79,7 +79,7 @@
     </div>
     <div>
         <div class="d-flex justify-content-center mt-3">
-        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) UpdatePlanAsync();}"> Update Plan </button>
+        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) UpdatePlanAsync();}"> Save This Plan </button>
         </div>
     </div>
     </div>
@@ -268,8 +268,8 @@
     private List<int> ListOfSets = ListOfNumberHelper.GenerateListOfNumbers(1, 10, 1);
     private List<int> ListOfReps = ListOfNumberHelper.GenerateListOfNumbers(2, 20, 2);
     private List<int> ListOfWeight = ListOfNumberHelper.GenerateListOfNumbers(5, 405, 5);
-    private List<int> TrackedListOfEditedExerciseIds = new();
-    private List<int> TrackedListOfDeletedExerciseIds = new();
+    private List<int> TrackedListOfEditedExerciseIds = new(); // This is unique to ViewEditPlan
+    private List<int> TrackedListOfDeletedExerciseIds = new(); // This is unique to ViewEditPlan
 
     public Dictionary<string, int> UserClickCountPerDay = new Dictionary<string, int>
     {
@@ -294,7 +294,7 @@
         {ExerciseType.Secondary, "Secondary"},
         {ExerciseType.Accessory, "Accessory"}
     };
-    private Dictionary<string, List<UserExercise>> ListOfUserExercisePerDay = new(); // Need this to populate a list of user exercises for a given workout/day
+    private Dictionary<string, List<UserExercise>> ListOfUserExercisePerDay = new(); 
     private Dictionary<string, int> ListPositionForDay = new Dictionary<string, int>
 {
     { "Sunday", 0 },
@@ -304,7 +304,7 @@
     { "Thursday", 4 },
     { "Friday", 5 },
     { "Saturday", 6 }
-}; // This was already in ViewEditPlan 
+}; 
     public Dictionary<string, int> UserExerciseTotalCountPerDay = new Dictionary<string, int>
     {
         { "Sunday", 1},
@@ -314,7 +314,7 @@
         { "Thursday", 1 },
         { "Friday", 1},
         { "Saturday", 1}
-    }; // This was already in ViewEditPlan
+    }; 
     public Dictionary<string, Dictionary<int, string>> previousExerciseSelectionsPerDay = new()
 {
     { "Sunday", new Dictionary<int, string>() },
@@ -324,7 +324,7 @@
     { "Thursday", new Dictionary<int, string>() },
     { "Friday", new Dictionary<int, string>() },
     { "Saturday", new Dictionary<int, string>() }
-}; // This came from AddPlan // This tells us what the selected exercise was for a userexercise before removing or modifying the exercise
+}; // TODO: This came from AddPlan.This tells us what the selected exercise was for a userexercise before removing or modifying the exercise
     public Dictionary<WorkoutType, Dictionary<ExerciseType, List<ExerciseDTO>>> DictionaryStoringFilteredExercises = new()
     {
         // TODO: Fix this. Entirety of logic will most likely need to be redone.
@@ -352,7 +352,7 @@
                 { ExerciseType.FillerValue, new List<ExerciseDTO>()}
             }
         }
-    }; // This came from AddPlan // This is the source of truth for all filtered/selected exercises
+    }; 
     Dictionary<string, WorkoutType> workoutTypePerDay = new Dictionary<string, WorkoutType>
         {
             { "Sunday", WorkoutType.FillerValue },
@@ -363,7 +363,7 @@
             { "Friday", WorkoutType.FillerValue },
             { "Saturday", WorkoutType.FillerValue }
         };
-    public Dictionary<string, bool> IntialWorkoutTypeSelectionState = new Dictionary<string, bool>
+    public Dictionary<string, bool> IntialWorkoutTypeSelectionState = new Dictionary<string, bool> // We will have to change this when we remove the mandatory need for users to add a workout in addplan
 {
     { "Sunday", false },
     { "Monday", false },
@@ -395,6 +395,8 @@
         PutSelectedExercisesInSelectedList(ListOfUserExercisePerDay, listStoringSelectedExercises, fullListOfExerciseDTO);
         MapUserExercisesToFilteredDictionary(ListOfUserExercisePerDay, fullListOfExerciseDTO, DictionaryStoringFilteredExercises);
         RemoveSelectedExercisesFromFullList(ListOfUserExercisePerDay, fullListOfExerciseDTO); // This removes the exercise from the list that we will filter on
+        UpdateWorkoutTypePerDayDictionary(workoutTypePerDay, daysOfWeek, ListOfUserExercisePerDay);
+        UpdateInitialWorkoutTypeStateDictionary(IntialWorkoutTypeSelectionState, daysOfWeek, ListOfUserExercisePerDay);
         AddExerciseNamesToPreviousSelections();
     }
     private void UserSelectsDay(string day)
@@ -405,7 +407,7 @@
         numberOfExercisesInWorkout = listOfUserExercisesInSelectedDay.Count;
         userExercise.WorkoutType = listOfUserExercisesInSelectedDay.FirstOrDefault().WorkoutType; 
         FilterExercisesByWorkoutTypeAsync(day, workoutTypePerDay[day]); 
-                                                // So what we need to do is create method that will bring in a dto from the liststoringselectedexercises based on the name of the userexercise and put that into the list of FilteredExercises for each user exercise.
+        // So what we need to do is create method that will bring in a dto from the liststoringselectedexercises based on the name of the userexercise and put that into the list of FilteredExercises for each user exercise.
         PutCurrentExerciseInFilteredList(day);
         displayDayViewWorkout = true;
         StateHasChanged();
@@ -420,7 +422,7 @@
         {
             ExerciseDTO dTO = new();
             dTO = listStoringSelectedExercises.FirstOrDefault(e => e.Name == exercise.Name); // Can't use Where is the LINQ query because Where returns an IEnumerable. We need a singular DTO
-            
+
             exercise.FilteredExercises.Add(dTO);
             // I'm guessing that the userexercises with filteredexercises being just the selected exercise will be fine. Ones with multiple values will likely need to be filtered. 
         }
@@ -490,8 +492,8 @@
         IntialWorkoutTypeSelectionState[day] = true;
         StateHasChanged();
     }
-    
-    
+
+
     public void PutSelectedExercisesInFilteredBin(
     Dictionary<string, List<UserExercise>> listOfUserExercisePerDay,
     string selectedDay)
@@ -512,8 +514,8 @@
             }
         }
     }
-    
-    
+
+
     private void ThingsToDoOnClickRemove(string day, int i, string exerciseName, UserExercise exercise, int id)
     {
         if (!string.IsNullOrEmpty(exerciseName))
@@ -612,7 +614,7 @@
                 if (userExercise == null || string.IsNullOrWhiteSpace(userExercise.Name))
                     continue;
 
-             // I really don't intuitively understand what this is doing but we are going to roll with it and come back later if we need to.
+                // I really don't intuitively understand what this is doing but we are going to roll with it and come back later if we need to.
                 int newKey = previousSelectionsForDay.Count > 0
                     ? previousSelectionsForDay.Keys.Max() + 1
                     : 0;
@@ -758,9 +760,9 @@
         }
 
     }
-    
-    
-    
+
+
+
     private string GetWorkoutSummary(string day)
     {
         if (ListOfUserExercisePerDay.TryGetValue(day, out var exercises) && exercises.Any())
@@ -954,23 +956,36 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    public void UpdateWorkoutTypePerDayDictionary(Dictionary<string, WorkoutType> workoutTypeDictionary, string[] daysOfWeek, Dictionary<string, List<UserExercise>> listOfUserExercise)
+    {
+        foreach(string day in daysOfWeek)
+        {
+            var userexercise = listOfUserExercise[day].FirstOrDefault();
+            workoutTypeDictionary[day] = userExercise.WorkoutType;
+        }
+    }
+
+    public void UpdateInitialWorkoutTypeStateDictionary(Dictionary<string, bool> workoutTypeSelectionStatus, string[] daysOfWeek, Dictionary<string, List<UserExercise>> listOfUserExercise )
+    {
+        foreach (string day in daysOfWeek)
+        {
+            var userexercise = listOfUserExercise[day].FirstOrDefault();
+
+            if(userExercise.WorkoutType == WorkoutType.FillerValue)
+            {
+                workoutTypeSelectionStatus[day] = false;
+            }
+            else
+            {
+                workoutTypeSelectionStatus[day] = true;
+            }
+        }
+    }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // listOfUserExerciseInSelectedDay This should equal whatever the number of user exercises is for a day we select
+    // ListOfExercisesByWorkoutType This will change depending on the workout type for a given day and the user exercises within
 
 }
+
+
