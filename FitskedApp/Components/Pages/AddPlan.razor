@@ -323,7 +323,6 @@
     private bool userSelectedExerciseInDayView = true;
     private bool userSelectedExerciseInDayViewForVideoIconAppearance = false;
     private bool userHasMadeInitalWorkoutTypeSelection = false;
-    private int numberOfExercisesInWorkout = 1;
     private string selectedDay = string.Empty;
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
     private List<int> ListOfSets = ListOfNumberHelper.GenerateListOfNumbers(1, 10, 1);
@@ -519,11 +518,10 @@
         }
 
         workoutTypePerDay[day] = workoutType;
-        // Maybe we outta start getting the listOfExercisesByWorkoutType by the workout type specified for the day
         listOfExercisesByWorkoutType = exerciseService.GetExerciseListBasedOnWorkoutType(userExercise.WorkoutType, fullListOfExerciseDTO);
 
 
-        foreach (var exercise in listOfUserExercisesInSelectedDay) // upon second selection, listOfUserExerciseInSelectedDay is 0, that's our problem
+        foreach (var exercise in listOfUserExercisesInSelectedDay)
         {
             exercise.FilteredExercises = userExerciseRepository.GetExercisesFromWorkoutListBasedOnExerciseType(listOfExercisesByWorkoutType, exercise.ExerciseType);
         }
@@ -542,8 +540,6 @@
                     }
                 }
                 exercise.FilteredExercises.RemoveAll(e => itemsToRemove.Contains(e.Name));
-                // exercise.ExerciseType = ExerciseType.FillerValue; 
-                // exercise.WorkoutType = WorkoutType.FillerValue;
             } 
         }
 
@@ -712,7 +708,6 @@
             ExerciseDTO exerciseDTO = GetExerciseDTOFromListStoringSelectedExercises(exerciseName);
 
             exercisesFilterManager.AddItemToList(exerciseDTO, fullListOfExerciseDTO);
-            // exercisesFilterManager.AddItemToList(exerciseDTO, intermediaryExerciseList);
 
             if (previousExerciseSelectionsPerDay.ContainsKey(day)
                 && previousExerciseSelectionsPerDay[day].ContainsKey(i))
