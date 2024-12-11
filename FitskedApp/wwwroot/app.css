@@ -201,6 +201,106 @@ h1:focus {
     animation: blink-border 1.3s infinite;
 }
 
+.trash-button {
+    color: red;
+    transition: color 0.1s ease-in-out;
+}
+
+    .trash-button:hover {
+        color: darkred;
+    }
+
+/******* For the main layout *******/
+/* Default styles for larger screens */
+.header-container {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.logo-small {
+    display: none; /* Hidden by default */
+}
+
+.welcome-message {
+    display: inline; /* Shown by default */
+}
+
+/* Responsive styles for smaller screens */
+@media (max-width: 768px) {
+    .logo-large {
+        display: none; /* Hide the large logo */
+    }
+
+    .logo-small {
+        display: inline; /* Show the small logo */
+    }
+
+    .welcome-message {
+        display: none; /* Hide the welcome message */
+    }
+
+    .header-container {
+        flex-wrap: wrap; /* Allow wrapping for smaller screens */
+        justify-content: space-between;
+    }
+
+    .header-logo-small {
+        max-height: 40px; /* Adjust size for smaller logo */
+    }
+
+    form {
+        margin-left: auto;
+    }
+}
+
+/* This is for the Plan name input */
+/* Default styles for larger screens */
+.plan-name-container {
+    height: auto; /* Remove full viewport height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 2rem; /* Add balanced padding for spacing */
+}
+
+    .plan-name-container form {
+        width: 50%; /* Default width */
+        max-width: 600px; /* Maximum width */
+        min-width: 300px; /* Minimum width */
+        margin: 1rem 0; /* Reduce top and bottom margin */
+    }
+
+    /* Input styling for better appearance */
+    .plan-name-container input {
+        font-size: 1rem; /* Default font size */
+    }
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .plan-name-container form {
+        width: 80%; /* Make the form take more width */
+    }
+
+    .plan-name-container input {
+        font-size: 0.9rem; /* Adjust font size for smaller screens */
+    }
+}
+
+@media (max-width: 576px) {
+    .plan-name-container form {
+        width: 90%; /* Use most of the screen width */
+    }
+
+    .plan-name-container input {
+        font-size: 0.8rem; /* Further reduce font size */
+    }
+}
+
+
+
+
+
 
 
 

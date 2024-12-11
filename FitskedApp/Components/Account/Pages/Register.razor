@@ -19,15 +19,15 @@
 
 <div class="d-flex justify-content-center mt-5">
     <div class="text-center">
-        <h3 class="poppins-bold text-dark-red">Registering is simple. We’ve got you!</h3>
+        <h3 class="poppins-bold text-dark-red">Registering is simple.</h3>
         <p class="poppins-medium text-dark-red">
-            An email and password is all it takes to allow the algorithm to uniquely identify you and your workouts!
+            An email and password is all it takes to allow us to identify you and your workouts.
         </p>
     </div>
 </div>
 
 <div class="d-flex justify-content-center">
-    <section class="border border-4 border-warning shadow m-5 rounded-div p-4">
+    <section class="border border-4 border-warning shadow me-5 ms-5 mb-5 rounded-div p-4">
         <StatusMessage Message="@Message" />
 
         <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">

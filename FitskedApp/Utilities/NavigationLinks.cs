@@ -8,7 +8,7 @@ namespace FitskedApp.Utilities
     public class NavigationLinks
     {
         private readonly NavigationManager navigationManager;
-        private readonly IJSRuntime jsRuntime;
+        private readonly IJSRuntime jsRuntime ;
 
         public NavigationLinks(NavigationManager navigationManager, IJSRuntime jsRuntime)
         {
@@ -36,11 +36,11 @@ namespace FitskedApp.Utilities
             navigationManager.NavigateTo("Account/Login");
         }
 
-        public async Task GoToNavigationLink(string url)
+        public async Task GoToNavigationLink(string? url)
         {
             try
             {
-                await jsRuntime.InvokeAsync<object>("open", url, "_blank");
+                await jsRuntime.InvokeVoidAsync("open", url, "_blank");
             }
             catch(NavigationException e) 
             {

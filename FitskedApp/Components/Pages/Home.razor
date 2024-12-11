@@ -10,38 +10,39 @@
 
 <div class="d-flex justify-content-center" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="row">
-        <div class="d-flex justify-content-center align-items-center pt-5 mt-5">
-            <img src="fitsked-logo1.png" alt="Logo" class="main-page-logo me-3" />
+        <div class="d-flex justify-content-center align-items-center pt-5 mt-2">
+            <img src="originalsnippetlogo.png" alt="Logo" class="main-page-logo me-3" />
         </div>
-
-        <h2 class="poppins-bold text-center mb-4 text-black">your move.</h2>
 
         <AuthorizeView>
             <Authorized>
                 <div class="d-flex justify-content-center">
+                    <div class="text-center px-4 mt-4">
+                        <h3 class="poppins-medium">
+                            <strong>Designed by <em>real trainers</em>, powered by <em>you</em>.</strong>
+                        </h3>
+                    </div>
+                </div>
+
+
+                <div class="d-flex justify-content-center">
                     <div class="d-flex flex-column align-items-center">
-                        <a class="text-black text-decoration-none p-3 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium" href="/user-plans">
+                        <a class="text-black text-decoration-none p-3 rounded-pill bg-white border border-danger border-3 w-100 m-4 text-center main-button poppins-medium" href="/user-plans">
                             My Plans
                         </a>
-                        @* <a class="text-black text-decoration-none p-3 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium" href="/add-plan">
-                            Add New Plan
-                        </a> *@
                     </div>
                 </div>
             </Authorized>
             <NotAuthorized>
                 <div class="d-flex justify-content-center">
-                    <div class="text-center">
-                        <p class="poppins-medium text-black">
-                            Welcome to Fitsked, short for "fitness schedule"—a personalized workout app designed by personal trainers!
-                            Our algorithm ensures you never repeat the same workout within a given week, empowering you to move freely and confidently in all aspects of life!
-                        </p>
+                    <div class="text-center px-4 mt-4">
+                        <h3 class="poppins-medium"><em>“fit-sked”</em>—short for <strong>fitness schedule</strong>. </h3>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-center">
                     <div class="d-flex flex-column align-items-center">
-                        <a class="text-black text-decoration-none p-3 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium" href="Account/Register">
+                        <a class="text-black text-decoration-none p-3 rounded-pill bg-white border border-danger border-3 w-100 m-4 text-center main-button poppins-medium" href="Account/Register">
                             I'm a newbie
                         </a>
                         <a class="text-black text-decoration-none p-3 rounded-pill bg-white border border-danger border-3 w-100 m-2 text-center main-button poppins-medium" href="Account/Login">
@@ -53,6 +54,8 @@
         </AuthorizeView>
     </nav>
 </div>
+
+
 
 @code {
     private string? currentUrl;

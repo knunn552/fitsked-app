@@ -21,20 +21,28 @@
 
 <PageTitle> Add Plan </PageTitle>
 
-    <div class="@((displayDayViewWorkout ? "blurred" : ""))">
-        <div class="d-flex justify-content-center">
-            <form>
-                <div class="col-12 mb-3">
-                    <label class="text-black mt-2 pt-2 d-flex justify-content-center poppins-medium" for="PlanName">Plan Name</label>
-                <input class="form-control mt-1 w-100 rounded-pill inner-input-shadow border-3 border border-warning" type="text" id="PlanName" @bind="plan.Name" />
-                </div>
-            </form>
-        </div>
+    <div class="@((IsDayViewWorkoutDisplayed ? "blurred" : ""))">
+    <div class="plan-name-container d-flex justify-content-center align-items-center">
+        <form>
+            <div class="col-12 mb-3">
+                <label class="text-black mt-2 pt-2 d-flex justify-content-center poppins-medium" for="PlanName">Plan Name</label>
+                <input class="form-control mt-1 w-100 rounded-pill inner-input-shadow border-3 border border-warning"
+                       type="text" id="PlanName" @bind="plan.Name" />
+            </div>
+        </form>
+    </div>
 
-        <div class="row border-4 rounded-div border border-warning p-3 bg-white w-auto mb-2  body-box-shadow">
+    @if (IsBlankPlanErrorDisplayed)
+    {
+        <div class="d-flex justify-content-center">
+            <p class="alert-danger"> Give your plan some identity—add a name! </p>
+        </div>
+    }
+
+    <div class="row border-4 rounded-div border border-warning p-3 bg-white w-auto mb-2  inner-input-shadow">
             @foreach (var day in daysOfWeek)
             {
-                <div class="col text-center mt-2 mb-2 m-lg-2 day-card rounded-div mr-1 rounded-div border border-3 border-danger ps-2 pe-2" @onclick="() => { if (!displayDayViewWorkout) UserSelectsDay(day);}">
+                <div class="col text-center mt-2 mb-2 m-lg-2 day-card rounded-div mr-1 rounded-div border border-3 border-danger ps-2 pe-2" @onclick="() => { if (!IsDayViewWorkoutDisplayed) UserSelectsDay(day);}">
                     <h5 class="mt-2 poppins-medium"> @day </h5>
                 <hr />
                     <div class="pt-1">
@@ -73,7 +81,7 @@
     </div>
 
     <div class="d-flex justify-content-center mt-3">
-        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) AddNewPlan();}"> Save This Plan </button>
+        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!IsDayViewWorkoutDisplayed) AddNewPlan();}"> Save This Plan </button>
     </div>
 
     @* The below div should only come up when a user tries to save an incomplete plan. It should just be readily visible at the start. *@
@@ -87,14 +95,9 @@
     </div> *@
     
 
-    @if(displayBlankPlanError)
-    {
-        <div class="d-flex justify-content-center mt-3">
-            <p class="alert-warning"> Give your plan some identity—add a name! </p>
-        </div>
-    }
+    
 
-    @if (displayUnselectedWorkoutDays)
+    @if (AreUnselectedWorkoutDaysDisplayed)
     {
         
         @foreach(var day in ListStoringUnclickedDays)
@@ -106,7 +109,7 @@
     }
 </div>
 
-@if(displayDayViewWorkout)
+@if(IsDayViewWorkoutDisplayed)
 {
     <div class="overlay">
         <div class="d-flex justify-content-center">
@@ -120,7 +123,7 @@
                         <DataAnnotationsValidator />
 
                         <div class="d-flex justify-content-center">
-                            @if ((userSelectedWorkoutTypeInDayView == false) && (UserClickCountPerDay[selectedDay] == 0))
+                            @if ((HasUserSelectedWorkoutType == false) && (UserClickCountPerDay[selectedDay] == 0))
                             {
                                 <InputSelect class="rounded-pill bg-white inner-input-shadow mt-2 user-exercise-select-height justify-content-center d-flex w-50 text-center blinking-border"
                                              id="workoutType"
@@ -171,15 +174,32 @@
                                 listOfUserExercisesInSelectedDay.Add(new UserExercise());
                             }
 
-                            <div class="d-flex justify-content-center mb-2">
-                                @if ((userSelectedExerciseTypeInDayView == false) && (UserClickCountPerDay[selectedDay] == 1) && (j == 0))
+                            <div class="d-flex justify-content-center mb-2 gap-2">
+                                @if ((HasUserSelectedExerciseType == false) && (UserClickCountPerDay[selectedDay] == 1) && (j == 0))
                                 {
-                                    @if (userSelectedExerciseInDayViewForVideoIconAppearance == true)
+                                    @if (listOfUserExercisesInSelectedDay[j]?.VideoUrl != null)
                                     {
                                         <a class="text-decoration-none col-1 d-flex justify-content-center align-items-center" @onclick="() => (navLinksManager.GoToNavigationLink(listOfUserExercisesInSelectedDay[j].VideoUrl))">
-                                            <i class="fa-solid fa-video fa-xl"></i>
-                                        </a>
+                        <i class="fa-solid fa-video fa-xl" ></i>
+                        </a>
+
+                                        @* <a href="@listOfUserExercisesInSelectedDay[j].VideoUrl"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           class="text-decoration-none col-1 d-flex justify-content-center align-items-center">
+                                            <i class="fa-solid fa-video fa-lg"></i>
+                                        </a> *@
+
+                                        @* <a class="text-decoration-none col-1 d-flex justify-content-center align-items-center"
+                        @onclick="() => NavManager.NavigateTo(listOfUserExercisesInSelectedDay[j].VideoUrl, true)">
+                        <i class="fa-solid fa-video fa-lg"></i>
+                        </a> *@
                                     }
+                                    else
+                                    {
+                                        
+                                    }
+
 
                                     <InputSelect class="rounded-pill bg-white inner-input-shadow user-exercise-select-height col-3 text-center blinking-border"
                                                  id="exerciseType"
@@ -201,11 +221,23 @@
                                 }
                                 else
                                 {
-                                    @if (userSelectedExerciseInDayViewForVideoIconAppearance == true)
+                                    @if (ShouldDisplayVideoIcon == true)
                                     {
                                         <a class="text-decoration-none col-1 d-flex justify-content-center align-items-center" @onclick="() => (navLinksManager.GoToNavigationLink(listOfUserExercisesInSelectedDay[j].VideoUrl))">
-                                            <i class="fa-solid fa-video fa-lg" ></i>
+                                            <i class="fa-solid fa-video fa-xl" ></i>
                                         </a>
+
+                                        @* <a href="@listOfUserExercisesInSelectedDay[j].VideoUrl"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           class="text-decoration-none col-1 d-flex justify-content-center align-items-center">
+                                            <i class="fa-solid fa-video fa-lg"></i>
+                                        </a> *@
+
+                                        @* <a class="text-decoration-none col-1 d-flex justify-content-center align-items-center"
+                                           @onclick="() => NavManager.NavigateTo(listOfUserExercisesInSelectedDay[j].VideoUrl, true)">
+                                            <i class="fa-solid fa-video fa-lg"></i>
+                                        </a> *@
                                     }
                                     
                                     <InputSelect class="rounded-pill bg-white inner-input-shadow user-exercise-select-height col-3 text-center d-flex align-items-center"
@@ -228,7 +260,7 @@
                                 }
 
 
-                                @if ((userSelectedExerciseInDayView == false) && (UserClickCountPerDay[selectedDay] == 2) && (j == 0))
+                                @if ((HasUserSelectedExercise == false) && (UserClickCountPerDay[selectedDay] == 2) && (j == 0))
                                 {
                                     <InputSelect class="rounded-pill bg-white inner-input-shadow user-exercise-select-height col-4 text-center blinking-border d-flex align-items-center" id="exerciseName" @bind-Value="listOfUserExercisesInSelectedDay[j].Name" @bind-Value:after="() => BindValuesFromDtoToUserExercise(listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Name,listOfExercisesByWorkoutType,selectedDay,j)">
                                         <option value="" disabled selected> -- Exercise -- </option>
@@ -277,10 +309,11 @@
 
                                 @if ((j > 0) && (j == UserExerciseTotalCountPerDay[selectedDay] - 1))
                                 {
-                                    <button class="end-0 user-exercise-select-height col-1 bg-white border border-0" style="color:darkred"
+                                    <button class="end-0 user-exercise-select-height col-1 bg-white border border-0 trash-button"
                                             @onclick="() => ThingsToDoOnClickRemove(selectedDay, j, listOfUserExercisesInSelectedDay[j].Name, listOfUserExercisesInSelectedDay[j])">
                                         <i class="fa-solid fa-trash-can fa-xl"></i>
                                     </button>
+
                                 }
                                 else
                                 {
@@ -314,15 +347,15 @@
     private UserExercise userExercise = new();
     public WorkoutType workoutType = new();
 
-    private bool displayDayViewWorkout = false;
-    private bool displayUnselectedWorkoutDays = false;
-    private bool displayBlankPlanError = false;
-    private bool userHasEnteredPlanName = false;
-    private bool userSelectedWorkoutTypeInDayView = false;
-    private bool userSelectedExerciseTypeInDayView = true;
-    private bool userSelectedExerciseInDayView = true;
-    private bool userSelectedExerciseInDayViewForVideoIconAppearance = false;
-    private bool userHasMadeInitalWorkoutTypeSelection = false;
+    private bool IsDayViewWorkoutDisplayed = false;
+    private bool AreUnselectedWorkoutDaysDisplayed = false;
+    private bool IsBlankPlanErrorDisplayed = false;
+    private bool HasUserEnteredPlanName = false;
+    private bool HasUserSelectedWorkoutType = false;
+    private bool HasUserSelectedExerciseType = true;
+    private bool HasUserSelectedExercise = true;
+    private bool ShouldDisplayVideoIcon = false;
+    private bool HasUserMadeInitalWorkoutTypeSelection = false;
     private string selectedDay = string.Empty;
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
     private List<int> ListOfSets = ListOfNumberHelper.GenerateListOfNumbers(1, 10, 1);
@@ -352,7 +385,7 @@
         // TODO: Fix this. Entirety of logic will most likely need to be redone.
         { WorkoutType.UpperBodyStrength, new Dictionary<ExerciseType, List<ExerciseDTO>>
             {
-                { ExerciseType.Core, new List<ExerciseDTO>() },
+                { ExerciseType.Primary, new List<ExerciseDTO>() },
                 { ExerciseType.Secondary, new List<ExerciseDTO>() },
                 { ExerciseType.Accessory, new List<ExerciseDTO>() },
                 { ExerciseType.FillerValue, new List<ExerciseDTO>()}
@@ -360,7 +393,7 @@
         },
         { WorkoutType.LowerBodyStrength, new Dictionary<ExerciseType, List<ExerciseDTO>>
             {
-                { ExerciseType.Core, new List<ExerciseDTO>() },
+                { ExerciseType.Primary, new List<ExerciseDTO>() },
                 { ExerciseType.Secondary, new List<ExerciseDTO>() },
                 { ExerciseType.Accessory, new List<ExerciseDTO>() },
                 { ExerciseType.FillerValue, new List<ExerciseDTO>()}
@@ -368,7 +401,7 @@
         },
         { WorkoutType.FillerValue, new Dictionary<ExerciseType, List<ExerciseDTO>>
             {
-                { ExerciseType.Core, new List<ExerciseDTO>() },
+                { ExerciseType.Primary, new List<ExerciseDTO>() },
                 { ExerciseType.Secondary, new List<ExerciseDTO>() },
                 { ExerciseType.Accessory, new List<ExerciseDTO>() },
                 { ExerciseType.FillerValue, new List<ExerciseDTO>()}
@@ -384,7 +417,7 @@
     private static readonly Dictionary<ExerciseType, string> StringValuesForExerciseType = new()
     {
         {ExerciseType.FillerValue, " -- Exercise Type -- "},
-        {ExerciseType.Core, "Core"},
+        {ExerciseType.Primary, "Primary"},
         {ExerciseType.Secondary, "Secondary"},
         {ExerciseType.Accessory, "Accessory"}
     };
@@ -476,7 +509,7 @@
         }
         listOfUserExercisesInSelectedDay = ListOfUserExercisePerDay[day];
         UpdateSelectableExerciseListForEachUserExercise(DictionaryStoringFilteredExercises, listOfUserExercisesInSelectedDay,day);
-        displayDayViewWorkout = true;
+        IsDayViewWorkoutDisplayed = true;
         ListStoringUnclickedDays.RemoveAll(e => e.Equals(selectedDay));
         StateHasChanged();
     }
@@ -499,18 +532,18 @@
                 };
 
             workoutListForCurrentPlan.Insert(dayIndex, userWorkout);
-            displayDayViewWorkout = false;
-            userSelectedWorkoutTypeInDayView = false;
-            userSelectedExerciseTypeInDayView = true;
-            userSelectedExerciseInDayView = true;
+            IsDayViewWorkoutDisplayed = false;
+            HasUserSelectedWorkoutType = false;
+            HasUserSelectedExerciseType = true;
+            HasUserSelectedExercise = true;
             StateHasChanged();
         }
     }
 
     public void FilterExercisesByWorkoutTypeAsync(string day, WorkoutType workoutType)
     {
-        userSelectedWorkoutTypeInDayView = true;
-        userSelectedExerciseTypeInDayView = false;
+        HasUserSelectedWorkoutType = true;
+        HasUserSelectedExerciseType = false;
 
         if (UserClickCountPerDay[day] < 3)
         {
@@ -758,10 +791,11 @@
     private async Task AddNewPlan()
     {
         CheckIfPlanNameHasValue(plan);
-        if(userHasEnteredPlanName)
+        if(HasUserEnteredPlanName)
         {
             if(ListStoringUnclickedDays.Count == 0)
             {
+                IsBlankPlanErrorDisplayed = false;
                 var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
                 var user = authState.User;
 
@@ -793,12 +827,13 @@
             }
             else
             {
-                displayUnselectedWorkoutDays = true;
+                IsBlankPlanErrorDisplayed = false;
+                AreUnselectedWorkoutDaysDisplayed = true;
             }
         }
         else
         {
-            displayBlankPlanError = true;
+            IsBlankPlanErrorDisplayed = true;
             CheckIfUserHasCreatedWorkoutForEveryDay(ListStoringUnclickedDays);
         }
     }
@@ -806,14 +841,14 @@
     {
         if(plan.Name != null)
         {
-            userHasEnteredPlanName = true;
+            HasUserEnteredPlanName = true;
         }
     }
     public void CheckIfUserHasCreatedWorkoutForEveryDay(List<string> selectedDays)
     {
         if(selectedDays.Count != 0)
         {
-            displayUnselectedWorkoutDays = true;
+            AreUnselectedWorkoutDaysDisplayed = true;
         }
     }
     private void AddAdditionalExerciseToWorkout(string day)
@@ -872,8 +907,8 @@
     }
     public void BindValuesFromDtoToUserExercise(UserExercise userExercise, string name, List<ExerciseDTO> listOfExercisesToFilterOn,string day, int j)
     {
-        userSelectedExerciseInDayView = true;
-        userSelectedExerciseInDayViewForVideoIconAppearance = true;
+        HasUserSelectedExercise = true;
+        ShouldDisplayVideoIcon = true;
 
         if (UserClickCountPerDay[day] < 3)
         {
@@ -893,8 +928,8 @@
     } 
     public async Task ChangeExercisePoolBasedOnExerciseType(int index, string day)
     {
-        userSelectedExerciseTypeInDayView = true;
-        userSelectedExerciseInDayView = false;
+        HasUserSelectedExerciseType = true;
+        HasUserSelectedExercise = false;
         if (UserClickCountPerDay[day] < 3)
         {
             UserClickCountPerDay[day]++;

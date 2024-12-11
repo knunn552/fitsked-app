@@ -3,23 +3,27 @@
 @implements IDisposable
 
 <div class="page">
-    @* <div class="sidebar">
-        <NavMenu />
-    </div> *@
-
     <main>
-        <div class="px-4 gradient-header d-flex">
+        <div class="px-4 gradient-header d-flex align-items-center header-container">
             <div class="d-flex justify-content-center align-items-center">
-                <a href="/">
-                    <img src="fitsked-logo.png" alt="Logo" class="header-logo me-3" />
+                <!-- Default logo for larger screens -->
+                <a href="/" class="logo-large">
+                    <img src="zoomed-in-transparent-logo.png" alt="Logo" class="header-logo me-3" />
                 </a>
-                
+                <!-- Smaller logo for smaller screens -->
+                <a href="/" class="logo-small">
+                    <img src="originalsnippetlogo.png" alt="Icon Logo" class="header-logo-small me-3" />
+                </a>
             </div>
 
             <AuthorizeView>
                 <Authorized>
                     <div class="d-flex ms-auto align-items-center">
-                        <span class="bi bi-person-fill-nav-menu me-2" aria-hidden="true"> Welcome, </span> @context.User.Identity?.Name!
+                        <!-- Welcome message for larger screens -->
+                        <span class="welcome-message d-none d-md-inline me-2">
+                            Welcome, @context.User.Identity?.Name!
+                        </span>
+                        <!-- Logout button -->
                         <form action="Account/Logout" method="post" class="ms-3">
                             <AntiforgeryToken />
                             <input type="hidden" name="ReturnUrl" value="@currentUrl" />
@@ -29,17 +33,6 @@
                         </form>
                     </div>
                 </Authorized>
-                <NotAuthorized>
-                    @* <div class="d-flex ms-auto">
-                            <a class="text-black text-decoration-none p-2 rounded-pill bg-white border border-danger border-3 w-100 me-2 text-center main-button poppins-medium" href="Account/Register">
-                                <span class=" text-black" aria-hidden="true"></span> Register
-                            </a>
-                        
-                            <a class="text-black text-decoration-none p-2 rounded-pill bg-white border border-danger border-3 w-100 me-2 text-center main-button poppins-medium" href="Account/Login">
-                                <span class="text-black" aria-hidden="true"></span> Login
-                            </a>
-                    </div> *@
-                </NotAuthorized>
             </AuthorizeView>
         </div>
 
@@ -48,6 +41,7 @@
         </article>
     </main>
 </div>
+
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.

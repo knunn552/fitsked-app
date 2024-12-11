@@ -33,6 +33,7 @@ builder.Services.AddScoped<IFilteredExercisesManager, FilteredExercisesManager>(
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserPlanRepository, UserPlanRepository>();
 builder.Services.AddScoped<IUserService,IdentityUserService>();
+builder.Services.AddScoped<IUIFunctionality, UIFunctionality>();
 builder.Services.AddScoped<NavigationLinks>();
 
 

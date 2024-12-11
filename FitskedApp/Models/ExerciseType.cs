@@ -3,7 +3,7 @@
     public enum ExerciseType
     {
         FillerValue,
-        Core,
+        Primary,
         Secondary,
         Accessory
     }

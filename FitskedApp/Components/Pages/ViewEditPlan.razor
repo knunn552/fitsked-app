@@ -20,18 +20,18 @@
 
 <PageTitle> Edit Plan </PageTitle>
 
-    <div class="@((displayDayViewWorkout ? "blurred" : ""))">
-        <div class="d-flex justify-content-center">
+    <div class="@((IsDayViewWorkoutDisplayed ? "blurred" : ""))">
+        @* <div class="d-flex justify-content-center">
         <h1 class="poppins-bold text-primary pt-1 fs-1 text-black"> @PlanName</h1>
-        </div>
+        </div> *@
 
-    <div class="row border-4 rounded-div border border-warning p-3 bg-white w-auto mb-2 inner-input-shadow">
+    <div class="row border-4 rounded-div border border-warning p-3 bg-white w-auto mb-2 inner-input-shadow mt-5">
         @foreach (var day in daysOfWeek)
         {
             if (ListOfUserExercisePerDay.TryGetValue(day, out var exercises))
             {
                 <div class="col text-center mt-2 mb-2 m-lg-2 day-card rounded-div mr-1 rounded-div border border-3 border-danger ps-2 pe-2"
-                     @onclick="() => { if (!displayDayViewWorkout) UserSelectsDay(day); }">
+                     @onclick="() => { if (!IsDayViewWorkoutDisplayed) UserSelectsDay(day); }">
                     <h5 class="mt-2 poppins-medium"> @day </h5>
                     <hr />
                     <div class="pt-1">
@@ -71,20 +71,25 @@
         }
     </div>
 
+    <div>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!IsDayViewWorkoutDisplayed) UpdatePlanAsync();}"> Save Changes </button>
+        </div>
+    </div>
+    <div>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="navLinksManager.GoToAddPlanPage"> My Plans </button>
+        </div>
+    </div>
 
     <div>
         <div class="d-flex justify-content-center mt-3">
             <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="navLinksManager.GoToAddPlanPage"> Add New Plan </button>
         </div>
     </div>
-    <div>
-        <div class="d-flex justify-content-center mt-3">
-        <button class="rounded-pill w-25 mb-2 poppins-medium border border-3 border-danger bg-white p-2 main-button" @onclick="() => { if (!displayDayViewWorkout) UpdatePlanAsync();}"> Save This Plan </button>
-        </div>
-    </div>
     </div>
 
-@if(displayDayViewWorkout)
+@if(IsDayViewWorkoutDisplayed)
 {
     <div class="overlay">
         <div class="d-flex justify-content-center">
@@ -150,7 +155,7 @@
                                 listOfUserExercisesInSelectedDay.Add(new UserExercise());
                             }
 
-                            <div class="d-flex justify-content-center mb-2">
+                            <div class="d-flex justify-content-center mb-2 gap-2">
 
                                 <a class="text-decoration-none col-1 d-flex justify-content-center align-items-center mt-2" @onclick="() => (navLinksManager.GoToNavigationLink(listOfUserExercisesInSelectedDay[j].VideoUrl))">
                                     <i class="fa-solid fa-video fa-xl"></i>
@@ -174,7 +179,11 @@
                                     <option value="" disabled selected> -- Select Exercise -- </option>
                                     @foreach (var exercise in listOfUserExercisesInSelectedDay[j].FilteredExercises)
                                     {
-                                        <option value="@exercise.Name">@exercise.Name</option>
+                                        @if(exercise != null)
+                                        {
+                                            <option value="@exercise.Name">@exercise.Name</option>
+                                        }
+                                        
                                     }
                                 </InputSelect>
 
@@ -204,7 +213,7 @@
 
                                 @if ((j > 0) && (j == UserExerciseTotalCountPerDay[selectedDay] - 1))
                                 {
-                                    <button class="end-0 user-exercise-select-height col-1 bg-white border border-0 mt-2" style="color:darkred"
+                                    <button class="end-0 user-exercise-select-height col-1 bg-white border border-0 mt-2 trash-button" style="color:darkred"
                                             @onclick="() => ThingsToDoOnClickRemove(selectedDay, j, listOfUserExercisesInSelectedDay[j].Name, listOfUserExercisesInSelectedDay[j],listOfUserExercisesInSelectedDay[j].Id)">
                                         <i class="fa-solid fa-trash-can fa-xl"></i>
                                     </button>
@@ -237,6 +246,8 @@
 }
 
 @code {
+
+
     [Parameter]
     public string PlanName { get; set; }
     [Parameter]
@@ -247,15 +258,13 @@
     public WorkoutType workoutType = new();
 
 
-    private bool displayDayViewWorkout = false;
-    private bool displayUnselectedWorkoutDays = false;
-    private bool displayBlankPlanError = false;
-    private bool userHasEnteredPlanName = false;
-    // private bool userSelectedWorkoutTypeInDayView = false;
-    private bool userSelectedExerciseTypeInDayView = true;
-    private bool userSelectedExerciseInDayView = true;
+    private bool IsDayViewWorkoutDisplayed = false;
+    private bool AreUnselectedWorkoutDaysDisplayed = false;
+    private bool IsBlankPlanErrorDisplayed = false;
+    private bool HasUserEnteredPlanName = false;
+    private bool HasUserSelectedExerciseType = true;
+    private bool HasUserSelectedExercise = true;
     private string selectedDay = string.Empty;
-
 
     private string[] daysOfWeek = new string[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 
@@ -289,7 +298,7 @@
     private static readonly Dictionary<ExerciseType, string> StringValuesForExerciseType = new()
     {
         {ExerciseType.FillerValue, " -- Exercise Type -- "},
-        {ExerciseType.Core, "Core"},
+        {ExerciseType.Primary, "Primary"},
         {ExerciseType.Secondary, "Secondary"},
         {ExerciseType.Accessory, "Accessory"}
     };
@@ -329,7 +338,7 @@
         // TODO: Fix this. Entirety of logic will most likely need to be redone.
         { WorkoutType.UpperBodyStrength, new Dictionary<ExerciseType, List<ExerciseDTO>>
             {
-                { ExerciseType.Core, new List<ExerciseDTO>() },
+                { ExerciseType.Primary, new List<ExerciseDTO>() },
                 { ExerciseType.Secondary, new List<ExerciseDTO>() },
                 { ExerciseType.Accessory, new List<ExerciseDTO>() },
                 { ExerciseType.FillerValue, new List<ExerciseDTO>()}
@@ -337,7 +346,7 @@
         },
         { WorkoutType.LowerBodyStrength, new Dictionary<ExerciseType, List<ExerciseDTO>>
             {
-                { ExerciseType.Core, new List<ExerciseDTO>() },
+                { ExerciseType.Primary, new List<ExerciseDTO>() },
                 { ExerciseType.Secondary, new List<ExerciseDTO>() },
                 { ExerciseType.Accessory, new List<ExerciseDTO>() },
                 { ExerciseType.FillerValue, new List<ExerciseDTO>()}
@@ -345,7 +354,7 @@
         },
         { WorkoutType.FillerValue, new Dictionary<ExerciseType, List<ExerciseDTO>>
             {
-                { ExerciseType.Core, new List<ExerciseDTO>() },
+                { ExerciseType.Primary, new List<ExerciseDTO>() },
                 { ExerciseType.Secondary, new List<ExerciseDTO>() },
                 { ExerciseType.Accessory, new List<ExerciseDTO>() },
                 { ExerciseType.FillerValue, new List<ExerciseDTO>()}
@@ -408,7 +417,7 @@
         FilterExercisesByWorkoutTypeAsync(day, workoutTypePerDay[day]); 
         PutCurrentExerciseInFilteredList(day);
         userExercise.WorkoutType = workoutTypePerDay[day];
-        displayDayViewWorkout = true;
+        IsDayViewWorkoutDisplayed = true;
         StateHasChanged();
     }
     public void PutSelectedExercisesInFilteredBin(Dictionary<string, List<UserExercise>> listOfUserExercisePerDay, string selectedDay, int j)
@@ -467,12 +476,12 @@
                 };
 
             workoutListForCurrentPlan.Insert(dayIndex, userWorkout);
-            displayDayViewWorkout = false;
+            IsDayViewWorkoutDisplayed = false;
         }
     }
     public void FilterExercisesByWorkoutTypeAsync(string day, WorkoutType workoutType)
     {
-        userSelectedExerciseTypeInDayView = false;
+        HasUserSelectedExerciseType = false;
 
         workoutTypePerDay[day] = workoutType;
         listOfExercisesByWorkoutType = exerciseService.GetExerciseListBasedOnWorkoutType(userExercise.WorkoutType, fullListOfExerciseDTO);
@@ -814,7 +823,7 @@
     }
     public void BindValuesFromDTOToUserExercise(UserExercise userExercise,string name,List<ExerciseDTO> listOfExercisesToFilterOn,string day,int j)
     {
-        userSelectedExerciseInDayView = true;
+        HasUserSelectedExercise = true;
 
         if (UserClickCountPerDay[day] < 3)
         {
