@@ -54,6 +54,9 @@ The application’s data model consists of three main tables: `Plans`, `UserWork
 ## **Run Migrations and Update Database**
  - dotnet ef database update
 
+## **Running the app**
+ - Run in **Debug** mode
+
 
 
 
