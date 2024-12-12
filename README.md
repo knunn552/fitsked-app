@@ -22,30 +22,39 @@ The application’s data model consists of three main tables: `Plans`, `UserWork
 - **Database**: SQL Server is used for its robustness, scalability, and support for complex queries, essential for a public-facing application.
 - **Backend & API**: A custom .NET API enables dynamic retrieval of exercises based on workout type, enhancing customization options for users.
 
-## Build Steps
+# **Build Instructions**
 
-- Ensure latest version of .NET is installed.
-- Ensure EF Core Nuget packages are updated. 
-- Ensure SQL Server is installed.
-- Install SSMS (Optional, but preffered).
-- Clone this repository.
-- Create your environment variables on your local machine:
-  - AWS_EC2=false
-  - DB_CONNECTION_STRING=Server=<servername>;Database=fitsked;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
-  - EF_MIGRATE=false
-  - API_BASE_URL=http://localhost:5279 (if for some reason this changes, go get the api url configured in the appsettings.json of the exercise-api project)
-- Once SQL Server is correctly setup and Environment Variables have been created:
-  - dotnet ef database update
-  - If all this works, run the project in **Debug** mode.
- 
-- Clone repo with exercise-api: https://github.com/thecodeiackiller/exercise-api
-- Create environment variables on local machine
-  - ASPNETCORE_ENVIRONMENT=Development
-  - API_DB_CONNECTION_STRING=Server=<severname>;Database=exercises-api;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
-  - AWS_EC2=true
-  - EF_MIGRATE=false
-- dotnet ef database update
-- If you able to connect to the api, you can verify with Swagger, Postman, or adding a plan in the app and seeing the list of exercises populate.
+## **Prerequisites**
+1. Install the latest version of **.NET SDK**.
+2. Ensure **EF Core NuGet packages** are updated to the latest versions.
+3. Install **SQL Server** and configure it appropriately.
+4. *(Optional)* Install **SQL Server Management Studio (SSMS)** for database management.
+5. Clone the main application repository:
+   ```bash
+   git clone https://github.com/<your-repo-url>
+
+## **Environment Variables**
+AWS_EC2=false
+DB_CONNECTION_STRING=Server=<servername>;Database=fitsked;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
+EF_MIGRATE=false
+API_BASE_URL=http://localhost:5279
+
+## **Run Migrations and Update Database**
+dotnet ef database update
+
+## **Exercise API Setup**
+git clone https://github.com/thecodeiackiller/exercise-api
+
+## **Environment Variables**
+ASPNETCORE_ENVIRONMENT=Development
+API_DB_CONNECTION_STRING=Server=<servername>;Database=exercises-api;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
+AWS_EC2=false
+EF_MIGRATE=false
+
+## **Run Migrations and Update Database**
+dotnet ef database update
+
+
 
 
 
