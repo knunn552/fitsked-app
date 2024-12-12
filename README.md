@@ -52,7 +52,7 @@ The application’s data model consists of three main tables: `Plans`, `UserWork
  - EF_MIGRATE=false
 
 ## **Run Migrations and Update Database**
-dotnet ef database update
+ - dotnet ef database update
 
 
 
