@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This project is a web application that enables users to build and customize their workout plans. Users can log in, register, and securely access their profiles. Authentication and authorization are managed through ASP.NET Identity, with plans for future integration with Microsoft Intra ID for enhanced security.
+This project is a web application that enables users to build and customize their workout plans. The purpose of this application is to promote variability in workout plans to users can stay engaged throughout the week during their fitness routiens. Users can log in, register, and securely access their profiles. Authentication and authorization are managed through ASP.NET Identity, with plans for future integration with Microsoft Intra ID for enhanced security.
 
 ### Key Features
 
@@ -21,20 +21,13 @@ The application’s data model consists of three main tables: `Plans`, `UserWork
 - **Frontend & Components**: Built with Blazor components, enabling smooth navigation for plan creation, daily customization, and CRUD operations.
 - **Database**: SQL Server is used for its robustness, scalability, and support for complex queries, essential for a public-facing application.
 - **Backend & API**: A custom .NET API enables dynamic retrieval of exercises based on workout type, enhancing customization options for users.
-- **Unit Testing**: Testing is implemented using xUnit and bUnit, ensuring reliability and functionality across components.
-
-## Future Enhancements
-
-- **Microsoft Intra ID Integration**: Improved authorization for enterprise-level users.
-- **Expanded API Features**: Additional API endpoints to support more dynamic exercise filtering and recommendations.
-- **Advanced Analytics**: Integration of analytics to provide insights into workout trends and progress.
 
 ## Getting Started
-
 ### Prerequisites
 
 - [.NET SDK](https://dotnet.microsoft.com/download)
 - SQL Server
-- [Postman](https://www.postman.com/) (for testing API endpoints)
+- SSMS (Optional, but preffered)
+
 
 
