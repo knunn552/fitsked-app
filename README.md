@@ -31,7 +31,7 @@ The application’s data model consists of three main tables: `Plans`, `UserWork
 - Clone this repository.
 - Create your environment variables on your local machine:
   - AWS_EC2=false
-  - DB_CONNECTION_STRING=Server=<your server name>;Database=fitsked;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
+  - DB_CONNECTION_STRING=Server=<servername>;Database=fitsked;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
   - EF_MIGRATE=false
   - API_BASE_URL=http://localhost:5279 (if for some reason this changes, go get the api url configured in the appsettings.json of the exercise-api project)
 - Once SQL Server is correctly setup and Environment Variables have been created:
@@ -41,7 +41,7 @@ The application’s data model consists of three main tables: `Plans`, `UserWork
 - Clone repo with exercise-api: https://github.com/thecodeiackiller/exercise-api
 - Create environment variables on local machine
   - ASPNETCORE_ENVIRONMENT=Development
-  - API_DB_CONNECTION_STRING=Server=<your server name>;Database=exercises-api;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
+  - API_DB_CONNECTION_STRING=Server=<severname>;Database=exercises-api;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
   - AWS_EC2=true
   - EF_MIGRATE=false
 - dotnet ef database update
