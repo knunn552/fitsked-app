@@ -35,7 +35,7 @@ The application’s data model consists of three main tables: `Plans`, `UserWork
 
 ## **Environment Variables**
 - AWS_EC2=false
-- DB_CONNECTION_STRING=Server=<servername>;Database=fitsked;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
+- DB_CONNECTION_STRING=Server=YOUR SERVER NAME;Database=fitsked;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
 - EF_MIGRATE=false
 - API_BASE_URL=http://localhost:5279
 
@@ -47,7 +47,7 @@ The application’s data model consists of three main tables: `Plans`, `UserWork
 
 ## **Environment Variables**
  - ASPNETCORE_ENVIRONMENT=Development
- - API_DB_CONNECTION_STRING=Server=<servername>;Database=exercises-api;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
+ - API_DB_CONNECTION_STRING=Server=YOUR SERVER NAME;Database=exercises-api;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
  - AWS_EC2=false
  - EF_MIGRATE=false
 
