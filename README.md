@@ -24,6 +24,10 @@ The application’s data model consists of three main tables: `Plans`, `UserWork
 
 # **Build Instructions**
 
+## **Public Link:**
+https://fitsked.net
+
+
 ## **Prerequisites**
 1. Install the latest version of **.NET SDK**.
 2. Ensure **EF Core NuGet packages** are updated to the latest versions.
