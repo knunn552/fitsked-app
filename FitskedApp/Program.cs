@@ -13,10 +13,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-if (Environment.GetEnvironmentVariable("AWS_EC2") == "true")
-{
-    builder.WebHost.UseUrls("http://0.0.0.0:8080");
-}
+
 
 
 builder.Services.AddRazorComponents()
@@ -68,20 +65,49 @@ builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
+// Updated migration logic with retry
 using (var scope = app.Services.CreateScope())
 {
     var service = scope.ServiceProvider;
+
     try
     {
-        if (configuration["EF_MIGRATE"] == "true")
+        var efMigrate = Environment.GetEnvironmentVariable("EF_MIGRATE");
+
+        if (!string.IsNullOrEmpty(efMigrate) && efMigrate.ToLower() == "true")
         {
-            Console.WriteLine("Applying migrations...");
+            Console.WriteLine("EF_MIGRATE is set to true. Applying migrations...");
             var context = service.GetRequiredService<ApplicationDbContext>();
-            await context.Database.MigrateAsync();
+
+            const int maxRetryCount = 5;
+            const int delayMilliseconds = 5000;
+            int retryCount = 0;
+
+            while (retryCount < maxRetryCount)
+            {
+                try
+                {
+                    await context.Database.MigrateAsync();
+                    Console.WriteLine("Migrations applied successfully.");
+                    break; // Exit the retry loop if successful
+                }
+                catch (Exception ex)
+                {
+                    retryCount++;
+                    Console.WriteLine($"Migration attempt {retryCount} failed: {ex.Message}");
+                    if (retryCount == maxRetryCount)
+                    {
+                        Console.WriteLine("Max retry attempts reached. Migration failed.");
+                        throw; // Re-throw the exception to stop the app from running
+                    }
+                    Console.WriteLine($"Retrying in {delayMilliseconds / 1000} seconds...");
+                    await Task.Delay(delayMilliseconds);
+                }
+            }
         }
         else
         {
-            Console.WriteLine("EF Migration skipped.");
+            Console.WriteLine("EF_MIGRATE is not set to true. Skipping migrations.");
         }
     }
     catch (Exception ex)
@@ -89,6 +115,7 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"Error applying migrations: {ex.Message}");
     }
 }
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
