@@ -1,6 +1,6 @@
 
 # Custom Workout Plan Application
-
+- Making a slight change to the README.md to see if image in DockerHub repo gets updated on push to GitHub
 ## Project Overview
 
 This project is a web application that enables users to build and customize their workout plans. The purpose of this application is to promote variability in workout plans to users can stay engaged throughout the week during their fitness routiens. Users can log in, register, and securely access their profiles. Authentication and authorization are managed through ASP.NET Identity, with plans for future integration with Microsoft Intra ID for enhanced security.
