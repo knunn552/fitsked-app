@@ -1,0 +1,38 @@
+name: Deploy Image
+
+on:
+  workflow_run:
+    workflows: ["Build & Push Docker Image"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Log Current Docker Status
+        run: |
+          sudo docker ps -a
+          sudo docker images
+
+      - name: Pull Latest Docker Image
+        run: sudo docker pull thecodeiackiller/exercise-api-app:${{ github.sha }}
+
+      - name: Stop and Remove Existing Container
+        run: |
+          docker ps -aq --filter "name=exercise-api-app-container" | xargs -r docker stop
+          docker ps -aq --filter "name=exercise-api-app-container" | xargs -r docker rm
+
+      - name: Remove Old Images
+        run: |
+          docker images -q --filter "dangling=true" | xargs -r docker rmi
+
+      - name: Run Updated Container
+        run: sudo docker run -d -p 8080:8080 --name exercise-api-app-container thecodeiackiller/exercise-api-app:${{ github.sha }}
+
+      - name: Verify Container is Running
+        run: |
+          if ! sudo docker ps | grep exercise-api-app-container; then
+            echo "Deployment failed: Container not running" && exit 1;
+          fi
