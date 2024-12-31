@@ -17,7 +17,7 @@ jobs:
           sudo docker images
 
       - name: Pull Latest Docker Image
-        run: sudo docker pull thecodeiackiller/exercise-api-app:${{ github.sha }}
+        run: sudo docker pull thecodeiackiller/exercise-api-app
 
       - name: Stop and Remove Existing Container
         run: |
@@ -29,7 +29,7 @@ jobs:
           docker images -q --filter "dangling=true" | xargs -r docker rmi
 
       - name: Run Updated Container
-        run: sudo docker run -d -p 8080:8080 --name exercise-api-app-container thecodeiackiller/exercise-api-app:${{ github.sha }}
+        run: sudo docker run -d -p 8080:8080 --name exercise-api-app-container thecodeiackiller/exercise-api-app
 
       - name: Verify Container is Running
         run: |
