@@ -18,7 +18,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ vars.DOCKER_USERNAME }}/exericse-api-app
+          images: ${{ vars.DOCKER_USERNAME }}/exercise-api-app
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
