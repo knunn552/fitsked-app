@@ -46,3 +46,4 @@ jobs:
       #       echo "Deployment failed: Container not running" && exit 1;
       #     fi
       # Adding comment so that I can push from a change.
+      # Checking to see if the correct image updates in docker hub on push.
