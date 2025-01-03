@@ -5,27 +5,33 @@ on:
     branches: [ "main" ]
 
 jobs:
-  
   build:
-    
     runs-on: ubuntu-latest
-    
     steps:
-    # Checkout out is essentially just allowing the action to see the codebase that it will act upon 
+      # Checkout the codebase
       - name: Checkout
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
-      - name: Login Dockerhub
+      # Log in to Docker Hub
+      - name: Login Docker Hub
         env:
-          DOCKER_USERNAME=${{ vars.DOCKER_USERNAME }}
-          DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
-        run: docker login -u DOCKER_USERNAME -p DOCKER_PASSWORD
+          DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
+      # Build the Docker image
       - name: Build the Docker Image
         run: docker build -t exercise-api-app .
+
+      # Push the Docker image to Docker Hub
       - name: Push to Docker Hub
         run: docker push thecodeiackiller/exercise-api-app:latest
 
+
+      
+      
+      
+      
       # By default, metadata-action uses metadata such as branch names like main as the tags for a repository listed below.
       # - name: Extract Docker image metadata
       #   id: meta
