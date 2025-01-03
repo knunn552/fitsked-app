@@ -21,11 +21,12 @@ jobs:
 
       # Build the Docker image
       - name: Build the Docker Image
-        run: docker build -t exercise-api-app .
+        run: docker build -t thecodeiackiller/exercise-api-app:latest .
 
       # Push the Docker image to Docker Hub
       - name: Push to Docker Hub
         run: docker push thecodeiackiller/exercise-api-app:latest
+
 
 
       
