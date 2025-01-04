@@ -13,7 +13,14 @@ jobs:
     steps:
       # Pull the latest Docker image from Docker Hub
       - name: Pull Latest Docker Image
-        run: sudo docker pull thecodeiackiller/exercise-api-app
+        run: sudo docker pull thecodeiackiller/exercise-api-app:latest
+
+      # Get SHA Digest of the Latest Image
+      - name: Get Image Digest
+        id: get-digest
+        run: |
+          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' thecodeiackiller/exercise-api-app:latest | cut -d '@' -f 2)
+          echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
 
       # Stop and Remove Old ECS Containers
       - name: Stop and Remove Old Containers
@@ -23,12 +30,13 @@ jobs:
           docker ps -aq --filter "name=blazor_app_container" | xargs -r docker stop
           docker ps -aq --filter "name=blazor_app_container" | xargs -r docker rm
 
-      # Run the updated container
+      # Run the updated container with the correct digest
       - name: Run Updated Docker Container
         run: |
           sudo docker run -d -p 8080:8080 \
             --name blazor_app_container \
-            thecodeiackiller/exercise-api-app
+            thecodeiackiller/exercise-api-app@$IMAGE_DIGEST
+
 
       # - name: Log Current Docker Status
       #   run: |
