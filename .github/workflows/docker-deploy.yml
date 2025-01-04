@@ -28,7 +28,7 @@ jobs:
         run: |
           sudo docker run -d -p 8080:8080 \
             --name blazor_app_container \
-            thecodeiackiller/exercise-api-app:latest
+            thecodeiackiller/exercise-api-app
 
       # - name: Log Current Docker Status
       #   run: |
