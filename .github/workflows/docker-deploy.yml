@@ -22,6 +22,12 @@ jobs:
           IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' thecodeiackiller/exercise-api-app:latest | cut -d '@' -f 2)
           echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
 
+      # Remove old images
+      - name: Remove Old Images
+        run: |
+          # Find and remove all images except the latest digest
+          docker images --format '{{.ID}} {{.Repository}}@{{.Digest}}' | grep -v "$IMAGE_DIGEST" | awk '{print $1}' | xargs -r docker rmi -f
+
       # Stop and Remove Old ECS Containers
       - name: Stop and Remove Old Containers
         run: |
@@ -36,6 +42,7 @@ jobs:
           sudo docker run -d -p 8080:8080 \
             --name blazor_app_container \
             thecodeiackiller/exercise-api-app@$IMAGE_DIGEST
+
 
 
       # - name: Log Current Docker Status
