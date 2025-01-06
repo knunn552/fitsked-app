@@ -55,7 +55,7 @@ jobs:
     
     - name: Check if Task Definition Accessible
       run: cat ${{ env.ECS_TASK_DEFINITION }}
-      
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with: # Could've used env here 
@@ -85,6 +85,9 @@ jobs:
         container-name: ${{ env.CONTAINER_NAME }}
         image: ${{ steps.build-image.outputs.image }}
 
+    - name: Debug rendered task definition
+      run: cat ${{ steps.task-def.outputs.task-definition }}
+      
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
@@ -94,6 +97,5 @@ jobs:
         wait-for-service-stability: true
         force-new-deployment: true # We are forcing a new redeployment here as if we were forcing it through the aws cli.
 
-    - name: Debug rendered task definition
-      run: cat ${{ steps.task-def.outputs.task-definition }}
+ 
 
