@@ -37,7 +37,7 @@ env:
   ECS_CLUSTER: ecr_cluster                 # set this to your Amazon ECS cluster name
   ECS_TASK_DEFINITION: task-definition.json # set this to the path to your Amazon ECS task definition
                                                # file, e.g. .aws/task-definition.json
-  CONTAINER_NAME: blazor_app_container           # set this to the name of the container in the
+  CONTAINER_NAME: blazor_app_container          # set this to the name of the container in the
                                                # containerDefinitions section of your task definition
 
 permissions:
@@ -52,10 +52,13 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-
+    
+    - name: Check if Task Definition Accessible
+      run: cat ${{ env.ECS_TASK_DEFINITION }}
+      
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
-      with:
+      with: # Could've used env here 
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
@@ -70,16 +73,13 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        # Build a docker container and
-        # push it to ECR so that it can
-        # be deployed to ECS.
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      uses: aws-actions/amazon-ecs-render-task-definition@v1 # So this is supposed to update the task definition. Why isn't it doing so? 
       with:
         task-definition: ${{ env.ECS_TASK_DEFINITION }}
         container-name: ${{ env.CONTAINER_NAME }}
@@ -92,5 +92,8 @@ jobs:
         service: ${{ env.ECS_SERVICE }}
         cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
-        force-new-deployment: true
+        force-new-deployment: true # We are forcing a new redeployment here as if we were forcing it through the aws cli.
+
+    - name: Debug rendered task definition
+      run: cat ${{ steps.task-def.outputs.task-definition }}
 
