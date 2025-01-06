@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "blazor_app_container",
-            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:latest",
+            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app",
             "cpu": 717,
             "memory": 307,
             "memoryReservation": 256,
