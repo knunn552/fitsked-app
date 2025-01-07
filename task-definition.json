@@ -3,8 +3,8 @@
     "containerDefinitions": [
         {
             "name": "blazor_app_container",
-            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app",
-            "cpu": 717,
+            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:7bd4fddea0934cf8241a2202f0dab9c62a7cac52",
+            "cpu": 256,
             "memory": 307,
             "memoryReservation": 256,
             "portMappings": [
@@ -57,7 +57,7 @@
         {
             "name": "sqlserver",
             "image": "mcr.microsoft.com/mssql/server:2022-latest",
-            "cpu": 1024,
+            "cpu": 512,
             "memory": 1024,
             "memoryReservation": 1020,
             "portMappings": [
@@ -104,7 +104,7 @@
         {
             "name": "exercise-api",
             "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-api:latest",
-            "cpu": 307,
+            "cpu": 154,
             "memory": 205,
             "memoryReservation": 154,
             "portMappings": [
@@ -147,7 +147,7 @@
     "requiresCompatibilities": [
         "EC2"
     ],
-    "cpu": "2048",
+    "cpu": "922",
     "memory": "1536",
     "runtimePlatform": {
         "cpuArchitecture": "X86_64",
