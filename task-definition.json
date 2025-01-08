@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "blazor_app_container",
-            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:7bd4fddea0934cf8241a2202f0dab9c62a7cac52",
+            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:5f9eaa49ff7c49b4750654c6c2f925a98c7c9f7c",
             "cpu": 256,
             "memory": 307,
             "memoryReservation": 256,
@@ -23,7 +23,7 @@
                 },
                 {
                     "name": "DB_CONNECTION_STRING",
-                    "value": "Server=localhost;Database=fitsked;User Id=sa;Password=Sportlife#32#sqlserver#32#;Encrypt=False;TrustServerCertificate=true;MultipleActiveResultSets=true"
+                    "value": "Server=localhost;Database=fitsked;User Id=sa;Password=$DB_PASSWORD;Encrypt=False;TrustServerCertificate=true;MultipleActiveResultSets=true"
                 },
                 {
                     "name": "AWS_EC2",
@@ -40,6 +40,12 @@
             ],
             "mountPoints": [],
             "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "DB_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-1:448049819404:secret:sql_server_db_pass-PYQrFI"
+                }
+            ],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
@@ -49,8 +55,7 @@
                     "max-buffer-size": "25m",
                     "awslogs-region": "us-east-1",
                     "awslogs-stream-prefix": "ecs"
-                },
-                "secretOptions": []
+                }
             },
             "systemControls": []
         },
@@ -71,10 +76,6 @@
             "essential": true,
             "environment": [
                 {
-                    "name": "MSSQL_SA_PASSWORD",
-                    "value": "Sportlife#32#sqlserver#32#"
-                },
-                {
                     "name": "MSSQL_PID",
                     "value": "Developer"
                 },
@@ -89,10 +90,16 @@
             ],
             "mountPoints": [],
             "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "MSSQL_SA_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-1:448049819404:secret:sql_server_db_pass-PYQrFI"
+                }
+            ],
             "healthCheck": {
                 "command": [
                     "CMD-SHELL",
-                    "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'Sportlife#32#sqlserver#32#' -Q \"SELECT 1\" || exit 1"
+                    "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\" || exit 1"
                 ],
                 "interval": 30,
                 "timeout": 5,
@@ -131,11 +138,17 @@
                 },
                 {
                     "name": "API_DB_CONNECTION_STRING",
-                    "value": "Server=localhost;Database=exercises-api;User Id=sa;Password=Sportlife#32#sqlserver#32#;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true"
+                    "value": "Server=localhost;Database=exercises-api;User Id=sa;Password=$DB_PASSWORD;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true"
                 }
             ],
             "mountPoints": [],
             "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "DB_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-1:448049819404:secret:sql_server_db_pass-PYQrFI"
+                }
+            ],
             "systemControls": []
         }
     ],
