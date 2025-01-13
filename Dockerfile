@@ -28,8 +28,12 @@ COPY --from=publish /app/publish .
 # Add the startup script
 COPY ./scripts/startup-app.sh /usr/local/bin/startup-app.sh
 
-COPY ./scripts/startup-app.sh /usr/local/bin/startup-app.sh
-# RUN chmod +x /usr/local/bin/startup-app.sh
+# Giving app user owndershiop over the script file and directory
+RUN chown app:app /usr/local/bin/startup-app.sh
+
+# We are simply ALLOWING the script to be executed here. By who? We have to specify the permission on ownership with chown
+RUN chmod +x /usr/local/bin/startup-app.sh
 
 # Use the startup script as the entry point
-ENTRYPOINT ["sh", "-c", "sudo /usr/local/bin/startup-app.sh"]
+# We originally had "sh" and "-c" but took that out as they might behave unpredictably. I wonder if this was causing the error in the first place.
+ENTRYPOINT ["/usr/local/bin/startup-app.sh"]
