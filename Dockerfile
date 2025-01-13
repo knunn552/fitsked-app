@@ -28,8 +28,8 @@ COPY --from=publish /app/publish .
 # Add the startup script
 COPY ./scripts/startup-app.sh /usr/local/bin/startup-app.sh
 
-COPY --chown=root:root ./scripts/startup-app.sh /usr/local/bin/startup-app.sh
-RUN chmod +x /usr/local/bin/startup-app.sh
+COPY ./scripts/startup-app.sh /usr/local/bin/startup-app.sh
+# RUN chmod +x /usr/local/bin/startup-app.sh
 
 # Use the startup script as the entry point
-ENTRYPOINT ["sh", "-c", "/usr/local/bin/startup-app.sh"]
+ENTRYPOINT ["sh", "-c", "sudo /usr/local/bin/startup-app.sh"]
