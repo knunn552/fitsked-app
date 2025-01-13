@@ -28,6 +28,6 @@ COPY --from=publish /app/publish .
 # Add the startup script
 COPY ./scripts/startup-app.sh /usr/local/bin/startup-app.sh
 
-RUN chmod +x /usr/local/bin/startup-app.sh
+# RUN chmod +x /usr/local/bin/startup-app.sh
 # Use the startup script as the entry point
 ENTRYPOINT ["sh", "-c", "/usr/local/bin/startup-app.sh"]
