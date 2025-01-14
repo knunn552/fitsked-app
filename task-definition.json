@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "blazor_app_container",
-            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:db5831e032d5baca5fd277a3ef7a68d09f30087f",
+            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:5f682a709987d68e729d22ecc8b92ca1ed7bce71",
             "cpu": 256,
             "memory": 307,
             "memoryReservation": 256,
@@ -55,8 +55,7 @@
                     "max-buffer-size": "25m",
                     "awslogs-region": "us-east-1",
                     "awslogs-stream-prefix": "ecs"
-                },
-                "secretOptions": []
+                }
             },
             "systemControls": []
         },
@@ -89,7 +88,12 @@
                     "value": "1433"
                 }
             ],
-            "mountPoints": [],
+            "mountPoints": [
+                {
+                    "sourceVolume": "sql_server",
+                    "containerPath": "/var/opt/sql"
+                }
+            ],
             "volumesFrom": [],
             "secrets": [
                 {
