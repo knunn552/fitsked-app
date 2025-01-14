@@ -1,6 +1,6 @@
 # Base runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER app
+USER root
 WORKDIR /app
 EXPOSE 8080
 
@@ -29,11 +29,15 @@ COPY --from=publish /app/publish .
 # COPY ./scripts/startup-app.sh /usr/local/bin/startup-app.sh
 COPY ./scripts/startup-app.sh /app/startup-app.sh
 
+# Adding a debugging step to view the permissions before trying to change the permissions. Because we might not even need to do that. 
+RUN ls -l /app/startup-app.sh
+
 # Giving app user owndershiop over the script file and directory
 # RUN chown app:app /usr/local/bin/startup-app.sh
 
 # We are simply ALLOWING the script to be executed here. By who? We have to specify the permission on ownership with chown
 # RUN chmod +x /usr/local/bin/startup-app.sh
+RUN chmod +x /app/startup-app.sh
 
 # Use the startup script as the entry point
 # We originally had "sh" and "-c" but took that out as they might behave unpredictably. I wonder if this was causing the error in the first place.
