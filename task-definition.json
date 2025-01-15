@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "blazor_app_container",
-            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:5f682a709987d68e729d22ecc8b92ca1ed7bce71",
+            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:e9140f17615c54cc25cab1ed285d76893f730d24",
             "cpu": 256,
             "memory": 307,
             "memoryReservation": 256,
@@ -91,7 +91,7 @@
             "mountPoints": [
                 {
                     "sourceVolume": "sql_server",
-                    "containerPath": "/var/opt/sql"
+                    "containerPath": "/var/opt/mssql"
                 }
             ],
             "volumesFrom": [],
