@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "blazor_app_container",
-            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:e9140f17615c54cc25cab1ed285d76893f730d24",
+            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:aaa13a64595dfad53b21f6c04513c35f31aac580",
             "cpu": 256,
             "memory": 307,
             "memoryReservation": 256,
@@ -38,7 +38,12 @@
                     "value": "false"
                 }
             ],
-            "mountPoints": [],
+            "mountPoints": [
+                {
+                    "sourceVolume": "sql_server",
+                    "containerPath": "/root/.aspnet/DataProtection-Keys"
+                }
+            ],
             "volumesFrom": [],
             "secrets": [
                 {
@@ -169,5 +174,6 @@
     "runtimePlatform": {
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
-    }
+    },
+    "enableFaultInjection": false
 }
