@@ -159,5 +159,3 @@ app.MapGet("/", () =>
 
 app.Run();
 
-app.Run();
-
