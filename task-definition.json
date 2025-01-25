@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "blazor_app_container",
-            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:61e32ce45e1c59c8d77915d366e2879ac7178bd9",
+            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:aaa13a64595dfad53b21f6c04513c35f31aac580",
             "cpu": 256,
             "memory": 307,
             "memoryReservation": 256,
@@ -36,12 +36,6 @@
                 {
                     "name": "EF_MIGRATE",
                     "value": "true"
-                }
-            ],
-            "mountPoints": [
-                {
-                    "sourceVolume": "sql_server",
-                    "containerPath": "/root/.aspnet/DataProtection-Keys"
                 }
             ],
             "volumesFrom": [],
@@ -93,12 +87,7 @@
                     "value": "1433"
                 }
             ],
-            "mountPoints": [
-                {
-                    "sourceVolume": "sql_server",
-                    "containerPath": "/var/opt/mssql"
-                }
-            ],
+            
             "volumesFrom": [],
             "secrets": [
                 {
@@ -155,16 +144,7 @@
     "taskRoleArn": "arn:aws:iam::448049819404:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::448049819404:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "volumes": [
-        {
-            "name": "sql_server",
-            "dockerVolumeConfiguration": {
-                "scope": "shared",
-                "autoprovision": true,
-                "driver": "local"
-            }
-        }
-    ],
+    
     "placementConstraints": [],
     "requiresCompatibilities": [
         "EC2"
