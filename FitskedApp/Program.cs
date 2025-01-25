@@ -142,20 +142,20 @@ app.MapRazorComponents<App>()
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
-app.MapGet("/", () =>
-{
-    var isHealthy = true; // Replace with actual condition if needed
-    if (isHealthy)
-    {
-        Console.WriteLine("Service is healthy.");
-        return Results.Ok("Service is running.");
-    }
-    else
-    {
-        Console.WriteLine("Service is not healthy.");
-        return Results.StatusCode(500); // Or any other appropriate status code
-    }
-});
+//app.MapGet("/", () =>
+//{
+//    var isHealthy = true; // Replace with actual condition if needed
+//    if (isHealthy)
+//    {
+//        Console.WriteLine("Service is healthy.");
+//        return Results.Ok("Service is running.");
+//    }
+//    else
+//    {
+//        Console.WriteLine("Service is not healthy.");
+//        return Results.StatusCode(500); // Or any other appropriate status code
+//    }
+//});
 
 app.Run();
 
