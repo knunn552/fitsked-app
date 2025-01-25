@@ -41,7 +41,7 @@ env:
                                                # containerDefinitions section of your task definition
 
 permissions:
-  contents: read
+  contents: read # This just tells us the permissions we have on reading GitHub contents. Nothing to do with why application is shutting down I don't think.
 
 jobs:
   deploy:
