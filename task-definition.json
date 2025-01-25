@@ -38,12 +38,6 @@
                     "value": "true"
                 }
             ],
-            "mountPoints": [
-                {
-                    "sourceVolume": "sql_server",
-                    "containerPath": "/root/.aspnet/DataProtection-Keys"
-                }
-            ],
             "volumesFrom": [],
             "secrets": [
                 {
