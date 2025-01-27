@@ -6,7 +6,7 @@
             "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:aaa13a64595dfad53b21f6c04513c35f31aac580",
             "cpu": 256,
             "memory": 385,
-            "memoryReservation": 325,
+            "memoryReservation": 150,
             "portMappings": [
                 {
                     "name": "blazor_app_container-8080-tcp",
