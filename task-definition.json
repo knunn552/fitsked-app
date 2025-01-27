@@ -35,13 +35,7 @@
                 },
                 {
                     "name": "EF_MIGRATE",
-                    "value": "false"
-                }
-            ],
-            "mountPoints": [
-                {
-                    "sourceVolume": "sql_server",
-                    "containerPath": "/root/.aspnet/DataProtection-Keys"
+                    "value": "true"
                 }
             ],
             "volumesFrom": [],
@@ -91,12 +85,6 @@
                 {
                     "name": "MSSQL_TCP_PORT",
                     "value": "1433"
-                }
-            ],
-            "mountPoints": [
-                {
-                    "sourceVolume": "sql_server",
-                    "containerPath": "/var/opt/mssql"
                 }
             ],
             "volumesFrom": [],
@@ -155,16 +143,6 @@
     "taskRoleArn": "arn:aws:iam::448049819404:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::448049819404:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "volumes": [
-        {
-            "name": "sql_server",
-            "dockerVolumeConfiguration": {
-                "scope": "shared",
-                "autoprovision": true,
-                "driver": "local"
-            }
-        }
-    ],
     "placementConstraints": [],
     "requiresCompatibilities": [
         "EC2"
