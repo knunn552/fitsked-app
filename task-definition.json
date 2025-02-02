@@ -87,6 +87,12 @@
                     "value": "1433"
                 }
             ],
+            "mountPoints": [
+                {
+                    "sourceVolume": "sql_server",
+                    "containerPath": "/var/opt/mssql"
+                }
+            ],
             "volumesFrom": [],
             "secrets": [
                 {
@@ -143,6 +149,16 @@
     "taskRoleArn": "arn:aws:iam::448049819404:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::448049819404:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
+    "volumes": [
+        {
+            "name": "sql_server",
+            "dockerVolumeConfiguration": {
+                "scope": "shared",
+                "autoprovision": true,
+                "driver": "local"
+            }
+        }
+    ],
     "placementConstraints": [],
     "requiresCompatibilities": [
         "EC2"
