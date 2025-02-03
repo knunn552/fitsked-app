@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "blazor_app_container",
-            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:aaa13a64595dfad53b21f6c04513c35f31aac580",
+            "image": "448049819404.dkr.ecr.us-east-1.amazonaws.com/thecodeiackiller/exercise-api-app:092115cf9ced7a26f736765cc43aebe57103832e",
             "cpu": 256,
             "memory": 385,
             "memoryReservation": 150,
@@ -38,6 +38,7 @@
                     "value": "true"
                 }
             ],
+            "mountPoints": [],
             "volumesFrom": [],
             "secrets": [
                 {
