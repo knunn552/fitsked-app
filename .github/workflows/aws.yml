@@ -33,10 +33,9 @@ on:
 env:
   AWS_REGION: us-east-1                   # set this to your preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: thecodeiackiller/exercise-api-app           # set this to your Amazon ECR repository name
-  ECS_SERVICE: timely_service                 # set this to your Amazon ECS service name
+  ECS_SERVICE: hellbent_service                 # set this to your Amazon ECS service name
   ECS_CLUSTER: timely_cluster           # set this to your Amazon ECS cluster name
   ECS_TASK_DEFINITION: task-definition.json # set this to the path to your Amazon ECS task definition
-                                               # file, e.g. .aws/task-definition.json
   CONTAINER_NAME: blazor_app_container          # set this to the name of the container in the
                                                # containerDefinitions section of your task definition
 
@@ -79,7 +78,7 @@ jobs:
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@v1 # So this is supposed to update the task definition. Why isn't it doing so? 
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: ${{ env.ECS_TASK_DEFINITION }}
         container-name: ${{ env.CONTAINER_NAME }}
@@ -87,21 +86,22 @@ jobs:
 
     - name: Debug rendered task definition
       run: cat ${{ steps.task-def.outputs.task-definition }}
+
+    - name: Kill current task definition
+      run: |
+        PREVIOUS_TASK_ID=$(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE | jq -r '.taskArns[0]' | cut -d'/' -f3)
+        aws ecs stop-task --cluster $ECS_CLUSTER --task $PREVIOUS_TASK_ID
+
       
-    # - name: Deploy Amazon ECS task definition
-    #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-    #   with:
-    #     task-definition: ${{ steps.task-def.outputs.task-definition }}
-    #     service: ${{ env.ECS_SERVICE }}
-    #     cluster: ${{ env.ECS_CLUSTER }}
-    #     wait-for-service-stability: true
-    #     force-new-deployment: true 
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
+        force-new-deployment: true 
 
-    # So commenting out the above section doesn't deploy the task def at all so we need to do that manually
-
-        # Above, I believe were using a rolling deployment. 
-        # So before executing Deploy Amazon ECS task definition, we might need to stop the current task and then deploy.
-        # This could be because both containers are trying to write to the same file 
 
  
 
