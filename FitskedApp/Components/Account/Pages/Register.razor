@@ -108,7 +108,7 @@
 
         if (UserManager.Options.SignIn.RequireConfirmedAccount)
         {
-            Console.WriteLine("RequireConfirmedAccount must have been true. Did you use a laptop to login?");
+            Logger.LogInformation("RequireConfirmedAccount must have been true. Did you use a laptop to login?");
             RedirectManager.RedirectTo(
                 "Account/RegisterConfirmation",
                 new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
@@ -116,7 +116,7 @@
         }
         else
         {
-            Console.WriteLine("RequireConfirmedAccount must have been false. Did you just try to register with iPhone?");
+            Logger.LogInformation("RequireConfirmedAccount must have been false. Did you just try to register with iPhone?");
         }
 
         await SignInManager.SignInAsync(user, isPersistent: false);
