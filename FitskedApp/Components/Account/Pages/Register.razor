@@ -108,10 +108,11 @@
 
         if (UserManager.Options.SignIn.RequireConfirmedAccount)
         {
+            Console.WriteLine("RequireConfirmedAccount must have been true. Did you use a laptop to login?");
             RedirectManager.RedirectTo(
                 "Account/RegisterConfirmation",
                 new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
-                Console.WriteLine("RequireConfirmedAccount must have been true. Did you use a laptop to login?");
+                
         }
         else
         {
