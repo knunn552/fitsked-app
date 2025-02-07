@@ -6,7 +6,6 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using FitskedApp.Data
-@* @rendermode InteractiveServer *@
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
@@ -112,6 +111,11 @@
             RedirectManager.RedirectTo(
                 "Account/RegisterConfirmation",
                 new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
+                Console.WriteLine("RequireConfirmedAccount must have been true. Did you use a laptop to login?");
+        }
+        else
+        {
+            Console.WriteLine("RequireConfirmedAccount must have been false. Did you just try to register with iPhone?");
         }
 
         await SignInManager.SignInAsync(user, isPersistent: false);
