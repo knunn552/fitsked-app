@@ -2,7 +2,7 @@ name: Run tests for development environment
 
 on:
   pull-request:
-  # Sequence of patterns matched against refs/heads
+  # Sequence of patterns matched against refs/heads. So right now there will need to be a manual pull request and merge from within the develop branch.
     branches: ["develop"]
 
 permissions:
@@ -15,13 +15,43 @@ jobs:
     environment: development
 
     steps:
+      # The checkout is just allowing the workflow to view the contents within the repository
     - name: Checkout
       uses: actions/checkout@v4
-    
-    - name: Linting
-      uses: 
-      #There is no need for a StyleCop CLI tool, it's plugged directly to MSBuild. We are using StyleCop + Resharper + EditorConfig, which catch most of the inconsistencies.
 
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'  # We only need the SDK because were just interacting with the application in the GitHub Actions workflow, not actually running the app
+
+    
+      # Linting and static code analysis
+      # So for linting, we as including:
+      # Editorconfig file - this could be a little difficult because most of the C# code is in the razor components, not an actual C# file
+      # We will use "dotnet format" to automatically fix the errors caught in the editor.
+      # As of Feb 2025, editorconfig is really only working for .cs files. Going to skip linting for this reason right now. Blazor sucks. 
+     
+      # Security and dependency checks.
+      # Need to restore dependencies, basically just making sure were running with a fresh set 
+    - name: Restore Dependencies
+      run: |
+      dotnet restore
+
+    - name: Check for Dependency Vulnerabilities
+      run: dotnet list packages --vulnerable
+
+      # So security scanning would be looking at the actual code that exposes security risks for things like SQL injection, XSS, CSRF, and insecure API endpoints with no rate limiting
+      # Its interesting to note that as .NET evolves, alot of these checks are already in place within different application templates including razor files which are setup to fend off attacks like XSS
+      # Its nice to know that EF Core, like Dapper, comes already integrated with the ability to ward off sql injection attacks.
+
+    - name: Security Scanning
+      run: 
+
+     # We'll pretend like we are building an image for the develop branch here and we have used Trivvy to scan the image.
+     # The actual image is being scanned in the production branch but I'd say its probably best and most efficient to build images and scan them in each branch.
+
+      # Deploy an image tagged as <your-app-name>:develop.This would be deployed to an individual server decidecated for each branch.
+      # We don't have multiple servers dedicated for each branch so we will pretend that we did that and implement that in the future. 
 
 
  
