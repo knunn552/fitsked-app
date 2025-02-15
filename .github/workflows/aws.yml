@@ -66,6 +66,8 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
+      # Right here, we could use Trivvy
+      # Also very useful is using IaC scanning for the dockerfiles which tells us how we could improve the configuration
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
       env:
