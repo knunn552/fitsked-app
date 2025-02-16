@@ -37,7 +37,10 @@ jobs:
       run: dotnet restore
 
     - name: Check for Dependency Vulnerabilities
-      run: dotnet list packages --vulnerable
+      run: dotnet nuget audit
+
+    
+
 
       # So security scanning would be looking at the actual code that exposes security risks for things like SQL injection, XSS, CSRF, and insecure API endpoints with no rate limiting
       # Its interesting to note that as .NET evolves, alot of these checks are already in place within different application templates including razor files which are setup to fend off attacks like XSS
