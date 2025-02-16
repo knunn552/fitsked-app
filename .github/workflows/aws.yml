@@ -1,7 +1,7 @@
 name: Run tests for development environment
 
 on:
-  pull-request:
+  push:
   # Sequence of patterns matched against refs/heads. So right now there will need to be a manual pull request and merge from within the develop branch.
     branches: ["develop"]
 
@@ -44,11 +44,20 @@ jobs:
       # Its interesting to note that as .NET evolves, alot of these checks are already in place within different application templates including razor files which are setup to fend off attacks like XSS
       # Its nice to know that EF Core, like Dapper, comes already integrated with the ability to ward off sql injection attacks.
 
-    - name: Security Scanning
-      run: 
-
      # We'll pretend like we are building an image for the develop branch here and we have used Trivvy to scan the image.
      # The actual image is being scanned in the production branch but I'd say its probably best and most efficient to build images and scan them in each branch.
+     # Right here, we could use Trivvy
+     # Also very useful is using IaC scanning for the dockerfiles which tells us how we could improve the configuration
+
+
+     # Use CodeQL as a simple option. It's evolving but there are better options for SAST, especially for checking SANS top 25 over the OWASP top 10
+    - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: csharp
+
+    - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
 
       # Deploy an image tagged as <your-app-name>:develop.This would be deployed to an individual server decidecated for each branch.
       # We don't have multiple servers dedicated for each branch so we will pretend that we did that and implement that in the future. 
