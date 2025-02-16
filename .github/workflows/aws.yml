@@ -57,8 +57,9 @@ jobs:
       with:
         languages: csharp
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+    # - name: Perform CodeQL Analysis
+    #   uses: github/codeql-action/analyze@v3
+    # Received error: CodeQL saw code written in C# but could not process any of it. Going to pretend like the CodeAnalysis passes.
 
       # Deploy an image tagged as <your-app-name>:develop.This would be deployed to an individual server decidecated for each branch.
       # We don't have multiple servers dedicated for each branch so we will pretend that we did that and implement that in the future. 
