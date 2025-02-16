@@ -36,11 +36,9 @@ jobs:
     - name: Restore Dependencies
       run: dotnet restore
 
-    - name: Check for Dependency Vulnerabilities
-      run: dotnet nuget audit
-
-    
-
+    # - name: Check for Dependency Vulnerabilities
+    #   run: dotnet nuget audit
+    # Note: So the command "dotnet list packages --vulnerable" has been deprecated in .NET 8 and dotnet nuget audit is not yet available, its best to just put the nuget packge scanner directly in the .csproj file per Microsoft Docs
 
       # So security scanning would be looking at the actual code that exposes security risks for things like SQL injection, XSS, CSRF, and insecure API endpoints with no rate limiting
       # Its interesting to note that as .NET evolves, alot of these checks are already in place within different application templates including razor files which are setup to fend off attacks like XSS
