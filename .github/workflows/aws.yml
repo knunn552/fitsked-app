@@ -33,6 +33,7 @@ jobs:
      
       # Security and dependency checks.
       # Need to restore dependencies, basically just making sure were running with a fresh set 
+      # So dotnet restore will check for known security vulnerabilities when the Nuget 
     - name: Restore Dependencies
       run: dotnet restore
 
@@ -52,12 +53,12 @@ jobs:
 
      # Use CodeQL as a simple option. It's evolving but there are better options for SAST, especially for checking SANS top 25 over the OWASP top 10
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: csharp
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
 
       # Deploy an image tagged as <your-app-name>:develop.This would be deployed to an individual server decidecated for each branch.
       # We don't have multiple servers dedicated for each branch so we will pretend that we did that and implement that in the future. 
