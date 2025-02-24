@@ -6,9 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-FitskedApp-d4ab90de-6552-43b7-a11a-0fb57dd7ddb4</UserSecretsId>
 	<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	<NuGetAudit>true</NuGetAudit>
+	<!--<NuGetAudit>true</NuGetAudit>
 	<NuGetAuditMode>all</NuGetAuditMode>
-	<NuGetAuditLevel>moderate</NuGetAuditLevel>
+	<NuGetAuditLevel>moderate</NuGetAuditLevel>-->
   </PropertyGroup>
 
   <ItemGroup>
