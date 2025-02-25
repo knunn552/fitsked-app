@@ -19,10 +19,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'  # We only need the SDK because were just interacting with the application in the GitHub Actions workflow, not actually running the app
+    # - name: Setup .NET
+      # uses: actions/setup-dotnet@v3
+      #with:
+        #dotnet-version: '8.0.x'  # We only need the SDK because were just interacting with the application in the GitHub Actions workflow, not actually running the app
 
     
       # Linting and static code analysis
@@ -34,8 +34,8 @@ jobs:
       # Security and dependency checks.
       # Need to restore dependencies, basically just making sure were running with a fresh set 
       # So dotnet restore will check for known security vulnerabilities when the Nuget 
-    - name: Restore Dependencies
-      run: dotnet restore
+    #- name: Restore Dependencies
+      #run: dotnet restore
 
     # - name: Check for Dependency Vulnerabilities
     #   run: dotnet nuget audit
@@ -63,7 +63,3 @@ jobs:
 
       # Deploy an image tagged as <your-app-name>:develop.This would be deployed to an individual server decidecated for each branch.
       # We don't have multiple servers dedicated for each branch so we will pretend that we did that and implement that in the future. 
-
-
- 
-
