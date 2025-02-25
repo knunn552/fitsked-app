@@ -1,19 +1,23 @@
-
 name: Run tests for development environment
+
 on:
   push: # Sequence of patterns matched against refs/heads. So right now there will need to be a manual pull request and merge from within the develop branch.
     branches: ["develop"]
+
 permissions:
   contents: read # This just tells us the permissions we have on reading GitHub contents. Nothing to do with why application is shutting down I don't think.
+
 jobs:
   deploy:
     name: Deploy to development
     runs-on: ubuntu-latest # Github Actions runs on a linux machine regardless
     environment: development
+
     steps:
       # The checkout is just allowing the workflow to view the contents within the repository
     - name: Checkout
       uses: actions/checkout@v4
+
     # - name: Setup .NET
     #   uses: actions/setup-dotnet@v3
     #   with:
@@ -28,28 +32,33 @@ jobs:
       # Security and dependency checks.
       # Need to restore dependencies, basically just making sure were running with a fresh set 
       # So dotnet restore will check for known security vulnerabilities when the Nuget 
+
     # - name: Restore Dependencies
     #   run: dotnet restore
+
     # - name: Check for Dependency Vulnerabilities
     #   run: dotnet nuget audit
     # Note: So the command "dotnet list packages --vulnerable" has been deprecated in .NET 8 and dotnet nuget audit is not yet available, its best to just put the nuget packge scanner directly in the .csproj file per Microsoft Docs
+
       # So security scanning would be looking at the actual code that exposes security risks for things like SQL injection, XSS, CSRF, and insecure API endpoints with no rate limiting
       # Its interesting to note that as .NET evolves, alot of these checks are already in place within different application templates including razor files which are setup to fend off attacks like XSS
       # Its nice to know that EF Core, like Dapper, comes already integrated with the ability to ward off sql injection attacks.
+
      # We'll pretend like we are building an image for the develop branch here and we have used Trivvy to scan the image.
      # The actual image is being scanned in the production branch but I'd say its probably best and most efficient to build images and scan them in each branch.
      # Right here, we could use Trivvy
      # Also very useful is using IaC scanning for the dockerfiles which tells us how we could improve the configuration
+
 
      # Use CodeQL as a simple option. It's evolving but there are better options for SAST, especially for checking SANS top 25 over the OWASP top 10
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
         languages: csharp
+
     # - name: Perform CodeQL Analysis
     #   uses: github/codeql-action/analyze@v3
     # Received error: CodeQL saw code written in C# but could not process any of it. Going to pretend like the CodeAnalysis passes.
+
       # Deploy an image tagged as <your-app-name>:develop.This would be deployed to an individual server decidecated for each branch.
       # We don't have multiple servers dedicated for each branch so we will pretend that we did that and implement that in the future. 
-
- 
