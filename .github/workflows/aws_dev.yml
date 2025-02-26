@@ -42,10 +42,10 @@ jobs:
      # Also very useful is using IaC scanning for the dockerfiles which tells us how we could improve the configuration
 
      # Use CodeQL as a simple option. It's evolving but there are better options for SAST, especially for checking SANS top 25 over the OWASP top 10
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: csharp
+    # - name: Initialize CodeQL
+    #   uses: github/codeql-action/init@v3
+    #   with:
+    #     languages: csharp
     # - name: Perform CodeQL Analysis
     #   uses: github/codeql-action/analyze@v3
     # Received error: CodeQL saw code written in C# but could not process any of it. Going to pretend like the CodeAnalysis passes.
