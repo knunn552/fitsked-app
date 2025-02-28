@@ -130,6 +130,11 @@ else
     app.UseHsts();
 }
 
+// IMPORTANT: Below needs to be taken out immediately after deployment, just to see if this fixes the binding problem.
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Default to 8080 if PORT is not set
+app.Urls.Add($"http://0.0.0.0:{port}");
+// IMPORTANT
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
@@ -139,7 +144,6 @@ app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(FitskedApp.Client._Imports).Assembly);
 
-//app.MapAdditionalIdentityEndpoints();
-
+app.MapAdditionalIdentityEndpoints();
 app.Run();
 
