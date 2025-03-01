@@ -149,7 +149,7 @@
     ],
     "taskRoleArn": "arn:aws:iam::448049819404:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::448049819404:role/ecsTaskExecutionRole",
-    "networkMode": "host",
+    "networkMode": "awsvpc",
     "volumes": [
         {
             "name": "sql_server",
