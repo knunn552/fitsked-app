@@ -37,6 +37,11 @@ namespace FitskedApp.Components.Account
         {
             var uriWithoutQuery = navigationManager.ToAbsoluteUri(uri).GetLeftPart(UriPartial.Path);
             var newUri = navigationManager.GetUriWithQueryParameters(uriWithoutQuery, queryParameters);
+
+            if(!newUri.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                newUri = "https://" + newUri.Replace("http://", "");
+            }
             RedirectTo(newUri);
         }
 
